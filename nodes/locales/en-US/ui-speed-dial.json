@@ -87,7 +87,7 @@
     "summary": "Input message help",
     "1": "Send a complete action array as <code>msg.payload</code> to replace all actions. An object can update <code>actions</code>, <code>button</code>, <code>menu</code>, and/or <code>theme</code>; supplied button, menu, and theme fields are merged into their current section.",
     "2": "<code>msg.command = \"patch\"</code> applies partial action objects in <code>msg.payload</code> by stable ID. <code>remove</code> removes IDs listed in the payload array. <code>reset</code> restores the editor configuration. Unknown and duplicate IDs are rejected. Typed editor payloads are converted to native string, number, boolean, or JSON values; JSON <code>null</code> is valid, while an absent required payload is invalid.",
-    "3": "For per-client changes, target active sockets with <code>msg._client.socketId</code> and/or <code>msg._client.clientId</code>. Enable this node under Dashboard Client Data / Accepts Client Data first. Client IDs match connected sockets only. A shared update clears client overrides; disconnecting a client discards its override.",
+    "3": "For per-client changes, target active sockets with <code>msg._client.socketId</code> and/or <code>msg._client.clientId</code>. Enable this node under Dashboard Client Data / Accept Client Data first. Client IDs match connected sockets only. A shared update clears client overrides; disconnecting a client discards its override.",
     "4": "Reduced motion is automatic. The menu closes on Escape and outside click. These behaviors are always enabled."
   },
   "ref": {

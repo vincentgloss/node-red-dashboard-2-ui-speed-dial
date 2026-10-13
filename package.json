@@ -1,7 +1,7 @@
 {
   "name": "node-red-dashboard-2-ui-speed-dial",
   "version": "1.0.0",
-  "description": "Dynamic PrimeVue floating action menus for FlowFuse Dashboard",
+  "description": "Floating action button (speed dial) with configurable actions for FlowFuse Dashboard 2.0",
   "license": "MIT",
   "author": "vincentgloss",
   "repository": {
@@ -37,22 +37,15 @@
   ],
   "scripts": {
     "build": "node scripts/assets.cjs && vite build && node scripts/assets.cjs --notices",
-    "test": "node --test test/*.test.cjs",
-    "test:browser": "node test/browser.cjs",
-    "test:integration": "node test/integration.cjs",
-    "prepack": "npm run build",
-    "test:examples": "node test/examples.cjs",
-    "test:i18n": "node test/i18n.cjs"
+    "prepack": "npm run build"
   },
   "peerDependencies": {
     "@flowfuse/node-red-dashboard": ">=1.23.0 <2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "6.0.10",
-    "playwright": "1.64.0",
     "primeicons": "7.0.0",
     "primevue": "4.5.5",
-    "socket.io-client": "4.8.4",
     "vite": "8.3.4",
     "vite-plugin-css-injected-by-js": "5.0.2",
     "vue": "3.5.44"

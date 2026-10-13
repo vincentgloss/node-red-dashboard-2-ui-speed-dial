@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "Speed dial input reference",
     "disabled": false,
-    "info": "One inject + function node per input possibility of ui-speed-dial.\n\nOpen /dashboard/speed-dial-reference, then trigger the inject nodes.\nTip: run \"Reset\" (section 5) at any time to get back to the editor configuration.\nSections 1-5 cover the input protocol, section 6 client targeting, section 7 invalid messages (they must only produce a warning in the debug sidebar and never change the dial).\n\nClient targeting needs the node to be listed under Dashboard > Client Data > Accepts Client Data (already enabled in this flow) and one click on the dial first, so the flow knows your client."
+    "info": "One inject + function node per input possibility of ui-speed-dial.\n\nOpen /dashboard/speed-dial-reference, then trigger the inject nodes.\nTip: run \"Reset\" (section 5) at any time to get back to the editor configuration.\nSections 1-5 cover the input protocol, section 6 client targeting, section 7 invalid messages (they must only produce a warning in the debug sidebar and never change the dial).\n\nClient targeting needs the node to be listed under Dashboard > Client Data > Accept Client Data (already enabled in this flow) and one click on the dial first, so the flow knows your client."
   },
   {
     "id": "sdref0002base",
