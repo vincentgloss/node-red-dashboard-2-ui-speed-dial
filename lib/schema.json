@@ -1,0 +1,338 @@
+{
+  "button": {
+    "icon": {
+      "type": "icon",
+      "default": "pi-plus"
+    },
+    "label": {
+      "type": "string",
+      "default": "",
+      "max": 160
+    },
+    "tooltip": {
+      "type": "string",
+      "default": "Actions",
+      "max": 240
+    },
+    "background": {
+      "type": "color",
+      "default": "#2563eb"
+    },
+    "color": {
+      "type": "color",
+      "default": "#ffffff"
+    },
+    "size": {
+      "type": "number",
+      "default": 56,
+      "min": 11,
+      "max": 96
+    },
+    "radius": {
+      "type": "number",
+      "default": 28,
+      "min": 0,
+      "max": 48
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "position": {
+      "type": "enum",
+      "default": "bottom-right",
+      "values": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center-left",
+        "center",
+        "center-right",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ]
+    },
+    "offsetX": {
+      "type": "number",
+      "default": 24,
+      "min": 0,
+      "max": 500
+    },
+    "offsetY": {
+      "type": "number",
+      "default": 24,
+      "min": 0,
+      "max": 500
+    }
+  },
+  "menu": {
+    "shape": {
+      "type": "enum",
+      "default": "linear",
+      "values": [
+        "linear",
+        "circle",
+        "semi-circle",
+        "quarter-circle"
+      ]
+    },
+    "direction": {
+      "type": "enum",
+      "default": "up",
+      "values": [
+        "up",
+        "down",
+        "left",
+        "right",
+        "up-left",
+        "up-right",
+        "down-left",
+        "down-right"
+      ]
+    },
+    "mode": {
+      "type": "enum",
+      "default": "speed-dial",
+      "values": [
+        "speed-dial",
+        "menu"
+      ]
+    },
+    "gap": {
+      "type": "number",
+      "default": 8,
+      "min": 0,
+      "max": 48
+    },
+    "duration": {
+      "type": "number",
+      "default": 150,
+      "min": 0,
+      "max": 1000
+    },
+    "closeOnSelect": {
+      "type": "boolean",
+      "default": true
+    },
+    "overlay": {
+      "type": "boolean",
+      "default": false
+    },
+    "showLabels": {
+      "type": "boolean",
+      "default": false
+    },
+    "actionSize": {
+      "type": "number",
+      "default": 44,
+      "min": 44,
+      "max": 80
+    },
+    "radius": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 500
+    }
+  },
+  "theme": {
+    "mode": {
+      "type": "enum",
+      "default": "auto",
+      "values": [
+        "light",
+        "dark",
+        "auto"
+      ]
+    },
+    "background": {
+      "type": "color",
+      "default": ""
+    },
+    "color": {
+      "type": "color",
+      "default": ""
+    },
+    "radius": {
+      "type": "number",
+      "default": 12,
+      "min": 0,
+      "max": 40
+    },
+    "shadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "zIndex": {
+      "type": "number",
+      "default": 2000,
+      "min": 1,
+      "max": 10000
+    }
+  },
+  "action": {
+    "id": {
+      "type": "id",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "default": "Action",
+      "max": 160
+    },
+    "icon": {
+      "type": "icon",
+      "default": "pi-circle"
+    },
+    "tooltip": {
+      "type": "string",
+      "default": "",
+      "max": 240
+    },
+    "background": {
+      "type": "color",
+      "default": ""
+    },
+    "color": {
+      "type": "color",
+      "default": ""
+    },
+    "topic": {
+      "type": "string",
+      "max": 240
+    },
+    "payload": {
+      "type": "json",
+      "required": true
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "limits": {
+    "actions": 100,
+    "jsonBytes": 262144,
+    "jsonDepth": 32
+  },
+  "geometry": {
+    "directions": {
+      "linear": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ],
+      "semi-circle": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ],
+      "quarter-circle": [
+        "up-left",
+        "up-right",
+        "down-left",
+        "down-right"
+      ],
+      "circle": []
+    },
+    "corners": {
+      "top-left": {
+        "semi-circle": [
+          "down",
+          "right"
+        ],
+        "quarter-circle": [
+          "down-right"
+        ]
+      },
+      "top-center": {
+        "semi-circle": [
+          "down"
+        ],
+        "quarter-circle": [
+          "down-left",
+          "down-right"
+        ]
+      },
+      "top-right": {
+        "semi-circle": [
+          "down",
+          "left"
+        ],
+        "quarter-circle": [
+          "down-left"
+        ]
+      },
+      "center-left": {
+        "semi-circle": [
+          "right"
+        ],
+        "quarter-circle": [
+          "up-right",
+          "down-right"
+        ]
+      },
+      "center": {
+        "semi-circle": [
+          "up",
+          "down",
+          "left",
+          "right"
+        ],
+        "quarter-circle": [
+          "up-left",
+          "up-right",
+          "down-left",
+          "down-right"
+        ]
+      },
+      "center-right": {
+        "semi-circle": [
+          "left"
+        ],
+        "quarter-circle": [
+          "up-left",
+          "down-left"
+        ]
+      },
+      "bottom-left": {
+        "semi-circle": [
+          "up",
+          "right"
+        ],
+        "quarter-circle": [
+          "up-right"
+        ]
+      },
+      "bottom-center": {
+        "semi-circle": [
+          "up"
+        ],
+        "quarter-circle": [
+          "up-left",
+          "up-right"
+        ]
+      },
+      "bottom-right": {
+        "semi-circle": [
+          "up",
+          "left"
+        ],
+        "quarter-circle": [
+          "up-left"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+<script type="text/html" data-help-name="ui-speed-dial">
+    <p>Adds a floating PrimeVue action button to a Dashboard group, page, or all pages. The node sends one message when a visible, enabled action is selected.</p>
+    <h3>Configuration</h3>
+    <p>Settings are grouped in the tabs <b>General</b>, <b>Button</b>, <b>Menu</b>, <b>Actions</b> and <b>Theme</b>. All labels and tooltips are rendered as plain text; HTML is not interpreted. Invalid values are marked in the editor. Number fields show a reset button (&#8634;) as soon as the value differs from the default.</p>
+    <h4>Node</h4>
+    <ul>
+        <li><b>Name</b>: Name of the node in the editor.</li>
+        <li><b>Scope</b>: <i>Group</i> shows the widget inside one dashboard group, <i>Page</i> shows it floating on one page, <i>All pages</i> shows it on every page. Only the reference field that matches the scope is shown.</li>
+        <li><b>Group / Page / UI base</b>: The group, page or dashboard the widget belongs to.</li>
+        <li><b>Order, Width, Height</b>: Only for scope Group. Position and size of the widget within the group grid (whole numbers; Order at least 0, Width and Height at least 1).</li>
+    </ul>
+    <h4>Button</h4>
+    <ul>
+        <li><b>Icon</b>: A PrimeIcons name including the <code>pi-</code> prefix, e.g. <code>pi-plus</code> or <code>pi-bolt</code>. Empty for no icon. Only icons of the bundled PrimeIcons 7.0.0 are available, see the <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons list</a>.</li>
+        <li><b>Label</b>: Optional text next to the icon, up to 160 characters.</li>
+        <li><b>Tooltip</b>: Hover text and accessible name of the button, up to 240 characters. Default <code>Actions</code>.</li>
+        <li><b>Background / Color</b>: Button and icon color as hex value: <code>#rgb</code>, <code>#rrggbb</code> or <code>#rrggbbaa</code>, e.g. <code>#2563eb</code> (see <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a>). Use the color picker next to the field or type the value; the picker does not support transparency, type an 8 digit value for that. The &times; button clears the field. Color names such as <code>red</code> are not accepted. Empty uses the default.</li>
+        <li><b>Size</b>: Button diameter in px, 11 to 96. Default 56. Very small buttons are hard to hit on touch screens.</li>
+        <li><b>Radius</b>: Corner radius in px, 0 (square) to 48. Default 28.</li>
+        <li><b>Visible / Enabled</b>: Hide the button, or show it but make it unclickable.</li>
+        <li><b>Position</b>: Where the button is anchored: the corners <code>top-left</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-right</code>, the edge centers <code>top-center</code>, <code>bottom-center</code>, <code>center-left</code>, <code>center-right</code>, or <code>center</code>. Centered positions are useful for circle shapes. In scope Group the position refers to the group area, otherwise to the browser window.</li>
+        <li><b>Offset X / Offset Y</b>: Distance to the horizontal / vertical edge in px, 0 to 500. Default 24. Not used (and hidden) on an axis where the button is centered.</li>
+    </ul>
+    <h4>Menu</h4>
+    <ul>
+        <li><b>Mode</b>: <code>speed-dial</code> shows round icon buttons in the chosen shape, <code>menu</code> shows a labelled list (always linear).</li>
+        <li><b>Shape</b> (speed-dial only): <code>linear</code> row, <code>circle</code> (full circle around the button), <code>semi-circle</code> (half circle) or <code>quarter-circle</code> (quarter circle). Circle shapes need free space: a quarter circle fits into a screen corner, a semi circle reaches one radius to both sides of the button (set the offset on that axis to at least the radius) and a full circle needs a radius of space on all sides. If a shape does not fit on screen it is shifted into view. Action labels are not shown in circle shapes, use the tooltip.</li>
+        <li><b>Direction</b>: Where the menu opens. <code>linear</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>. <code>semi-circle</code> and <code>quarter-circle</code>: only directions that point away from the screen corner of the button position are offered (for example bottom-right: semi <code>up</code>/<code>left</code>, quarter <code>up-left</code>; bottom-center: semi <code>up</code>, quarter <code>up-left</code>/<code>up-right</code>; center offers all four; the full table is in the package README). <code>circle</code> has no direction. Linear rows near a screen edge are flipped automatically so they stay visible.</li>
+        <li><b>Radius</b> (circle shapes): Distance of the actions from the button center in px, 0 to 500. <code>0</code> picks the smallest radius at which the actions do not overlap.</li>
+        <li><b>Gap</b>: Space between actions in px, 0 to 48.</li>
+        <li><b>Duration</b>: Animation time in ms, 0 to 1000. With the operating system setting "reduce motion" no animation is played.</li>
+        <li><b>Close on select</b>: Close the menu after an action was chosen.</li>
+        <li><b>Overlay</b>: Dim the page behind the open menu.</li>
+        <li><b>Show labels</b>: Show action labels next to the icons (linear speed-dial only).</li>
+        <li><b>Action size</b>: Diameter of the action buttons in px, 44 to 80.</li>
+    </ul>
+    <h4>Actions</h4>
+    <p>Sortable list with up to 100 entries. Use <b>Add action</b> to append one and drag entries to reorder them. The arrow in front of each entry collapses it to one line (<i>Collapse all</i> / <i>Expand all</i> above the list affect all entries; collapsing is only an editor view and is not saved). The copy button next to the title duplicates an entry directly below it with a new unique id (<code>&lt;id&gt;-copy</code>, <code>&lt;id&gt;-copy-2</code>, ...).</p>
+    <ul>
+        <li><b>Id</b> (required): Unique, stable identifier, 1 to 64 characters: letters, digits, <code>_ . : -</code>, starting with a letter or digit. It is sent as <code>msg.action</code> and used by <code>patch</code> and <code>remove</code>.</li>
+        <li><b>Label</b>: Text of the action, up to 160 characters. Default <code>Action</code>.</li>
+        <li><b>Icon</b>: PrimeIcons name with <code>pi-</code> prefix, e.g. <code>pi-check</code>. See the <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons list</a>.</li>
+        <li><b>Tooltip</b>: Hover text, up to 240 characters.</li>
+        <li><b>Background / Color</b>: Optional individual colors in <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a> as for the button. Empty inherits from the theme.</li>
+        <li><b>Topic</b>: Optional <code>msg.topic</code> of the output, up to 240 characters.</li>
+        <li><b>Payload</b> (required): Value of <code>msg.payload</code>. Choose the type in the selector: <i>string</i>, <i>number</i>, <i>boolean</i> or <i>JSON</i>. JSON accepts objects, arrays and <code>null</code>, e.g. <code>{"name":"evening","brightness":40}</code>.</li>
+        <li><b>Visible / Enabled</b>: Hidden or disabled actions can not be selected and never produce output.</li>
+    </ul>
+    <h4>Theme</h4>
+    <ul>
+        <li><b>Mode</b>: <code>light</code>, <code>dark</code> or <code>auto</code>.</li>
+        <li><b>Background / Color</b>: Menu surface and text color in <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a>. Empty uses the default of the mode.</li>
+        <li><b>Radius</b>: Corner radius of the menu in px, 0 to 40. Default 12.</li>
+        <li><b>Shadow</b>: Drop shadow below button and menu.</li>
+        <li><b>Z index</b>: Stacking order, 1 to 10000. Default 2000. Increase it if other elements cover the widget.</li>
+    </ul>
+    <h3>Input</h3>
+    <p>An input message without a command replaces the actions when <code>msg.payload</code> is an array. An object payload may supply <code>actions</code>, <code>button</code>, <code>menu</code>, and/or <code>theme</code>. The supplied actions array replaces the current actions; supplied fields in each other section merge into that section.</p>
+    <p>Use <code>msg.command = "patch"</code> with an array of partial action objects to update actions by ID. Use <code>remove</code> with an array of IDs to remove actions, or <code>reset</code> to restore the editor configuration. Unknown or duplicate IDs are rejected. The complete accepted input shapes and client-targeting notes are documented in the editor under <b>Input message help</b>.</p>
+    <p>Editor payload types are converted to native string, number, boolean, or JSON values. JSON <code>null</code> is valid; every action must include a payload property.</p>
+    <h3>Output</h3>
+    <p>The selected action sends its native payload, its stable ID in <code>msg.action</code>, and <code>msg.topic</code> when the action has a non-empty topic.</p>
+    <h3>Behavior</h3>
+    <p>Reduced motion is handled automatically. The menu closes on Escape and outside click; these behaviors are always enabled.</p>
+</script>

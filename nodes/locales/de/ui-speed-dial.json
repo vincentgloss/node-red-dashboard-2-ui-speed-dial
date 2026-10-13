@@ -1,0 +1,131 @@
+{
+  "loading": "Speed-Dial-Schema wird geladen…",
+  "label": {
+    "name": "Name",
+    "scope": "Bereich",
+    "group": "Gruppe",
+    "page": "Seite",
+    "ui": "UI-Basis",
+    "order": "Reihenfolge",
+    "width": "Breite",
+    "height": "Höhe"
+  },
+  "scope": {
+    "group": "Gruppe",
+    "page": "Seite",
+    "all": "Alle Seiten"
+  },
+  "tab": {
+    "general": "Allgemein",
+    "button": "Schaltfläche",
+    "menu": "Menü",
+    "actions": "Aktionen",
+    "theme": "Design"
+  },
+  "fieldHelp": "Feldhilfe",
+  "general": {
+    "intro": "Platzierung und Maße werden oben festgelegt. Der Bereich „Gruppe“ nutzt die gewählte Gruppe; „Seite“ und „Alle Seiten“ nutzen das Browserfenster."
+  },
+  "actions": {
+    "note": "Aktionen sind sortierbar. IDs bleiben beim Verschieben stabil und können in patch- und remove-Nachrichten verwendet werden.",
+    "collapseAll": "Alle einklappen",
+    "expandAll": "Alle ausklappen",
+    "add": "Aktion hinzufügen",
+    "collapse": "Aktion einklappen",
+    "expand": "Aktion ausklappen",
+    "duplicate": "Aktion duplizieren",
+    "noLabel": "(ohne Beschriftung)",
+    "hidden": " (versteckt)",
+    "disabled": " (deaktiviert)"
+  },
+  "required": "erforderlich",
+  "reset": {
+    "title": "Auf Standard zurücksetzen",
+    "aria": "Auf Standardwert {{value}} zurücksetzen"
+  },
+  "color": {
+    "pick": "Farbe wählen",
+    "clear": "Farbe löschen",
+    "clearTitle": "Löschen (Standard verwenden)"
+  },
+  "field": {
+    "icon": "Icon",
+    "label": "Beschriftung",
+    "tooltip": "Tooltip",
+    "background": "Hintergrund",
+    "color": "Farbe",
+    "size": "Größe",
+    "radius": "Rundung",
+    "visible": "Sichtbar",
+    "enabled": "Aktiviert",
+    "position": "Position",
+    "offsetX": "Abstand X",
+    "offsetY": "Abstand Y",
+    "direction": "Richtung",
+    "mode": "Modus",
+    "shape": "Form",
+    "gap": "Abstand",
+    "duration": "Dauer",
+    "closeOnSelect": "Nach Auswahl schließen",
+    "overlay": "Overlay",
+    "showLabels": "Beschriftungen zeigen",
+    "actionSize": "Aktionsgröße",
+    "shadow": "Schatten",
+    "zIndex": "Z-Index",
+    "id": "ID",
+    "topic": "Topic",
+    "payload": "Payload"
+  },
+  "hint": {
+    "general": "<ul><li><b>Bereich</b>: Gruppe = innerhalb einer Dashboard-Gruppe, Seite = schwebend auf einer Seite, Alle Seiten = schwebend überall.</li><li><b>Reihenfolge / Breite / Höhe</b>: Platzierung im Raster, nur für Gruppe.</li></ul>",
+    "button": "<ul><li><b>Icon</b>: PrimeIcons-Name mit Präfix <code>pi-</code>, z. B. <code>pi-plus</code> (<a href=\"https://primevue.org/icons/\" target=\"_blank\" rel=\"noopener\">list</a>).</li><li><b>Hintergrund / Farbe</b>: nur Hex (<code>#rgb</code>, <code>#rrggbb</code>, <code>#rrggbbaa</code>), per Farbwähler oder getippt; keine Farbnamen.</li><li><b>Beschriftung / Tooltip</b>: reiner Text, kein HTML.</li><li><b>Größe</b> 11–96 px, <b>Rundung</b> 0–48 px, <b>Abstände</b> 0–500 px.</li></ul>",
+    "menu": "<ul><li><b>Modus</b>: speed-dial = Icon-Buttons, menu = beschriftete Liste (immer linear).</li><li><b>Form</b>: linear, circle, semi-circle, quarter-circle. <b>Richtung</b>: abhängig von Form und Button-Position; lineare Reihen drehen sich am Bildschirmrand automatisch.</li><li><b>Radius</b> 0–500 px (0 = automatisch), nur Kreisformen.</li><li><b>Abstand</b> 0–48 px, <b>Dauer</b> 0–1000 ms, <b>Aktionsgröße</b> 44–80 px.</li></ul>",
+    "actions": "<ul><li><b>ID</b>: eindeutig und stabil, Buchstaben/Ziffern/<code>_ . : -</code>, max. 64 Zeichen; wird als <code>msg.action</code> gesendet.</li><li><b>Icon</b>: <code>pi-…</code>-Name (<a href=\"https://primevue.org/icons/\" target=\"_blank\" rel=\"noopener\">list</a>). <b>Farben</b>: nur Hex.</li><li><b>Payload</b>: String, Zahl, Boolean oder JSON (Objekte, Arrays, <code>null</code>).</li><li><b>Topic</b>: optionales <code>msg.topic</code>. Versteckte oder deaktivierte Aktionen senden nichts.</li></ul>",
+    "theme": "<ul><li><b>Hintergrund / Farbe</b>: nur Hex (<code>#rgb</code>, <code>#rrggbb</code>, <code>#rrggbbaa</code>); leer = Standard des Modus.</li><li><b>Rundung</b> 0–40 px, <b>Z-Index</b> 1–10000.</li></ul>"
+  },
+  "inputHelp": {
+    "summary": "Hilfe zu Eingangsnachrichten",
+    "1": "Ein vollständiges Aktions-Array in <code>msg.payload</code> ersetzt alle Aktionen. Ein Objekt kann <code>actions</code>, <code>button</code>, <code>menu</code> und/oder <code>theme</code> aktualisieren; angegebene Felder von button, menu und theme werden in den jeweiligen Abschnitt eingemischt.",
+    "2": "<code>msg.command = \"patch\"</code> wendet Teilobjekte aus <code>msg.payload</code> anhand der stabilen ID an. <code>remove</code> entfernt die im Payload-Array genannten IDs. <code>reset</code> stellt die Editor-Konfiguration wieder her. Unbekannte und doppelte IDs werden abgewiesen. Typisierte Editor-Payloads werden in native String-, Zahl-, Boolean- oder JSON-Werte umgewandelt; JSON-<code>null</code> ist gültig, ein fehlender Pflicht-Payload nicht.",
+    "3": "Für Änderungen pro Client werden aktive Sockets über <code>msg._client.socketId</code> und/oder <code>msg._client.clientId</code> angesprochen. Dafür muss die Node zuerst unter Dashboard Client Data / Accepts Client Data freigeschaltet werden. Client-IDs treffen nur verbundene Sockets. Ein gemeinsames Update löscht Client-Overrides; beim Trennen eines Clients wird sein Override verworfen.",
+    "4": "Reduzierte Bewegung wird automatisch beachtet. Das Menü schließt bei Escape und Klick außerhalb. Diese Verhalten sind immer aktiv."
+  },
+  "ref": {
+    "group": "Gruppe",
+    "page": "Seite",
+    "ui": "UI-Basis"
+  },
+  "err": {
+    "http": "HTTP {{status}}",
+    "network": "Netzwerkfehler",
+    "schemaIncomplete": "Der Server hat ein unvollständiges Schema geliefert.",
+    "schemaLoad": "ui-speed-dial/schema konnte nicht geladen werden ({{message}}). Editor neu laden, sobald der Zugriff auf das Dashboard wieder besteht.",
+    "unavailable": "Speed-Dial-Editor nicht verfügbar: {{message}}",
+    "required": "{{label}} ist erforderlich.",
+    "needId": "Jede Aktion braucht eine ID.",
+    "maxActions": "Es sind höchstens {{max}} Aktionen erlaubt.",
+    "dupId": "Doppelte Aktions-ID: {{id}}",
+    "payloadSize": "{{label}} überschreitet die maximale JSON-Größe.",
+    "bool": "{{label}} muss true oder false sein.",
+    "number": "{{label}} muss eine gültige Zahl sein.",
+    "json": "{{label}} muss gültiges JSON sein.",
+    "finite": "{{label}} muss eine endliche Zahl sein.",
+    "depth": "{{label}} überschreitet die maximale JSON-Tiefe.",
+    "finiteNumbers": "{{label}} darf nur endliche Zahlen enthalten.",
+    "notJson": "{{label}} ist kein gültiges JSON.",
+    "text": "{{label}} muss Text sein.",
+    "maxChars": "{{label}} überschreitet {{max}} Zeichen.",
+    "min": "{{label}} muss mindestens {{min}} sein.",
+    "max": "{{label}} darf höchstens {{max}} sein.",
+    "onoff": "{{label}} muss ein oder aus sein.",
+    "oneOf": "{{label}} muss einer dieser Werte sein: {{values}}.",
+    "icon": "{{label}} muss leer oder ein PrimeIcons-Name wie pi-plus sein.",
+    "color": "{{label}} muss leer oder eine Hex-Farbe mit 3, 6 oder 8 Ziffern sein.",
+    "idFormat": "{{label}} muss mit einem Buchstaben oder einer Ziffer beginnen und darf höchstens 64 Buchstaben, Ziffern, _, ., : oder - enthalten.",
+    "unsupported": "Nicht unterstützter Schematyp: {{type}}",
+    "scope": "Bitte einen gültigen Bereich wählen.",
+    "selectRef": "Für diesen Bereich muss {{what}} im Dashboard gewählt werden.",
+    "directionShape": "menu.direction {{direction}} ist für die Form {{shape}} nicht gültig.",
+    "configSize": "Die Konfiguration überschreitet die maximale JSON-Größe."
+  }
+}

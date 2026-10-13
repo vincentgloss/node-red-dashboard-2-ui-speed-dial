@@ -1,0 +1,7 @@
+node_modules/
+.test-env*/
+artifacts/
+*.tgz
+test-results/
+*.log
+resources/

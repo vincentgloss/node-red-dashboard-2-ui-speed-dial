@@ -1,0 +1,4879 @@
+[
+  {
+    "id": "sdref0001tab",
+    "type": "tab",
+    "label": "Speed dial input reference",
+    "disabled": false,
+    "info": "One inject + function node per input possibility of ui-speed-dial.\n\nOpen /dashboard/speed-dial-reference, then trigger the inject nodes.\nTip: run \"Reset\" (section 5) at any time to get back to the editor configuration.\nSections 1-5 cover the input protocol, section 6 client targeting, section 7 invalid messages (they must only produce a warning in the debug sidebar and never change the dial).\n\nClient targeting needs the node to be listed under Dashboard > Client Data > Accepts Client Data (already enabled in this flow) and one click on the dial first, so the flow knows your client."
+  },
+  {
+    "id": "sdref0002base",
+    "type": "ui-base",
+    "name": "Speed Dial Reference",
+    "path": "/speed-dial-reference",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-speed-dial"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default"
+  },
+  {
+    "id": "sdref0003theme",
+    "type": "ui-theme",
+    "name": "Speed Dial Reference Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#2563eb",
+      "bgPage": "#f3f4f6",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d1d5db"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "16px",
+      "groupGap": "16px",
+      "groupBorderRadius": "8px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "sdref0004page",
+    "type": "ui-page",
+    "name": "Reference",
+    "ui": "sdref0002base",
+    "path": "/reference",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "sdref0003theme",
+    "order": 1,
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "sdref0005group",
+    "type": "ui-group",
+    "name": "Speed dial reference",
+    "page": "sdref0004page",
+    "width": 6,
+    "height": 2,
+    "order": 1,
+    "showTitle": true,
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sdref0009cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "1 · Replace the action list (msg.payload = array)",
+    "info": "",
+    "x": 220,
+    "y": 70,
+    "wires": []
+  },
+  {
+    "id": "sdref0011inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Three simple actions",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 110,
+    "wires": [
+      [
+        "sdref0012fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0012fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Three simple actions",
+    "func": "// A plain array in msg.payload REPLACES the complete action list.\n// Only \"id\" and \"payload\" are required; everything else gets defaults.\nmsg.payload = [\n    { id: 'one',   label: 'One',   icon: 'pi-check', payload: 'one' },\n    { id: 'two',   label: 'Two',   icon: 'pi-star',  payload: 'two' },\n    { id: 'three', label: 'Three', icon: 'pi-heart', payload: 'three' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 110,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0013inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "All payload types",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 154,
+    "wires": [
+      [
+        "sdref0014fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0014fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "All payload types",
+    "func": "// The output payload keeps its native type.\nmsg.payload = [\n    { id: 't-string',  label: 'String',        icon: 'pi-font',     payload: 'hello' },\n    { id: 't-empty',   label: 'Empty string',  icon: 'pi-minus',    payload: '' },\n    { id: 't-int',     label: 'Number 42',     icon: 'pi-hashtag',  payload: 42 },\n    { id: 't-float',   label: 'Number -3.14',  icon: 'pi-percentage', payload: -3.14 },\n    { id: 't-true',    label: 'Boolean true',  icon: 'pi-check',    payload: true },\n    { id: 't-false',   label: 'Boolean false', icon: 'pi-times',    payload: false },\n    { id: 't-object',  label: 'Object',        icon: 'pi-box',      payload: { name: 'evening', brightness: 40, nested: { on: true } } },\n    { id: 't-array',   label: 'Array',         icon: 'pi-list',     payload: [1, 'two', null, { three: 3 }] },\n    { id: 't-null',    label: 'null',          icon: 'pi-ban',      payload: null }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 154,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0015inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "payload: null is valid",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 198,
+    "wires": [
+      [
+        "sdref0016fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0016fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "payload: null is valid",
+    "func": "// \"payload: null\" is a real value and is sent as null.\n// A MISSING payload field is an error (see section 7).\nmsg.payload = [\n    { id: 'null-ok', label: 'Send null', icon: 'pi-ban', payload: null }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 198,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0017inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Fully specified actions",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 242,
+    "wires": [
+      [
+        "sdref0018fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0018fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Fully specified actions",
+    "func": "// Every action field in use.\nmsg.payload = [\n    {\n        id: 'full-1',\n        label: 'Evening scene',\n        icon: 'pi-moon',\n        tooltip: 'Dim the lights',\n        background: '#1e3a8a',   // #rgb, #rrggbb or #rrggbbaa\n        color: '#ffffff',\n        topic: 'scene',\n        payload: { name: 'evening', brightness: 40 },\n        visible: true,\n        enabled: true\n    },\n    {\n        id: 'full-2',\n        label: 'Morning',\n        icon: 'pi-sun',\n        tooltip: 'Bright and warm',\n        background: '#f59e0b',\n        color: '#000',\n        topic: 'scene',\n        payload: { name: 'morning', brightness: 90 }\n    }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 242,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0019inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Minimal actions (defaults)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 286,
+    "wires": [
+      [
+        "sdref0020fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0020fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Minimal actions (defaults)",
+    "func": "// Missing display values come from the node defaults:\n// label \"Action\", icon \"pi-circle\", tooltip \"\", no colors, visible, enabled.\nmsg.payload = [\n    { id: 'min-1', payload: 1 },\n    { id: 'min-2', payload: 2 }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 286,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0021inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Hidden and disabled actions",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 330,
+    "wires": [
+      [
+        "sdref0022fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0022fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Hidden and disabled actions",
+    "func": "// Hidden or disabled actions never produce output (the runtime checks again on click).\nmsg.payload = [\n    { id: 'shown',    label: 'Shown',    icon: 'pi-eye',     payload: 'shown' },\n    { id: 'disabled', label: 'Disabled', icon: 'pi-lock',    payload: 'never sent', enabled: false },\n    { id: 'hidden',   label: 'Hidden',   icon: 'pi-eye-slash', payload: 'never sent', visible: false }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 330,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0023inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Topics (with / without)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 374,
+    "wires": [
+      [
+        "sdref0024fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0024fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Topics (with / without)",
+    "func": "// msg.topic is only set on the output when the action has a non-empty topic.\nmsg.payload = [\n    { id: 'topic-yes', label: 'With topic',    icon: 'pi-tag', topic: 'my/topic', payload: 'a' },\n    { id: 'topic-no',  label: 'Without topic', icon: 'pi-minus', payload: 'b' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 374,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0025inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Labels are plain text",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 418,
+    "wires": [
+      [
+        "sdref0026fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0026fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Labels are plain text",
+    "func": "// Labels and tooltips are rendered as text, never as HTML.\nmsg.payload = [\n    { id: 'html', label: '<b>bold</b> <img src=x onerror=alert(1)>', tooltip: '<i>tooltip</i>', icon: 'pi-code', payload: 'text only' },\n    { id: 'uni',  label: 'Grüße 🌍 日本語', icon: 'pi-globe', payload: 'unicode ok' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 418,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0027inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Many actions (12, scrollable)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 462,
+    "wires": [
+      [
+        "sdref0028fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0028fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Many actions (12, scrollable)",
+    "func": "msg.payload = Array.from({ length: 12 }, (_, i) => ({\n    id: 'many-' + (i + 1),\n    label: 'Action ' + (i + 1),\n    icon: 'pi-star',\n    payload: i + 1\n}));\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 462,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0029inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Empty list (removes all)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 506,
+    "wires": [
+      [
+        "sdref0030fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0030fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "Empty list (removes all)",
+    "func": "// An empty array is valid and removes every action.\nmsg.payload = [];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 506,
+    "wires": [
+      [
+        "sdref0010lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0010lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0008grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "sdref0008grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "1 · Replace the action list (msg.payload = array)",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0009cmt",
+      "sdref0011inj",
+      "sdref0012fn",
+      "sdref0013inj",
+      "sdref0014fn",
+      "sdref0015inj",
+      "sdref0016fn",
+      "sdref0017inj",
+      "sdref0018fn",
+      "sdref0019inj",
+      "sdref0020fn",
+      "sdref0021inj",
+      "sdref0022fn",
+      "sdref0023inj",
+      "sdref0024fn",
+      "sdref0025inj",
+      "sdref0026fn",
+      "sdref0027inj",
+      "sdref0028fn",
+      "sdref0029inj",
+      "sdref0030fn",
+      "sdref0010lout"
+    ],
+    "x": 34,
+    "y": 40,
+    "w": 860,
+    "h": 520
+  },
+  {
+    "id": "sdref0032cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "2a · Update configuration: button (msg.payload = object)",
+    "info": "",
+    "x": 220,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "sdref0034inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: icon, label, tooltip",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 660,
+    "wires": [
+      [
+        "sdref0035fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0035fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: icon, label, tooltip",
+    "func": "// Only the listed fields change, everything else stays as it is.\nmsg.payload = { button: { icon: 'pi-bolt', label: 'Quick actions', tooltip: 'Open the quick action menu' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 660,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0036inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: colors",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 704,
+    "wires": [
+      [
+        "sdref0037fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0037fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: colors",
+    "func": "// Colors are hex only: #rgb, #rrggbb or #rrggbbaa (alpha). \"red\" would be rejected.\nconst options = [\n    { background: '#dc2626', color: '#ffffff' },\n    { background: '#16a34a', color: '#fff' },\n    { background: '#7c3aed80', color: '#ffffff' }   // 8 digits: with transparency\n];\nconst i = (context.get('i') || 0) % options.length;\ncontext.set('i', i + 1);\nmsg.payload = { button: options[i] };\nnode.status({ text: JSON.stringify(options[i]) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 704,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0038inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: clear label and colors",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 748,
+    "wires": [
+      [
+        "sdref0039fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0039fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: clear label and colors",
+    "func": "// Empty strings clear label/colors (colors fall back to the default).\nmsg.payload = { button: { label: '', background: '', color: '' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 748,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0040inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size 11 (tiny)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 792,
+    "wires": [
+      [
+        "sdref0041fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0041fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size 11 (tiny)",
+    "func": "msg.payload = { button: { size: 11 } };     // 11 to 96, default 56\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 792,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0042inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size 96 (large)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 836,
+    "wires": [
+      [
+        "sdref0043fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0043fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size 96 (large)",
+    "func": "msg.payload = { button: { size: 96 } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 836,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0044inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size back to default",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 880,
+    "wires": [
+      [
+        "sdref0045fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0045fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: size back to default",
+    "func": "msg.payload = { button: { size: 56 } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 880,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0046inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: radius (square/round)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 924,
+    "wires": [
+      [
+        "sdref0047fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0047fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: radius (square/round)",
+    "func": "const radii = [0, 12, 28, 48];              // 0 to 48\nconst i = (context.get('i') || 0) % radii.length;\ncontext.set('i', i + 1);\nmsg.payload = { button: { radius: radii[i] } };\nnode.status({ text: 'radius ' + radii[i] });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 924,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0048inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: hide",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 968,
+    "wires": [
+      [
+        "sdref0049fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0049fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: hide",
+    "func": "msg.payload = { button: { visible: false } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 968,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0050inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: show",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1012,
+    "wires": [
+      [
+        "sdref0051fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0051fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: show",
+    "func": "msg.payload = { button: { visible: true } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1012,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0052inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: disable",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1056,
+    "wires": [
+      [
+        "sdref0053fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0053fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: disable",
+    "func": "// Disabled: still visible, but it can not be opened and no action can fire.\nmsg.payload = { button: { enabled: false } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1056,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0054inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: enable",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1100,
+    "wires": [
+      [
+        "sdref0055fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0055fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: enable",
+    "func": "msg.payload = { button: { enabled: true } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1100,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0056inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: cycle position (9)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1144,
+    "wires": [
+      [
+        "sdref0057fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0057fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: cycle position (9)",
+    "func": "// Every position, one per trigger. Centered axes ignore the offset on that axis.\nconst positions = ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right',\n                   'bottom-left', 'bottom-center', 'bottom-right'];\nconst i = (context.get('i') || 0) % positions.length;\ncontext.set('i', i + 1);\nmsg.payload = { button: { position: positions[i] } };\nnode.status({ text: positions[i] });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1144,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0058inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: offsets",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1188,
+    "wires": [
+      [
+        "sdref0059fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0059fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: offsets",
+    "func": "const options = [{ offsetX: 0, offsetY: 0 }, { offsetX: 24, offsetY: 24 }, { offsetX: 120, offsetY: 60 }, { offsetX: 300, offsetY: 200 }];   // 0 to 500 each\nconst i = (context.get('i') || 0) % options.length;\ncontext.set('i', i + 1);\nmsg.payload = { button: options[i] };\nnode.status({ text: JSON.stringify(options[i]) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1188,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0060inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: all fields at once",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1232,
+    "wires": [
+      [
+        "sdref0061fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0061fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "button: all fields at once",
+    "func": "msg.payload = {\n    button: {\n        icon: 'pi-cog', label: 'Settings', tooltip: 'Settings',\n        background: '#0f766e', color: '#ffffff',\n        size: 64, radius: 16,\n        visible: true, enabled: true,\n        position: 'bottom-right', offsetX: 24, offsetY: 24\n    }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1232,
+    "wires": [
+      [
+        "sdref0033lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0033lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0031grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 938,
+    "wires": []
+  },
+  {
+    "id": "sdref0031grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "2a · Update configuration: button (msg.payload = object)",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0032cmt",
+      "sdref0034inj",
+      "sdref0035fn",
+      "sdref0036inj",
+      "sdref0037fn",
+      "sdref0038inj",
+      "sdref0039fn",
+      "sdref0040inj",
+      "sdref0041fn",
+      "sdref0042inj",
+      "sdref0043fn",
+      "sdref0044inj",
+      "sdref0045fn",
+      "sdref0046inj",
+      "sdref0047fn",
+      "sdref0048inj",
+      "sdref0049fn",
+      "sdref0050inj",
+      "sdref0051fn",
+      "sdref0052inj",
+      "sdref0053fn",
+      "sdref0054inj",
+      "sdref0055fn",
+      "sdref0056inj",
+      "sdref0057fn",
+      "sdref0058inj",
+      "sdref0059fn",
+      "sdref0060inj",
+      "sdref0061fn",
+      "sdref0033lout"
+    ],
+    "x": 34,
+    "y": 590,
+    "w": 860,
+    "h": 696
+  },
+  {
+    "id": "sdref0063cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "2b · Update configuration: menu",
+    "info": "",
+    "x": 220,
+    "y": 1346,
+    "wires": []
+  },
+  {
+    "id": "sdref0065inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: mode \"menu\" (labelled list)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1386,
+    "wires": [
+      [
+        "sdref0066fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0066fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: mode \"menu\" (labelled list)",
+    "func": "// mode \"menu\" is always a linear, labelled list.\nmsg.payload = { menu: { mode: 'menu', direction: 'up' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1386,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0067inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: mode \"speed-dial\"",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1430,
+    "wires": [
+      [
+        "sdref0068fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0068fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: mode \"speed-dial\"",
+    "func": "msg.payload = { menu: { mode: 'speed-dial' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1430,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0069inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: cycle shape + direction",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1474,
+    "wires": [
+      [
+        "sdref0070fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0070fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: cycle shape + direction",
+    "func": "// shape and direction must fit together. Send both in the same message.\n// linear / semi-circle: up down left right    quarter-circle: up-left up-right down-left down-right\n// circle ignores the direction. Pick a matching button position for good looks (e.g. bottom-right + quarter-circle up-left).\nconst combos = [\n    ['linear', 'up'], ['linear', 'down'], ['linear', 'left'], ['linear', 'right'],\n    ['semi-circle', 'up'], ['semi-circle', 'down'], ['semi-circle', 'left'], ['semi-circle', 'right'],\n    ['quarter-circle', 'up-left'], ['quarter-circle', 'up-right'], ['quarter-circle', 'down-left'], ['quarter-circle', 'down-right'],\n    ['circle', 'up']\n];\nconst i = (context.get('i') || 0) % combos.length;\ncontext.set('i', i + 1);\nmsg.payload = { menu: { mode: 'speed-dial', shape: combos[i][0], direction: combos[i][1] } };\nnode.status({ text: combos[i].join(' / ') });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1474,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0071inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: radius (0 = auto)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1518,
+    "wires": [
+      [
+        "sdref0072fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0072fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: radius (0 = auto)",
+    "func": "const radii = [0, 80, 120, 200];            // 0 to 500, only for circle shapes\nconst i = (context.get('i') || 0) % radii.length;\ncontext.set('i', i + 1);\nmsg.payload = { menu: { radius: radii[i] } };\nnode.status({ text: 'radius ' + radii[i] });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1518,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0073inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: gap and action size",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1562,
+    "wires": [
+      [
+        "sdref0074fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0074fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: gap and action size",
+    "func": "const options = [{ gap: 0, actionSize: 44 }, { gap: 8, actionSize: 44 }, { gap: 24, actionSize: 64 }, { gap: 48, actionSize: 80 }];   // gap 0-48, actionSize 44-80\nconst i = (context.get('i') || 0) % options.length;\ncontext.set('i', i + 1);\nmsg.payload = { menu: options[i] };\nnode.status({ text: JSON.stringify(options[i]) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1562,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0075inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: animation duration",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1606,
+    "wires": [
+      [
+        "sdref0076fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0076fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: animation duration",
+    "func": "const durations = [0, 150, 600, 1000];      // milliseconds; prefers-reduced-motion always wins\nconst i = (context.get('i') || 0) % durations.length;\ncontext.set('i', i + 1);\nmsg.payload = { menu: { duration: durations[i] } };\nnode.status({ text: durations[i] + ' ms' });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1606,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0077inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: closeOnSelect on / off",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1650,
+    "wires": [
+      [
+        "sdref0078fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0078fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: closeOnSelect on / off",
+    "func": "const on = !context.get('on');\ncontext.set('on', on);\nmsg.payload = { menu: { closeOnSelect: on } };\nnode.status({ text: 'closeOnSelect ' + on });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1650,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0079inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: overlay on / off",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1694,
+    "wires": [
+      [
+        "sdref0080fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0080fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: overlay on / off",
+    "func": "const on = !context.get('on');\ncontext.set('on', on);\nmsg.payload = { menu: { overlay: on } };\nnode.status({ text: 'overlay ' + on });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1694,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0081inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: showLabels on / off",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1738,
+    "wires": [
+      [
+        "sdref0082fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0082fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "menu: showLabels on / off",
+    "func": "// Only effective for linear speed-dial (menu mode always shows labels, circle shapes never do).\nconst on = !context.get('on');\ncontext.set('on', on);\nmsg.payload = { menu: { showLabels: on } };\nnode.status({ text: 'showLabels ' + on });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1738,
+    "wires": [
+      [
+        "sdref0064lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0064lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0062grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 1554,
+    "wires": []
+  },
+  {
+    "id": "sdref0062grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "2b · Update configuration: menu",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0063cmt",
+      "sdref0065inj",
+      "sdref0066fn",
+      "sdref0067inj",
+      "sdref0068fn",
+      "sdref0069inj",
+      "sdref0070fn",
+      "sdref0071inj",
+      "sdref0072fn",
+      "sdref0073inj",
+      "sdref0074fn",
+      "sdref0075inj",
+      "sdref0076fn",
+      "sdref0077inj",
+      "sdref0078fn",
+      "sdref0079inj",
+      "sdref0080fn",
+      "sdref0081inj",
+      "sdref0082fn",
+      "sdref0064lout"
+    ],
+    "x": 34,
+    "y": 1316,
+    "w": 860,
+    "h": 476
+  },
+  {
+    "id": "sdref0084cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "2c · Update configuration: theme",
+    "info": "",
+    "x": 220,
+    "y": 1852,
+    "wires": []
+  },
+  {
+    "id": "sdref0086inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: light / dark / auto",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1892,
+    "wires": [
+      [
+        "sdref0087fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0087fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: light / dark / auto",
+    "func": "const modes = ['light', 'dark', 'auto'];\nconst i = (context.get('i') || 0) % modes.length;\ncontext.set('i', i + 1);\nmsg.payload = { theme: { mode: modes[i] } };\nnode.status({ text: modes[i] });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1892,
+    "wires": [
+      [
+        "sdref0085lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0088inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: custom colors",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1936,
+    "wires": [
+      [
+        "sdref0089fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0089fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: custom colors",
+    "func": "msg.payload = { theme: { background: '#fef3c7', color: '#78350f' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1936,
+    "wires": [
+      [
+        "sdref0085lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0090inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: clear colors",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 1980,
+    "wires": [
+      [
+        "sdref0091fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0091fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: clear colors",
+    "func": "msg.payload = { theme: { background: '', color: '' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 1980,
+    "wires": [
+      [
+        "sdref0085lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0092inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: radius, shadow, zIndex",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2024,
+    "wires": [
+      [
+        "sdref0093fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0093fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "theme: radius, shadow, zIndex",
+    "func": "const on = !context.get('on');\ncontext.set('on', on);\nmsg.payload = { theme: { radius: on ? 24 : 12, shadow: !on, zIndex: on ? 5000 : 2000 } };   // radius 0-40, zIndex 1-10000\nnode.status({ text: JSON.stringify(msg.payload.theme) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2024,
+    "wires": [
+      [
+        "sdref0085lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0085lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0083grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 1950,
+    "wires": []
+  },
+  {
+    "id": "sdref0083grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "2c · Update configuration: theme",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0084cmt",
+      "sdref0086inj",
+      "sdref0087fn",
+      "sdref0088inj",
+      "sdref0089fn",
+      "sdref0090inj",
+      "sdref0091fn",
+      "sdref0092inj",
+      "sdref0093fn",
+      "sdref0085lout"
+    ],
+    "x": 34,
+    "y": 1822,
+    "w": 860,
+    "h": 256
+  },
+  {
+    "id": "sdref0095cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "2d · Update configuration: combined messages",
+    "info": "",
+    "x": 220,
+    "y": 2138,
+    "wires": []
+  },
+  {
+    "id": "sdref0097inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "actions + button + menu + theme",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2178,
+    "wires": [
+      [
+        "sdref0098fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0098fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "actions + button + menu + theme",
+    "func": "// All four sections in one message. actions replaces the list, the others merge field by field.\nmsg.payload = {\n    actions: [\n        { id: 'c-1', label: 'First',  icon: 'pi-home',   payload: 'first' },\n        { id: 'c-2', label: 'Second', icon: 'pi-user',   payload: 'second' },\n        { id: 'c-3', label: 'Third',  icon: 'pi-cog',    payload: 'third' }\n    ],\n    button: { icon: 'pi-th-large', label: '', background: '#0ea5e9', position: 'bottom-right' },\n    menu: { mode: 'speed-dial', shape: 'linear', direction: 'up', showLabels: true, overlay: true },\n    theme: { mode: 'auto', shadow: true }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2178,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0099inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: full circle in the center",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2222,
+    "wires": [
+      [
+        "sdref0100fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0100fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: full circle in the center",
+    "func": "msg.payload = {\n    actions: Array.from({ length: 6 }, (_, i) => ({ id: 'ring-' + (i + 1), label: 'Item ' + (i + 1), icon: 'pi-star', payload: i + 1 })),\n    button: { position: 'center', size: 64, label: '' },\n    menu: { mode: 'speed-dial', shape: 'circle', direction: 'up', radius: 0, overlay: true }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2222,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0101inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: semi circle at the bottom",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2266,
+    "wires": [
+      [
+        "sdref0102fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0102fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: semi circle at the bottom",
+    "func": "msg.payload = {\n    actions: Array.from({ length: 5 }, (_, i) => ({ id: 'arc-' + (i + 1), label: 'Item ' + (i + 1), icon: 'pi-circle', payload: i + 1 })),\n    button: { position: 'bottom-center', size: 56, offsetY: 24 },\n    menu: { mode: 'speed-dial', shape: 'semi-circle', direction: 'up', radius: 0 }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2266,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0103inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: quarter circle in a corner",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2310,
+    "wires": [
+      [
+        "sdref0104fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0104fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: quarter circle in a corner",
+    "func": "msg.payload = {\n    actions: Array.from({ length: 4 }, (_, i) => ({ id: 'q-' + (i + 1), label: 'Item ' + (i + 1), icon: 'pi-bookmark', payload: i + 1 })),\n    button: { position: 'bottom-right', offsetX: 24, offsetY: 24, size: 56 },\n    menu: { mode: 'speed-dial', shape: 'quarter-circle', direction: 'up-left', radius: 0 }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2310,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0105inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: labelled menu, top left",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2354,
+    "wires": [
+      [
+        "sdref0106fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0106fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Preset: labelled menu, top left",
+    "func": "msg.payload = {\n    actions: [\n        { id: 'm-1', label: 'Dashboard', icon: 'pi-home',  payload: 'dashboard' },\n        { id: 'm-2', label: 'Settings',  icon: 'pi-cog',   payload: 'settings' },\n        { id: 'm-3', label: 'Logout',    icon: 'pi-sign-out', payload: 'logout', background: '#fee2e2', color: '#991b1b' }\n    ],\n    button: { position: 'top-left', icon: 'pi-bars', label: 'Menu', radius: 12, size: 48 },\n    menu: { mode: 'menu', direction: 'down', closeOnSelect: true, overlay: false }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2354,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0107inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Empty object (changes nothing)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2398,
+    "wires": [
+      [
+        "sdref0108fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0108fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "Empty object (changes nothing)",
+    "func": "// Valid, but nothing is updated.\nmsg.payload = {};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2398,
+    "wires": [
+      [
+        "sdref0096lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0096lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0094grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 2280,
+    "wires": []
+  },
+  {
+    "id": "sdref0094grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "2d · Update configuration: combined messages",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0095cmt",
+      "sdref0097inj",
+      "sdref0098fn",
+      "sdref0099inj",
+      "sdref0100fn",
+      "sdref0101inj",
+      "sdref0102fn",
+      "sdref0103inj",
+      "sdref0104fn",
+      "sdref0105inj",
+      "sdref0106fn",
+      "sdref0107inj",
+      "sdref0108fn",
+      "sdref0096lout"
+    ],
+    "x": 34,
+    "y": 2108,
+    "w": 860,
+    "h": 344
+  },
+  {
+    "id": "sdref0110cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "3 · Patch single actions (msg.command = \"patch\")",
+    "info": "",
+    "x": 220,
+    "y": 2512,
+    "wires": []
+  },
+  {
+    "id": "sdref0112inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: label, icon, tooltip",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2552,
+    "wires": [
+      [
+        "sdref0113fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0113fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: label, icon, tooltip",
+    "func": "// Needs the actions one/two/three from \"Three simple actions\" (or the editor defaults).\n// Omitted values stay unchanged - including the payload.\nmsg.command = 'patch';\nmsg.payload = [\n    { id: 'two', label: 'Second (patched)', icon: 'pi-bolt', tooltip: 'Patched tooltip' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2552,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0114inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: payload types",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2596,
+    "wires": [
+      [
+        "sdref0115fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0115fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: payload types",
+    "func": "// A patch can change the payload to any native JSON value, including null.\nconst variants = [\n    'text', 123, true, null, { patched: true, list: [1, 2] }, [1, 'a', null]\n];\nconst i = (context.get('i') || 0) % variants.length;\ncontext.set('i', i + 1);\nmsg.command = 'patch';\nmsg.payload = [{ id: 'one', payload: variants[i] }];\nnode.status({ text: JSON.stringify(variants[i]) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2596,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0116inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: colors and topic",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2640,
+    "wires": [
+      [
+        "sdref0117fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0117fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: colors and topic",
+    "func": "msg.command = 'patch';\nmsg.payload = [\n    { id: 'one',   background: '#16a34a', color: '#ffffff', topic: 'patched/one' },\n    { id: 'three', background: '#dc262680', color: '#fff' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2640,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0118inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: clear colors and topic",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2684,
+    "wires": [
+      [
+        "sdref0119fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0119fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: clear colors and topic",
+    "func": "// Empty strings clear colors and topic.\nmsg.command = 'patch';\nmsg.payload = [\n    { id: 'one',   background: '', color: '', topic: '' },\n    { id: 'three', background: '', color: '' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2684,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0120inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: hide / show action",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2728,
+    "wires": [
+      [
+        "sdref0121fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0121fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: hide / show action",
+    "func": "const visible = !!context.get('visible');\ncontext.set('visible', !visible);\nmsg.command = 'patch';\nmsg.payload = [{ id: 'three', visible }];\nnode.status({ text: 'three visible: ' + visible });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2728,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0122inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: disable / enable action",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2772,
+    "wires": [
+      [
+        "sdref0123fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0123fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: disable / enable action",
+    "func": "const enabled = !!context.get('enabled');\ncontext.set('enabled', !enabled);\nmsg.command = 'patch';\nmsg.payload = [{ id: 'two', enabled }];\nnode.status({ text: 'two enabled: ' + enabled });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2772,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0124inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: several actions in one message",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2816,
+    "wires": [
+      [
+        "sdref0125fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0125fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "patch: several actions in one message",
+    "func": "// Atomic: either all entries apply, or (unknown/duplicate id) none.\nmsg.command = 'patch';\nmsg.payload = [\n    { id: 'one',   label: '1', icon: 'pi-check' },\n    { id: 'two',   label: '2', enabled: false },\n    { id: 'three', label: '3', visible: true, topic: 'many' }\n];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2816,
+    "wires": [
+      [
+        "sdref0111lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0111lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0109grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 2676,
+    "wires": []
+  },
+  {
+    "id": "sdref0109grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "3 · Patch single actions (msg.command = \"patch\")",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0110cmt",
+      "sdref0112inj",
+      "sdref0113fn",
+      "sdref0114inj",
+      "sdref0115fn",
+      "sdref0116inj",
+      "sdref0117fn",
+      "sdref0118inj",
+      "sdref0119fn",
+      "sdref0120inj",
+      "sdref0121fn",
+      "sdref0122inj",
+      "sdref0123fn",
+      "sdref0124inj",
+      "sdref0125fn",
+      "sdref0111lout"
+    ],
+    "x": 34,
+    "y": 2482,
+    "w": 860,
+    "h": 388
+  },
+  {
+    "id": "sdref0127cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "4 · Remove actions (msg.command = \"remove\")",
+    "info": "",
+    "x": 220,
+    "y": 2930,
+    "wires": []
+  },
+  {
+    "id": "sdref0129inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: one action",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 2970,
+    "wires": [
+      [
+        "sdref0130fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0130fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: one action",
+    "func": "msg.command = 'remove';\nmsg.payload = ['two'];          // array of action ids\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 2970,
+    "wires": [
+      [
+        "sdref0128lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0131inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: several actions",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3014,
+    "wires": [
+      [
+        "sdref0132fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0132fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: several actions",
+    "func": "msg.command = 'remove';\nmsg.payload = ['one', 'three'];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3014,
+    "wires": [
+      [
+        "sdref0128lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0133inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: empty list (no-op)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3058,
+    "wires": [
+      [
+        "sdref0134fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0134fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "remove: empty list (no-op)",
+    "func": "// Valid: removes nothing.\nmsg.command = 'remove';\nmsg.payload = [];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3058,
+    "wires": [
+      [
+        "sdref0128lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0128lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0126grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 3006,
+    "wires": []
+  },
+  {
+    "id": "sdref0126grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "4 · Remove actions (msg.command = \"remove\")",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0127cmt",
+      "sdref0129inj",
+      "sdref0130fn",
+      "sdref0131inj",
+      "sdref0132fn",
+      "sdref0133inj",
+      "sdref0134fn",
+      "sdref0128lout"
+    ],
+    "x": 34,
+    "y": 2900,
+    "w": 860,
+    "h": 212
+  },
+  {
+    "id": "sdref0136cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0135grp",
+    "name": "5 · Reset (msg.command = \"reset\")",
+    "info": "",
+    "x": 220,
+    "y": 3172,
+    "wires": []
+  },
+  {
+    "id": "sdref0138inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0135grp",
+    "name": "reset to editor configuration",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3212,
+    "wires": [
+      [
+        "sdref0139fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0139fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0135grp",
+    "name": "reset to editor configuration",
+    "func": "// Restores actions, button, menu and theme from the node's editor settings.\n// msg.payload is ignored. No output message is produced.\nmsg.command = 'reset';\ndelete msg.payload;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3212,
+    "wires": [
+      [
+        "sdref0137lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0137lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0135grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 3204,
+    "wires": []
+  },
+  {
+    "id": "sdref0135grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "5 · Reset (msg.command = \"reset\")",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0136cmt",
+      "sdref0138inj",
+      "sdref0139fn",
+      "sdref0137lout"
+    ],
+    "x": 34,
+    "y": 3142,
+    "w": 860,
+    "h": 124
+  },
+  {
+    "id": "sdref0141cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "6 · Client targeting (msg._client)",
+    "info": "",
+    "x": 220,
+    "y": 3326,
+    "wires": []
+  },
+  {
+    "id": "sdref0143inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: this browser tab (socketId)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3366,
+    "wires": [
+      [
+        "sdref0144fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0144fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: this browser tab (socketId)",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\n// Only the tab with this socketId changes. The shared state is NOT modified.\nmsg._client = { socketId: last.socketId };\nmsg.payload = {\n    actions: [{ id: 'only-me', label: 'Only for this tab', icon: 'pi-user', payload: 'private' }],\n    button: { label: 'Private', background: '#7c3aed' }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3366,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0145inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: this client (clientId)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3410,
+    "wires": [
+      [
+        "sdref0146fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0146fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: this client (clientId)",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\n// clientId matches every currently connected socket of that dashboard client.\nmsg._client = { clientId: last.clientId };\nmsg.payload = { button: { label: 'My client', background: '#0f766e' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3410,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0147inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: socketId AND clientId",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3454,
+    "wires": [
+      [
+        "sdref0148fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0148fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: socketId AND clientId",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\n// Both fields must match.\nmsg._client = { socketId: last.socketId, clientId: last.clientId };\nmsg.payload = { menu: { mode: 'menu', direction: 'up' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3454,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0149inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: patch (this tab)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3498,
+    "wires": [
+      [
+        "sdref0150fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0150fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: patch (this tab)",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\n// Targeted patch: applied to the actions this client currently has.\nmsg._client = { socketId: last.socketId };\nmsg.command = 'patch';\nmsg.payload = [{ id: 'one', label: 'Patched for me' }];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3498,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0151inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: remove (this tab)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3542,
+    "wires": [
+      [
+        "sdref0152fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0152fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: remove (this tab)",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\nmsg._client = { socketId: last.socketId };\nmsg.command = 'remove';\nmsg.payload = ['three'];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3542,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0153inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: reset (this tab)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3586,
+    "wires": [
+      [
+        "sdref0154fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0154fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "target: reset (this tab)",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\n\n// Puts only this client back to the editor configuration (its own override ends).\nmsg._client = { socketId: last.socketId };\nmsg.command = 'reset';\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3586,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0155inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "broadcast: update everybody",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3630,
+    "wires": [
+      [
+        "sdref0156fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0156fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "broadcast: update everybody",
+    "func": "// A normal update (no msg._client) applies to all clients and ends every targeted override.\nmsg.payload = { button: { label: 'Everyone' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3630,
+    "wires": [
+      [
+        "sdref0142lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0142lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0140grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 3490,
+    "wires": []
+  },
+  {
+    "id": "sdref0140grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "6 · Client targeting (msg._client)",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0141cmt",
+      "sdref0143inj",
+      "sdref0144fn",
+      "sdref0145inj",
+      "sdref0146fn",
+      "sdref0147inj",
+      "sdref0148fn",
+      "sdref0149inj",
+      "sdref0150fn",
+      "sdref0151inj",
+      "sdref0152fn",
+      "sdref0153inj",
+      "sdref0154fn",
+      "sdref0155inj",
+      "sdref0156fn",
+      "sdref0142lout"
+    ],
+    "x": 34,
+    "y": 3296,
+    "w": 860,
+    "h": 388
+  },
+  {
+    "id": "sdref0158cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "7 · Invalid messages (warning in the debug sidebar, state unchanged)",
+    "info": "",
+    "x": 220,
+    "y": 3744,
+    "wires": []
+  },
+  {
+    "id": "sdref0160inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: duplicate action ids",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3784,
+    "wires": [
+      [
+        "sdref0161fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0161fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: duplicate action ids",
+    "func": "msg.payload = [\n    { id: 'dup', payload: 1 },\n    { id: 'dup', payload: 2 }\n];\n// Expected: warning ('Duplicate action id...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3784,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0162inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: payload missing (not null)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3828,
+    "wires": [
+      [
+        "sdref0163fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0163fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: payload missing (not null)",
+    "func": "// A missing payload is NOT the same as payload: null.\nmsg.payload = [{ id: 'nopayload', label: 'x' }];\n// Expected: warning ('payload is required...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3828,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0164inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown action field",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3872,
+    "wires": [
+      [
+        "sdref0165fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0165fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown action field",
+    "func": "msg.payload = [{ id: 'x', payload: 1, colour: '#fff' }];\n// Expected: warning ('Unknown field...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3872,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0166inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: bad action id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3916,
+    "wires": [
+      [
+        "sdref0167fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0167fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: bad action id",
+    "func": "msg.payload = [{ id: 'not valid!', payload: 1 }];\n// Expected: warning ('not a valid action id...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3916,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0168inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: color name instead of hex",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 3960,
+    "wires": [
+      [
+        "sdref0169fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0169fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: color name instead of hex",
+    "func": "msg.payload = { button: { background: 'red' } };\n// Expected: warning ('hex color...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 3960,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0170inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: color with wrong length",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4004,
+    "wires": [
+      [
+        "sdref0171fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0171fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: color with wrong length",
+    "func": "msg.payload = { theme: { color: '#abcd' } };\n// Expected: warning ('hex color...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4004,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0172inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: icon without pi- prefix",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4048,
+    "wires": [
+      [
+        "sdref0173fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0173fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: icon without pi- prefix",
+    "func": "msg.payload = { button: { icon: 'plus' } };\n// Expected: warning ('PrimeIcon...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4048,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0174inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: number out of range",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4092,
+    "wires": [
+      [
+        "sdref0175fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0175fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: number out of range",
+    "func": "msg.payload = { button: { size: 10 } };   // minimum is 11\n// Expected: warning ('at least 11...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4092,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0176inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: number as string",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4136,
+    "wires": [
+      [
+        "sdref0177fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0177fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: number as string",
+    "func": "msg.payload = { button: { size: '56' } };\n// Expected: warning ('finite number...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4136,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0178inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: NaN",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4180,
+    "wires": [
+      [
+        "sdref0179fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0179fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: NaN",
+    "func": "msg.payload = { menu: { gap: NaN } };\n// Expected: warning ('finite number...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4180,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0180inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown enum value",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4224,
+    "wires": [
+      [
+        "sdref0181fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0181fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown enum value",
+    "func": "msg.payload = { button: { position: 'middle' } };\n// Expected: warning ('must be one of...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4224,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0182inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: shape/direction mismatch",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4268,
+    "wires": [
+      [
+        "sdref0183fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0183fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: shape/direction mismatch",
+    "func": "// quarter-circle needs a diagonal direction; the current one is not changed here.\nmsg.payload = { menu: { shape: 'quarter-circle', direction: 'up' } };\n// Expected: warning ('not valid for shape...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4268,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0184inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: only shape (direction left over)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4312,
+    "wires": [
+      [
+        "sdref0185fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0185fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: only shape (direction left over)",
+    "func": "// Reset first, then this fails: linear direction \"up\" does not fit quarter-circle.\nmsg.payload = { menu: { shape: 'quarter-circle' } };\n// Expected: warning ('direction...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4312,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0186inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown section field",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4356,
+    "wires": [
+      [
+        "sdref0187fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0187fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown section field",
+    "func": "msg.payload = { menu: { speed: 'fast' } };\n// Expected: warning ('Unknown menu field...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4356,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0188inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown top-level field",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4400,
+    "wires": [
+      [
+        "sdref0189fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0189fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown top-level field",
+    "func": "msg.payload = { colors: { primary: '#fff' } };\n// Expected: warning ('Unknown payload field...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4400,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0190inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: payload is a string",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4444,
+    "wires": [
+      [
+        "sdref0191fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0191fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: payload is a string",
+    "func": "msg.payload = 'hello';\n// Expected: warning ('array or object...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4444,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0192inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown command",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4488,
+    "wires": [
+      [
+        "sdref0193fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0193fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: unknown command",
+    "func": "msg.command = 'explode';\nmsg.payload = [];\n// Expected: warning ('Unknown command...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4488,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0194inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch unknown id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4532,
+    "wires": [
+      [
+        "sdref0195fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0195fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch unknown id",
+    "func": "msg.command = 'patch';\nmsg.payload = [{ id: 'one', label: 'ok' }, { id: 'does-not-exist', label: 'x' }];   // the valid entry is NOT applied\n// Expected: warning ('Unknown action id...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4532,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0196inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch duplicate id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4576,
+    "wires": [
+      [
+        "sdref0197fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0197fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch duplicate id",
+    "func": "msg.command = 'patch';\nmsg.payload = [{ id: 'one', label: 'a' }, { id: 'one', label: 'b' }];\n// Expected: warning ('Duplicate patch id...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4576,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0198inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch without id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4620,
+    "wires": [
+      [
+        "sdref0199fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0199fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch without id",
+    "func": "msg.command = 'patch';\nmsg.payload = [{ label: 'no id' }];\n// Expected: warning ('id is required...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4620,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0200inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch is not an array",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4664,
+    "wires": [
+      [
+        "sdref0201fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0201fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: patch is not an array",
+    "func": "msg.command = 'patch';\nmsg.payload = { id: 'one', label: 'x' };\n// Expected: warning ('must be an array...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4664,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0202inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: remove unknown id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4708,
+    "wires": [
+      [
+        "sdref0203fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0203fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: remove unknown id",
+    "func": "msg.command = 'remove';\nmsg.payload = ['one', 'does-not-exist'];   // nothing is removed\n// Expected: warning ('Unknown action id...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4708,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0204inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: remove non-string id",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4752,
+    "wires": [
+      [
+        "sdref0205fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0205fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: remove non-string id",
+    "func": "msg.command = 'remove';\nmsg.payload = [1];\n// Expected: warning ('strings...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4752,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0206inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: more than 100 actions",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4796,
+    "wires": [
+      [
+        "sdref0207fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0207fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: more than 100 actions",
+    "func": "msg.payload = Array.from({ length: 101 }, (_, i) => ({ id: 'a' + i, payload: i }));\n// Expected: warning ('at most 100...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4796,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0208inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: target user only",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4840,
+    "wires": [
+      [
+        "sdref0209fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0209fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: target user only",
+    "func": "// Targeting needs one click on the dial first: the output of the dial is stored by the\n// \"remember client\" function node. The click output carries msg._client.\nconst last = flow.get('lastClient');\nif (!last || !last.socketId) {\n    node.warn('Click an action on the dashboard first, so the flow knows your client.');\n    return null;\n}\nmsg._client = { user: { userId: 'someone' } };   // a user alone is not a valid target\nmsg.payload = { button: { label: 'x' } };\n// Expected: warning ('target...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4840,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0210inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: target unknown socket",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 4884,
+    "wires": [
+      [
+        "sdref0211fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0211fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "invalid: target unknown socket",
+    "func": "msg._client = { socketId: 'does-not-exist' };\nmsg.payload = { button: { label: 'x' } };\n// Expected: warning ('target...'), dial unchanged, no output message.\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 4884,
+    "wires": [
+      [
+        "sdref0159lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0159lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref0157grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 4326,
+    "wires": []
+  },
+  {
+    "id": "sdref0157grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "7 · Invalid messages (warning in the debug sidebar, state unchanged)",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref0158cmt",
+      "sdref0160inj",
+      "sdref0161fn",
+      "sdref0162inj",
+      "sdref0163fn",
+      "sdref0164inj",
+      "sdref0165fn",
+      "sdref0166inj",
+      "sdref0167fn",
+      "sdref0168inj",
+      "sdref0169fn",
+      "sdref0170inj",
+      "sdref0171fn",
+      "sdref0172inj",
+      "sdref0173fn",
+      "sdref0174inj",
+      "sdref0175fn",
+      "sdref0176inj",
+      "sdref0177fn",
+      "sdref0178inj",
+      "sdref0179fn",
+      "sdref0180inj",
+      "sdref0181fn",
+      "sdref0182inj",
+      "sdref0183fn",
+      "sdref0184inj",
+      "sdref0185fn",
+      "sdref0186inj",
+      "sdref0187fn",
+      "sdref0188inj",
+      "sdref0189fn",
+      "sdref0190inj",
+      "sdref0191fn",
+      "sdref0192inj",
+      "sdref0193fn",
+      "sdref0194inj",
+      "sdref0195fn",
+      "sdref0196inj",
+      "sdref0197fn",
+      "sdref0198inj",
+      "sdref0199fn",
+      "sdref0200inj",
+      "sdref0201fn",
+      "sdref0202inj",
+      "sdref0203fn",
+      "sdref0204inj",
+      "sdref0205fn",
+      "sdref0206inj",
+      "sdref0207fn",
+      "sdref0208inj",
+      "sdref0209fn",
+      "sdref0210inj",
+      "sdref0211fn",
+      "sdref0159lout"
+    ],
+    "x": 34,
+    "y": 3714,
+    "w": 860,
+    "h": 1224
+  },
+  {
+    "id": "sdref0007lin",
+    "type": "link in",
+    "z": "sdref0001tab",
+    "name": "to dial",
+    "links": [
+      "sdref0010lout",
+      "sdref0033lout",
+      "sdref0064lout",
+      "sdref0085lout",
+      "sdref0096lout",
+      "sdref0111lout",
+      "sdref0128lout",
+      "sdref0137lout",
+      "sdref0142lout",
+      "sdref0159lout"
+    ],
+    "x": 1010,
+    "y": 80,
+    "wires": [
+      [
+        "sdref0006dial"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0006dial",
+    "type": "ui-speed-dial",
+    "z": "sdref0001tab",
+    "name": "Reference dial",
+    "scope": "page",
+    "page": "sdref0004page",
+    "group": "",
+    "ui": "",
+    "order": 2,
+    "width": 3,
+    "height": 4,
+    "actions": [
+      {
+        "id": "one",
+        "label": "One",
+        "icon": "pi-check",
+        "payload": "one",
+        "payloadType": "str",
+        "topic": "ref"
+      },
+      {
+        "id": "two",
+        "label": "Two",
+        "icon": "pi-star",
+        "payload": "2",
+        "payloadType": "num"
+      },
+      {
+        "id": "three",
+        "label": "Three",
+        "icon": "pi-heart",
+        "payload": "{\"three\":true}",
+        "payloadType": "json"
+      }
+    ],
+    "button": {
+      "icon": "pi-plus",
+      "position": "bottom-right"
+    },
+    "menu": {
+      "mode": "speed-dial",
+      "shape": "linear",
+      "direction": "up"
+    },
+    "theme": {
+      "mode": "auto"
+    },
+    "x": 1170,
+    "y": 80,
+    "wires": [
+      [
+        "sdref0212fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0212fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "name": "remember client",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "func": "// Stores the client of the last click for the targeting examples (section 6).\nif (msg._client) flow.set('lastClient', msg._client);\nreturn msg;\n",
+    "x": 1350,
+    "y": 80,
+    "wires": [
+      [
+        "sdref0213dbg"
+      ]
+    ]
+  },
+  {
+    "id": "sdref0213dbg",
+    "type": "debug",
+    "z": "sdref0001tab",
+    "name": "dial output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1540,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "sdref0214cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "name": "Dial and output",
+    "info": "All function nodes are linked to this dial. The dial output (a click) is shown in the debug sidebar.",
+    "x": 1190,
+    "y": 40,
+    "wires": []
+  }
+]

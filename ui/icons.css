@@ -1,0 +1,944 @@
+@font-face{font-family:ff-speed-dial-icons;font-display:block;src:url("../node_modules/primeicons/fonts/primeicons.woff2") format("woff2")}
+.ff-speed-dial .pi{font-family:ff-speed-dial-icons;font-style:normal;font-weight:normal;line-height:1;display:inline-block;-webkit-font-smoothing:antialiased}
+.ff-speed-dial .pi-folder-plus:before {
+    content: "\ea05";
+}
+.ff-speed-dial .pi-receipt:before {
+    content: "\ea06";
+}
+.ff-speed-dial .pi-asterisk:before {
+    content: "\ea07";
+}
+.ff-speed-dial .pi-face-smile:before {
+    content: "\ea08";
+}
+.ff-speed-dial .pi-pinterest:before {
+    content: "\ea09";
+}
+.ff-speed-dial .pi-expand:before {
+    content: "\ea0a";
+}
+.ff-speed-dial .pi-pen-to-square:before {
+    content: "\ea0b";
+}
+.ff-speed-dial .pi-wave-pulse:before {
+    content: "\ea0c";
+}
+.ff-speed-dial .pi-turkish-lira:before {
+    content: "\ea0d";
+}
+.ff-speed-dial .pi-spinner-dotted:before {
+    content: "\ea0e";
+}
+.ff-speed-dial .pi-crown:before {
+    content: "\ea0f";
+}
+.ff-speed-dial .pi-pause-circle:before {
+    content: "\ea10";
+}
+.ff-speed-dial .pi-warehouse:before {
+    content: "\ea11";
+}
+.ff-speed-dial .pi-objects-column:before {
+    content: "\ea12";
+}
+.ff-speed-dial .pi-clipboard:before {
+    content: "\ea13";
+}
+.ff-speed-dial .pi-play-circle:before {
+    content: "\ea14";
+}
+.ff-speed-dial .pi-venus:before {
+    content: "\ea15";
+}
+.ff-speed-dial .pi-cart-minus:before {
+    content: "\ea16";
+}
+.ff-speed-dial .pi-file-plus:before {
+    content: "\ea17";
+}
+.ff-speed-dial .pi-microchip:before {
+    content: "\ea18";
+}
+.ff-speed-dial .pi-twitch:before {
+    content: "\ea19";
+}
+.ff-speed-dial .pi-building-columns:before {
+    content: "\ea1a";
+}
+.ff-speed-dial .pi-file-check:before {
+    content: "\ea1b";
+}
+.ff-speed-dial .pi-microchip-ai:before {
+    content: "\ea1c";
+}
+.ff-speed-dial .pi-trophy:before {
+    content: "\ea1d";
+}
+.ff-speed-dial .pi-barcode:before {
+    content: "\ea1e";
+}
+.ff-speed-dial .pi-file-arrow-up:before {
+    content: "\ea1f";
+}
+.ff-speed-dial .pi-mars:before {
+    content: "\ea20";
+}
+.ff-speed-dial .pi-tiktok:before {
+    content: "\ea21";
+}
+.ff-speed-dial .pi-arrow-up-right-and-arrow-down-left-from-center:before {
+    content: "\ea22";
+}
+.ff-speed-dial .pi-ethereum:before {
+    content: "\ea23";
+}
+.ff-speed-dial .pi-list-check:before {
+    content: "\ea24";
+}
+.ff-speed-dial .pi-thumbtack:before {
+    content: "\ea25";
+}
+.ff-speed-dial .pi-arrow-down-left-and-arrow-up-right-to-center:before {
+    content: "\ea26";
+}
+.ff-speed-dial .pi-equals:before {
+    content: "\ea27";
+}
+.ff-speed-dial .pi-lightbulb:before {
+    content: "\ea28";
+}
+.ff-speed-dial .pi-star-half:before {
+    content: "\ea29";
+}
+.ff-speed-dial .pi-address-book:before {
+    content: "\ea2a";
+}
+.ff-speed-dial .pi-chart-scatter:before {
+    content: "\ea2b";
+}
+.ff-speed-dial .pi-indian-rupee:before {
+    content: "\ea2c";
+}
+.ff-speed-dial .pi-star-half-fill:before {
+    content: "\ea2d";
+}
+.ff-speed-dial .pi-cart-arrow-down:before {
+    content: "\ea2e";
+}
+.ff-speed-dial .pi-calendar-clock:before {
+    content: "\ea2f";
+}
+.ff-speed-dial .pi-sort-up-fill:before {
+    content: "\ea30";
+}
+.ff-speed-dial .pi-sparkles:before {
+    content: "\ea31";
+}
+.ff-speed-dial .pi-bullseye:before {
+    content: "\ea32";
+}
+.ff-speed-dial .pi-sort-down-fill:before {
+    content: "\ea33";
+}
+.ff-speed-dial .pi-graduation-cap:before {
+    content: "\ea34";
+}
+.ff-speed-dial .pi-hammer:before {
+    content: "\ea35";
+}
+.ff-speed-dial .pi-bell-slash:before {
+    content: "\ea36";
+}
+.ff-speed-dial .pi-gauge:before {
+    content: "\ea37";
+}
+.ff-speed-dial .pi-shop:before {
+    content: "\ea38";
+}
+.ff-speed-dial .pi-headphones:before {
+    content: "\ea39";
+}
+.ff-speed-dial .pi-eraser:before {
+    content: "\ea04";
+}
+.ff-speed-dial .pi-stopwatch:before {
+    content: "\ea01";
+}
+.ff-speed-dial .pi-verified:before {
+    content: "\ea02";
+}
+.ff-speed-dial .pi-delete-left:before {
+    content: "\ea03";
+}
+.ff-speed-dial .pi-hourglass:before {
+    content: "\e9fe";
+}
+.ff-speed-dial .pi-truck:before {
+    content: "\ea00";
+}
+.ff-speed-dial .pi-wrench:before {
+    content: "\e9ff";
+}
+.ff-speed-dial .pi-microphone:before {
+    content: "\e9fa";
+}
+.ff-speed-dial .pi-megaphone:before {
+    content: "\e9fb";
+}
+.ff-speed-dial .pi-arrow-right-arrow-left:before {
+    content: "\e9fc";
+}
+.ff-speed-dial .pi-bitcoin:before {
+    content: "\e9fd";
+}
+.ff-speed-dial .pi-file-edit:before {
+    content: "\e9f6";
+}
+.ff-speed-dial .pi-language:before {
+    content: "\e9f7";
+}
+.ff-speed-dial .pi-file-export:before {
+    content: "\e9f8";
+}
+.ff-speed-dial .pi-file-import:before {
+    content: "\e9f9";
+}
+.ff-speed-dial .pi-file-word:before {
+    content: "\e9f1";
+}
+.ff-speed-dial .pi-gift:before {
+    content: "\e9f2";
+}
+.ff-speed-dial .pi-cart-plus:before {
+    content: "\e9f3";
+}
+.ff-speed-dial .pi-thumbs-down-fill:before {
+    content: "\e9f4";
+}
+.ff-speed-dial .pi-thumbs-up-fill:before {
+    content: "\e9f5";
+}
+.ff-speed-dial .pi-arrows-alt:before {
+    content: "\e9f0";
+}
+.ff-speed-dial .pi-calculator:before {
+    content: "\e9ef";
+}
+.ff-speed-dial .pi-sort-alt-slash:before {
+    content: "\e9ee";
+}
+.ff-speed-dial .pi-arrows-h:before {
+    content: "\e9ec";
+}
+.ff-speed-dial .pi-arrows-v:before {
+    content: "\e9ed";
+}
+.ff-speed-dial .pi-pound:before {
+    content: "\e9eb";
+}
+.ff-speed-dial .pi-prime:before {
+    content: "\e9ea";
+}
+.ff-speed-dial .pi-chart-pie:before {
+    content: "\e9e9";
+}
+.ff-speed-dial .pi-reddit:before {
+    content: "\e9e8";
+}
+.ff-speed-dial .pi-code:before {
+    content: "\e9e7";
+}
+.ff-speed-dial .pi-sync:before {
+    content: "\e9e6";
+}
+.ff-speed-dial .pi-shopping-bag:before {
+    content: "\e9e5";
+}
+.ff-speed-dial .pi-server:before {
+    content: "\e9e4";
+}
+.ff-speed-dial .pi-database:before {
+    content: "\e9e3";
+}
+.ff-speed-dial .pi-hashtag:before {
+    content: "\e9e2";
+}
+.ff-speed-dial .pi-bookmark-fill:before {
+    content: "\e9df";
+}
+.ff-speed-dial .pi-filter-fill:before {
+    content: "\e9e0";
+}
+.ff-speed-dial .pi-heart-fill:before {
+    content: "\e9e1";
+}
+.ff-speed-dial .pi-flag-fill:before {
+    content: "\e9de";
+}
+.ff-speed-dial .pi-circle:before {
+    content: "\e9dc";
+}
+.ff-speed-dial .pi-circle-fill:before {
+    content: "\e9dd";
+}
+.ff-speed-dial .pi-bolt:before {
+    content: "\e9db";
+}
+.ff-speed-dial .pi-history:before {
+    content: "\e9da";
+}
+.ff-speed-dial .pi-box:before {
+    content: "\e9d9";
+}
+.ff-speed-dial .pi-at:before {
+    content: "\e9d8";
+}
+.ff-speed-dial .pi-arrow-up-right:before {
+    content: "\e9d4";
+}
+.ff-speed-dial .pi-arrow-up-left:before {
+    content: "\e9d5";
+}
+.ff-speed-dial .pi-arrow-down-left:before {
+    content: "\e9d6";
+}
+.ff-speed-dial .pi-arrow-down-right:before {
+    content: "\e9d7";
+}
+.ff-speed-dial .pi-telegram:before {
+    content: "\e9d3";
+}
+.ff-speed-dial .pi-stop-circle:before {
+    content: "\e9d2";
+}
+.ff-speed-dial .pi-stop:before {
+    content: "\e9d1";
+}
+.ff-speed-dial .pi-whatsapp:before {
+    content: "\e9d0";
+}
+.ff-speed-dial .pi-building:before {
+    content: "\e9cf";
+}
+.ff-speed-dial .pi-qrcode:before {
+    content: "\e9ce";
+}
+.ff-speed-dial .pi-car:before {
+    content: "\e9cd";
+}
+.ff-speed-dial .pi-instagram:before {
+    content: "\e9cc";
+}
+.ff-speed-dial .pi-linkedin:before {
+    content: "\e9cb";
+}
+.ff-speed-dial .pi-send:before {
+    content: "\e9ca";
+}
+.ff-speed-dial .pi-slack:before {
+    content: "\e9c9";
+}
+.ff-speed-dial .pi-sun:before {
+    content: "\e9c8";
+}
+.ff-speed-dial .pi-moon:before {
+    content: "\e9c7";
+}
+.ff-speed-dial .pi-vimeo:before {
+    content: "\e9c6";
+}
+.ff-speed-dial .pi-youtube:before {
+    content: "\e9c5";
+}
+.ff-speed-dial .pi-flag:before {
+    content: "\e9c4";
+}
+.ff-speed-dial .pi-wallet:before {
+    content: "\e9c3";
+}
+.ff-speed-dial .pi-map:before {
+    content: "\e9c2";
+}
+.ff-speed-dial .pi-link:before {
+    content: "\e9c1";
+}
+.ff-speed-dial .pi-credit-card:before {
+    content: "\e9bf";
+}
+.ff-speed-dial .pi-discord:before {
+    content: "\e9c0";
+}
+.ff-speed-dial .pi-percentage:before {
+    content: "\e9be";
+}
+.ff-speed-dial .pi-euro:before {
+    content: "\e9bd";
+}
+.ff-speed-dial .pi-book:before {
+    content: "\e9ba";
+}
+.ff-speed-dial .pi-shield:before {
+    content: "\e9b9";
+}
+.ff-speed-dial .pi-paypal:before {
+    content: "\e9bb";
+}
+.ff-speed-dial .pi-amazon:before {
+    content: "\e9bc";
+}
+.ff-speed-dial .pi-phone:before {
+    content: "\e9b8";
+}
+.ff-speed-dial .pi-filter-slash:before {
+    content: "\e9b7";
+}
+.ff-speed-dial .pi-facebook:before {
+    content: "\e9b4";
+}
+.ff-speed-dial .pi-github:before {
+    content: "\e9b5";
+}
+.ff-speed-dial .pi-twitter:before {
+    content: "\e9b6";
+}
+.ff-speed-dial .pi-step-backward-alt:before {
+    content: "\e9ac";
+}
+.ff-speed-dial .pi-step-forward-alt:before {
+    content: "\e9ad";
+}
+.ff-speed-dial .pi-forward:before {
+    content: "\e9ae";
+}
+.ff-speed-dial .pi-backward:before {
+    content: "\e9af";
+}
+.ff-speed-dial .pi-fast-backward:before {
+    content: "\e9b0";
+}
+.ff-speed-dial .pi-fast-forward:before {
+    content: "\e9b1";
+}
+.ff-speed-dial .pi-pause:before {
+    content: "\e9b2";
+}
+.ff-speed-dial .pi-play:before {
+    content: "\e9b3";
+}
+.ff-speed-dial .pi-compass:before {
+    content: "\e9ab";
+}
+.ff-speed-dial .pi-id-card:before {
+    content: "\e9aa";
+}
+.ff-speed-dial .pi-ticket:before {
+    content: "\e9a9";
+}
+.ff-speed-dial .pi-file-o:before {
+    content: "\e9a8";
+}
+.ff-speed-dial .pi-reply:before {
+    content: "\e9a7";
+}
+.ff-speed-dial .pi-directions-alt:before {
+    content: "\e9a5";
+}
+.ff-speed-dial .pi-directions:before {
+    content: "\e9a6";
+}
+.ff-speed-dial .pi-thumbs-up:before {
+    content: "\e9a3";
+}
+.ff-speed-dial .pi-thumbs-down:before {
+    content: "\e9a4";
+}
+.ff-speed-dial .pi-sort-numeric-down-alt:before {
+    content: "\e996";
+}
+.ff-speed-dial .pi-sort-numeric-up-alt:before {
+    content: "\e997";
+}
+.ff-speed-dial .pi-sort-alpha-down-alt:before {
+    content: "\e998";
+}
+.ff-speed-dial .pi-sort-alpha-up-alt:before {
+    content: "\e999";
+}
+.ff-speed-dial .pi-sort-numeric-down:before {
+    content: "\e99a";
+}
+.ff-speed-dial .pi-sort-numeric-up:before {
+    content: "\e99b";
+}
+.ff-speed-dial .pi-sort-alpha-down:before {
+    content: "\e99c";
+}
+.ff-speed-dial .pi-sort-alpha-up:before {
+    content: "\e99d";
+}
+.ff-speed-dial .pi-sort-alt:before {
+    content: "\e99e";
+}
+.ff-speed-dial .pi-sort-amount-up:before {
+    content: "\e99f";
+}
+.ff-speed-dial .pi-sort-amount-down:before {
+    content: "\e9a0";
+}
+.ff-speed-dial .pi-sort-amount-down-alt:before {
+    content: "\e9a1";
+}
+.ff-speed-dial .pi-sort-amount-up-alt:before {
+    content: "\e9a2";
+}
+.ff-speed-dial .pi-palette:before {
+    content: "\e995";
+}
+.ff-speed-dial .pi-undo:before {
+    content: "\e994";
+}
+.ff-speed-dial .pi-desktop:before {
+    content: "\e993";
+}
+.ff-speed-dial .pi-sliders-v:before {
+    content: "\e991";
+}
+.ff-speed-dial .pi-sliders-h:before {
+    content: "\e992";
+}
+.ff-speed-dial .pi-search-plus:before {
+    content: "\e98f";
+}
+.ff-speed-dial .pi-search-minus:before {
+    content: "\e990";
+}
+.ff-speed-dial .pi-file-excel:before {
+    content: "\e98e";
+}
+.ff-speed-dial .pi-file-pdf:before {
+    content: "\e98d";
+}
+.ff-speed-dial .pi-check-square:before {
+    content: "\e98c";
+}
+.ff-speed-dial .pi-chart-line:before {
+    content: "\e98b";
+}
+.ff-speed-dial .pi-user-edit:before {
+    content: "\e98a";
+}
+.ff-speed-dial .pi-exclamation-circle:before {
+    content: "\e989";
+}
+.ff-speed-dial .pi-android:before {
+    content: "\e985";
+}
+.ff-speed-dial .pi-google:before {
+    content: "\e986";
+}
+.ff-speed-dial .pi-apple:before {
+    content: "\e987";
+}
+.ff-speed-dial .pi-microsoft:before {
+    content: "\e988";
+}
+.ff-speed-dial .pi-heart:before {
+    content: "\e984";
+}
+.ff-speed-dial .pi-mobile:before {
+    content: "\e982";
+}
+.ff-speed-dial .pi-tablet:before {
+    content: "\e983";
+}
+.ff-speed-dial .pi-key:before {
+    content: "\e981";
+}
+.ff-speed-dial .pi-shopping-cart:before {
+    content: "\e980";
+}
+.ff-speed-dial .pi-comments:before {
+    content: "\e97e";
+}
+.ff-speed-dial .pi-comment:before {
+    content: "\e97f";
+}
+.ff-speed-dial .pi-briefcase:before {
+    content: "\e97d";
+}
+.ff-speed-dial .pi-bell:before {
+    content: "\e97c";
+}
+.ff-speed-dial .pi-paperclip:before {
+    content: "\e97b";
+}
+.ff-speed-dial .pi-share-alt:before {
+    content: "\e97a";
+}
+.ff-speed-dial .pi-envelope:before {
+    content: "\e979";
+}
+.ff-speed-dial .pi-volume-down:before {
+    content: "\e976";
+}
+.ff-speed-dial .pi-volume-up:before {
+    content: "\e977";
+}
+.ff-speed-dial .pi-volume-off:before {
+    content: "\e978";
+}
+.ff-speed-dial .pi-eject:before {
+    content: "\e975";
+}
+.ff-speed-dial .pi-money-bill:before {
+    content: "\e974";
+}
+.ff-speed-dial .pi-images:before {
+    content: "\e973";
+}
+.ff-speed-dial .pi-image:before {
+    content: "\e972";
+}
+.ff-speed-dial .pi-sign-in:before {
+    content: "\e970";
+}
+.ff-speed-dial .pi-sign-out:before {
+    content: "\e971";
+}
+.ff-speed-dial .pi-wifi:before {
+    content: "\e96f";
+}
+.ff-speed-dial .pi-sitemap:before {
+    content: "\e96e";
+}
+.ff-speed-dial .pi-chart-bar:before {
+    content: "\e96d";
+}
+.ff-speed-dial .pi-camera:before {
+    content: "\e96c";
+}
+.ff-speed-dial .pi-dollar:before {
+    content: "\e96b";
+}
+.ff-speed-dial .pi-lock-open:before {
+    content: "\e96a";
+}
+.ff-speed-dial .pi-table:before {
+    content: "\e969";
+}
+.ff-speed-dial .pi-map-marker:before {
+    content: "\e968";
+}
+.ff-speed-dial .pi-list:before {
+    content: "\e967";
+}
+.ff-speed-dial .pi-eye-slash:before {
+    content: "\e965";
+}
+.ff-speed-dial .pi-eye:before {
+    content: "\e966";
+}
+.ff-speed-dial .pi-folder-open:before {
+    content: "\e964";
+}
+.ff-speed-dial .pi-folder:before {
+    content: "\e963";
+}
+.ff-speed-dial .pi-video:before {
+    content: "\e962";
+}
+.ff-speed-dial .pi-inbox:before {
+    content: "\e961";
+}
+.ff-speed-dial .pi-lock:before {
+    content: "\e95f";
+}
+.ff-speed-dial .pi-unlock:before {
+    content: "\e960";
+}
+.ff-speed-dial .pi-tags:before {
+    content: "\e95d";
+}
+.ff-speed-dial .pi-tag:before {
+    content: "\e95e";
+}
+.ff-speed-dial .pi-power-off:before {
+    content: "\e95c";
+}
+.ff-speed-dial .pi-save:before {
+    content: "\e95b";
+}
+.ff-speed-dial .pi-question-circle:before {
+    content: "\e959";
+}
+.ff-speed-dial .pi-question:before {
+    content: "\e95a";
+}
+.ff-speed-dial .pi-copy:before {
+    content: "\e957";
+}
+.ff-speed-dial .pi-file:before {
+    content: "\e958";
+}
+.ff-speed-dial .pi-clone:before {
+    content: "\e955";
+}
+.ff-speed-dial .pi-calendar-times:before {
+    content: "\e952";
+}
+.ff-speed-dial .pi-calendar-minus:before {
+    content: "\e953";
+}
+.ff-speed-dial .pi-calendar-plus:before {
+    content: "\e954";
+}
+.ff-speed-dial .pi-ellipsis-v:before {
+    content: "\e950";
+}
+.ff-speed-dial .pi-ellipsis-h:before {
+    content: "\e951";
+}
+.ff-speed-dial .pi-bookmark:before {
+    content: "\e94e";
+}
+.ff-speed-dial .pi-globe:before {
+    content: "\e94f";
+}
+.ff-speed-dial .pi-replay:before {
+    content: "\e94d";
+}
+.ff-speed-dial .pi-filter:before {
+    content: "\e94c";
+}
+.ff-speed-dial .pi-print:before {
+    content: "\e94b";
+}
+.ff-speed-dial .pi-align-right:before {
+    content: "\e946";
+}
+.ff-speed-dial .pi-align-left:before {
+    content: "\e947";
+}
+.ff-speed-dial .pi-align-center:before {
+    content: "\e948";
+}
+.ff-speed-dial .pi-align-justify:before {
+    content: "\e949";
+}
+.ff-speed-dial .pi-cog:before {
+    content: "\e94a";
+}
+.ff-speed-dial .pi-cloud-download:before {
+    content: "\e943";
+}
+.ff-speed-dial .pi-cloud-upload:before {
+    content: "\e944";
+}
+.ff-speed-dial .pi-cloud:before {
+    content: "\e945";
+}
+.ff-speed-dial .pi-pencil:before {
+    content: "\e942";
+}
+.ff-speed-dial .pi-users:before {
+    content: "\e941";
+}
+.ff-speed-dial .pi-clock:before {
+    content: "\e940";
+}
+.ff-speed-dial .pi-user-minus:before {
+    content: "\e93e";
+}
+.ff-speed-dial .pi-user-plus:before {
+    content: "\e93f";
+}
+.ff-speed-dial .pi-trash:before {
+    content: "\e93d";
+}
+.ff-speed-dial .pi-external-link:before {
+    content: "\e93c";
+}
+.ff-speed-dial .pi-window-maximize:before {
+    content: "\e93b";
+}
+.ff-speed-dial .pi-window-minimize:before {
+    content: "\e93a";
+}
+.ff-speed-dial .pi-refresh:before {
+    content: "\e938";
+}
+.ff-speed-dial .pi-user:before {
+    content: "\e939";
+}
+.ff-speed-dial .pi-exclamation-triangle:before {
+    content: "\e922";
+}
+.ff-speed-dial .pi-calendar:before {
+    content: "\e927";
+}
+.ff-speed-dial .pi-chevron-circle-left:before {
+    content: "\e928";
+}
+.ff-speed-dial .pi-chevron-circle-down:before {
+    content: "\e929";
+}
+.ff-speed-dial .pi-chevron-circle-right:before {
+    content: "\e92a";
+}
+.ff-speed-dial .pi-chevron-circle-up:before {
+    content: "\e92b";
+}
+.ff-speed-dial .pi-angle-double-down:before {
+    content: "\e92c";
+}
+.ff-speed-dial .pi-angle-double-left:before {
+    content: "\e92d";
+}
+.ff-speed-dial .pi-angle-double-right:before {
+    content: "\e92e";
+}
+.ff-speed-dial .pi-angle-double-up:before {
+    content: "\e92f";
+}
+.ff-speed-dial .pi-angle-down:before {
+    content: "\e930";
+}
+.ff-speed-dial .pi-angle-left:before {
+    content: "\e931";
+}
+.ff-speed-dial .pi-angle-right:before {
+    content: "\e932";
+}
+.ff-speed-dial .pi-angle-up:before {
+    content: "\e933";
+}
+.ff-speed-dial .pi-upload:before {
+    content: "\e934";
+}
+.ff-speed-dial .pi-download:before {
+    content: "\e956";
+}
+.ff-speed-dial .pi-ban:before {
+    content: "\e935";
+}
+.ff-speed-dial .pi-star-fill:before {
+    content: "\e936";
+}
+.ff-speed-dial .pi-star:before {
+    content: "\e937";
+}
+.ff-speed-dial .pi-chevron-left:before {
+    content: "\e900";
+}
+.ff-speed-dial .pi-chevron-right:before {
+    content: "\e901";
+}
+.ff-speed-dial .pi-chevron-down:before {
+    content: "\e902";
+}
+.ff-speed-dial .pi-chevron-up:before {
+    content: "\e903";
+}
+.ff-speed-dial .pi-caret-left:before {
+    content: "\e904";
+}
+.ff-speed-dial .pi-caret-right:before {
+    content: "\e905";
+}
+.ff-speed-dial .pi-caret-down:before {
+    content: "\e906";
+}
+.ff-speed-dial .pi-caret-up:before {
+    content: "\e907";
+}
+.ff-speed-dial .pi-search:before {
+    content: "\e908";
+}
+.ff-speed-dial .pi-check:before {
+    content: "\e909";
+}
+.ff-speed-dial .pi-check-circle:before {
+    content: "\e90a";
+}
+.ff-speed-dial .pi-times:before {
+    content: "\e90b";
+}
+.ff-speed-dial .pi-times-circle:before {
+    content: "\e90c";
+}
+.ff-speed-dial .pi-plus:before {
+    content: "\e90d";
+}
+.ff-speed-dial .pi-plus-circle:before {
+    content: "\e90e";
+}
+.ff-speed-dial .pi-minus:before {
+    content: "\e90f";
+}
+.ff-speed-dial .pi-minus-circle:before {
+    content: "\e910";
+}
+.ff-speed-dial .pi-circle-on:before {
+    content: "\e911";
+}
+.ff-speed-dial .pi-circle-off:before {
+    content: "\e912";
+}
+.ff-speed-dial .pi-sort-down:before {
+    content: "\e913";
+}
+.ff-speed-dial .pi-sort-up:before {
+    content: "\e914";
+}
+.ff-speed-dial .pi-sort:before {
+    content: "\e915";
+}
+.ff-speed-dial .pi-step-backward:before {
+    content: "\e916";
+}
+.ff-speed-dial .pi-step-forward:before {
+    content: "\e917";
+}
+.ff-speed-dial .pi-th-large:before {
+    content: "\e918";
+}
+.ff-speed-dial .pi-arrow-down:before {
+    content: "\e919";
+}
+.ff-speed-dial .pi-arrow-left:before {
+    content: "\e91a";
+}
+.ff-speed-dial .pi-arrow-right:before {
+    content: "\e91b";
+}
+.ff-speed-dial .pi-arrow-up:before {
+    content: "\e91c";
+}
+.ff-speed-dial .pi-bars:before {
+    content: "\e91d";
+}
+.ff-speed-dial .pi-arrow-circle-down:before {
+    content: "\e91e";
+}
+.ff-speed-dial .pi-arrow-circle-left:before {
+    content: "\e91f";
+}
+.ff-speed-dial .pi-arrow-circle-right:before {
+    content: "\e920";
+}
+.ff-speed-dial .pi-arrow-circle-up:before {
+    content: "\e921";
+}
+.ff-speed-dial .pi-info:before {
+    content: "\e923";
+}
+.ff-speed-dial .pi-info-circle:before {
+    content: "\e924";
+}
+.ff-speed-dial .pi-home:before {
+    content: "\e925";
+}
+.ff-speed-dial .pi-spinner:before {
+    content: "\e926";
+}

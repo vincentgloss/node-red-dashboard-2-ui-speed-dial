@@ -1,0 +1,75 @@
+{
+  "name": "node-red-dashboard-2-ui-speed-dial",
+  "version": "1.0.0",
+  "description": "Dynamic PrimeVue floating action menus for FlowFuse Dashboard",
+  "license": "MIT",
+  "author": "vincentgloss",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincentgloss/node-red-dashboard-2-ui-speed-dial.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/issues"
+  },
+  "homepage": "https://github.com/vincentgloss/node-red-dashboard-2-ui-speed-dial#readme",
+  "keywords": [
+    "node-red",
+    "node-red-dashboard-2",
+    "dashboard",
+    "speed-dial",
+    "primevue",
+    "floating-action-button",
+    "fab",
+    "flowfuse"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "nodes/",
+    "lib/",
+    "resources/",
+    "examples/",
+    "LICENSE",
+    "README.md",
+    "README.de.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "node scripts/assets.cjs && vite build && node scripts/assets.cjs --notices",
+    "test": "node --test test/*.test.cjs",
+    "test:browser": "node test/browser.cjs",
+    "test:integration": "node test/integration.cjs",
+    "prepack": "npm run build",
+    "test:examples": "node test/examples.cjs",
+    "test:i18n": "node test/i18n.cjs"
+  },
+  "peerDependencies": {
+    "@flowfuse/node-red-dashboard": ">=1.23.0 <2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.10",
+    "playwright": "1.64.0",
+    "primeicons": "7.0.0",
+    "primevue": "4.5.5",
+    "socket.io-client": "4.8.4",
+    "vite": "8.3.4",
+    "vite-plugin-css-injected-by-js": "5.0.2",
+    "vue": "3.5.44"
+  },
+  "node-red": {
+    "version": ">=3.1.0",
+    "nodes": {
+      "ui-speed-dial": "nodes/ui-speed-dial.js"
+    }
+  },
+  "node-red-dashboard-2": {
+    "version": "1.0.0",
+    "widgets": {
+      "ui-speed-dial": {
+        "output": "ui-speed-dial.umd.js",
+        "component": "UISpeedDial"
+      }
+    }
+  }
+}

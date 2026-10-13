@@ -1,0 +1,65 @@
+<script type="text/html" data-help-name="ui-speed-dial">
+    <p>Fügt einer Dashboard-Gruppe, einer Seite oder allen Seiten einen schwebenden PrimeVue-Aktionsbutton hinzu. Die Node sendet eine Nachricht, wenn eine sichtbare, aktivierte Aktion ausgewählt wird.</p>
+    <h3>Konfiguration</h3>
+    <p>Die Einstellungen sind in die Tabs <b>Allgemein</b>, <b>Schaltfläche</b>, <b>Menü</b>, <b>Aktionen</b> und <b>Design</b> gegliedert. Alle Beschriftungen und Tooltips werden als reiner Text dargestellt; HTML wird nicht interpretiert. Ungültige Werte werden im Editor markiert. Zahlenfelder zeigen eine Reset-Schaltfläche (&#8634;), sobald der Wert vom Standard abweicht.</p>
+    <h4>Node</h4>
+    <ul>
+        <li><b>Name</b>: Name der Node im Editor.</li>
+        <li><b>Bereich</b>: <i>Gruppe</i> zeigt das Widget innerhalb einer Dashboard-Gruppe, <i>Seite</i> schwebend auf einer Seite, <i>Alle Seiten</i> auf jeder Seite. Es wird nur das zum Bereich passende Referenzfeld angezeigt.</li>
+        <li><b>Gruppe / Seite / UI-Basis</b>: Die Gruppe, Seite oder das Dashboard, zu dem das Widget gehört.</li>
+        <li><b>Reihenfolge, Breite, Höhe</b>: Nur für den Bereich Gruppe. Position und Größe des Widgets im Raster der Gruppe (ganze Zahlen; Reihenfolge mindestens 0, Breite und Höhe mindestens 1).</li>
+    </ul>
+    <h4>Schaltfläche</h4>
+    <ul>
+        <li><b>Icon</b>: Ein PrimeIcons-Name einschließlich Präfix <code>pi-</code>, z. B. <code>pi-plus</code> oder <code>pi-bolt</code>. Leer für kein Icon. Es stehen nur die Icons des mitgelieferten PrimeIcons 7.0.0 zur Verfügung, siehe die <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons-Liste</a>.</li>
+        <li><b>Beschriftung</b>: Optionaler Text neben dem Icon, bis zu 160 Zeichen.</li>
+        <li><b>Tooltip</b>: Hover-Text und zugänglicher Name des Buttons, bis zu 240 Zeichen. Standard <code>Actions</code>.</li>
+        <li><b>Hintergrund / Farbe</b>: Button- und Icon-Farbe als Hex-Wert: <code>#rgb</code>, <code>#rrggbb</code> oder <code>#rrggbbaa</code>, z. B. <code>#2563eb</code> (siehe <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a>). Den Farbwähler neben dem Feld benutzen oder den Wert eintippen; der Farbwähler unterstützt keine Transparenz, dafür einen 8-stelligen Wert eintippen. Die Schaltfläche &times; leert das Feld. Farbnamen wie <code>red</code> werden nicht akzeptiert. Leer verwendet den Standard.</li>
+        <li><b>Größe</b>: Durchmesser des Buttons in px, 11 bis 96. Standard 56. Sehr kleine Buttons sind per Touch schwer zu treffen.</li>
+        <li><b>Rundung</b>: Eckenradius in px, 0 (eckig) bis 48. Standard 28.</li>
+        <li><b>Sichtbar / Aktiviert</b>: Button ausblenden oder anzeigen, aber nicht klickbar machen.</li>
+        <li><b>Position</b>: Wo der Button verankert ist: die Ecken <code>top-left</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-right</code>, die Kantenmitten <code>top-center</code>, <code>bottom-center</code>, <code>center-left</code>, <code>center-right</code> oder <code>center</code>. Zentrierte Positionen sind für Kreisformen nützlich. Beim Bereich Gruppe bezieht sich die Position auf die Gruppenfläche, sonst auf das Browserfenster.</li>
+        <li><b>Abstand X / Abstand Y</b>: Abstand zum horizontalen / vertikalen Rand in px, 0 bis 500. Standard 24. Wird auf einer Achse, auf der der Button zentriert ist, nicht verwendet (und ausgeblendet).</li>
+    </ul>
+    <h4>Menü</h4>
+    <ul>
+        <li><b>Modus</b>: <code>speed-dial</code> zeigt runde Icon-Buttons in der gewählten Form, <code>menu</code> eine beschriftete Liste (immer linear).</li>
+        <li><b>Form</b> (nur speed-dial): <code>linear</code> (Reihe), <code>circle</code> (Vollkreis um den Button), <code>semi-circle</code> (Halbkreis) oder <code>quarter-circle</code> (Viertelkreis). Kreisformen brauchen freien Platz: Ein Viertelkreis passt in eine Bildschirmecke, ein Halbkreis reicht einen Radius weit nach beiden Seiten des Buttons (den Abstand auf dieser Achse mindestens so groß wie den Radius wählen) und ein Vollkreis braucht auf allen Seiten einen Radius Platz. Passt eine Form nicht auf den Bildschirm, wird sie in den sichtbaren Bereich verschoben. In Kreisformen werden keine Beschriftungen angezeigt, der Tooltip bleibt.</li>
+        <li><b>Richtung</b>: Wohin sich das Menü öffnet. <code>linear</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>. <code>semi-circle</code> und <code>quarter-circle</code>: Angeboten werden nur Richtungen, die von der Bildschirmecke der Button-Position wegzeigen (z. B. bottom-right: Halbkreis <code>up</code>/<code>left</code>, Viertelkreis <code>up-left</code>; bottom-center: Halbkreis <code>up</code>, Viertelkreis <code>up-left</code>/<code>up-right</code>; center bietet alle vier an; die vollständige Tabelle steht in der README des Pakets). <code>circle</code> hat keine Richtung. Lineare Reihen am Bildschirmrand werden automatisch gedreht, damit sie sichtbar bleiben.</li>
+        <li><b>Radius</b> (Kreisformen): Abstand der Aktionen vom Button-Mittelpunkt in px, 0 bis 500. <code>0</code> wählt den kleinsten Radius, bei dem sich die Aktionen nicht überlappen.</li>
+        <li><b>Abstand</b>: Abstand zwischen den Aktionen in px, 0 bis 48.</li>
+        <li><b>Dauer</b>: Animationsdauer in ms, 0 bis 1000. Bei der Betriebssystem-Einstellung „Bewegung reduzieren“ wird nicht animiert.</li>
+        <li><b>Nach Auswahl schließen</b>: Menü nach der Auswahl einer Aktion schließen.</li>
+        <li><b>Overlay</b>: Seite hinter dem geöffneten Menü abdunkeln.</li>
+        <li><b>Beschriftungen zeigen</b>: Aktionsbeschriftungen neben den Icons anzeigen (nur lineares speed-dial).</li>
+        <li><b>Aktionsgröße</b>: Durchmesser der Aktionsbuttons in px, 44 bis 80.</li>
+    </ul>
+    <h4>Aktionen</h4>
+    <p>Sortierbare Liste mit bis zu 100 Einträgen. Mit <b>Aktion hinzufügen</b> wird ein Eintrag angehängt, per Ziehen wird die Reihenfolge geändert. Der Pfeil vor jedem Eintrag klappt ihn auf eine Zeile zusammen (<i>Alle einklappen</i> / <i>Alle ausklappen</i> über der Liste wirken auf alle Einträge; das Einklappen ist nur eine Editor-Ansicht und wird nicht gespeichert). Die Kopier-Schaltfläche neben dem Titel dupliziert einen Eintrag direkt darunter mit einer neuen eindeutigen ID (<code>&lt;id&gt;-copy</code>, <code>&lt;id&gt;-copy-2</code>, ...).</p>
+    <ul>
+        <li><b>ID</b> (erforderlich): Eindeutiger, stabiler Bezeichner, 1 bis 64 Zeichen: Buchstaben, Ziffern, <code>_ . : -</code>, beginnend mit Buchstabe oder Ziffer. Wird als <code>msg.action</code> gesendet und von <code>patch</code> und <code>remove</code> verwendet.</li>
+        <li><b>Beschriftung</b>: Text der Aktion, bis zu 160 Zeichen. Standard <code>Action</code>.</li>
+        <li><b>Icon</b>: PrimeIcons-Name mit Präfix <code>pi-</code>, z. B. <code>pi-check</code>. Siehe die <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons-Liste</a>.</li>
+        <li><b>Tooltip</b>: Hover-Text, bis zu 240 Zeichen.</li>
+        <li><b>Hintergrund / Farbe</b>: Optionale individuelle Farben in <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a> wie beim Button. Leer übernimmt das Design.</li>
+        <li><b>Topic</b>: Optionales <code>msg.topic</code> der Ausgabe, bis zu 240 Zeichen.</li>
+        <li><b>Payload</b> (erforderlich): Wert von <code>msg.payload</code>. Den Typ in der Auswahl wählen: <i>string</i>, <i>number</i>, <i>boolean</i> oder <i>JSON</i>. JSON akzeptiert Objekte, Arrays und <code>null</code>, z. B. <code>{"name":"evening","brightness":40}</code>.</li>
+        <li><b>Sichtbar / Aktiviert</b>: Versteckte oder deaktivierte Aktionen können nicht ausgewählt werden und erzeugen nie eine Ausgabe.</li>
+    </ul>
+    <h4>Design</h4>
+    <ul>
+        <li><b>Modus</b>: <code>light</code>, <code>dark</code> oder <code>auto</code>.</li>
+        <li><b>Hintergrund / Farbe</b>: Fläche und Textfarbe des Menüs in <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a>. Leer verwendet den Standard des Modus.</li>
+        <li><b>Rundung</b>: Eckenradius des Menüs in px, 0 bis 40. Standard 12.</li>
+        <li><b>Schatten</b>: Schlagschatten unter Button und Menü.</li>
+        <li><b>Z-Index</b>: Stapelreihenfolge, 1 bis 10000. Standard 2000. Erhöhen, wenn andere Elemente das Widget verdecken.</li>
+    </ul>
+    <h3>Eingang</h3>
+    <p>Eine Eingangsnachricht ohne Command ersetzt die Aktionen, wenn <code>msg.payload</code> ein Array ist. Ein Objekt-Payload kann <code>actions</code>, <code>button</code>, <code>menu</code> und/oder <code>theme</code> liefern. Das gelieferte Aktions-Array ersetzt die aktuellen Aktionen; gelieferte Felder der anderen Abschnitte werden in den jeweiligen Abschnitt eingemischt.</p>
+    <p>Mit <code>msg.command = "patch"</code> und einem Array von Teilobjekten werden Aktionen anhand ihrer ID aktualisiert. <code>remove</code> mit einem Array von IDs entfernt Aktionen, <code>reset</code> stellt die Editor-Konfiguration wieder her. Unbekannte oder doppelte IDs werden abgewiesen. Die vollständigen akzeptierten Eingabeformen und Hinweise zum Client-Targeting stehen im Editor unter <b>Hilfe zu Eingangsnachrichten</b>.</p>
+    <p>Editor-Payload-Typen werden in native String-, Zahl-, Boolean- oder JSON-Werte umgewandelt. JSON-<code>null</code> ist gültig; jede Aktion muss eine Payload-Eigenschaft enthalten.</p>
+    <h3>Ausgang</h3>
+    <p>Die ausgewählte Aktion sendet ihren nativen Payload, ihre stabile ID in <code>msg.action</code> und <code>msg.topic</code>, wenn die Aktion ein nicht leeres Topic hat.</p>
+    <h3>Verhalten</h3>
+    <p>Reduzierte Bewegung wird automatisch beachtet. Das Menü schließt bei Escape und Klick außerhalb; diese Verhalten sind immer aktiv.</p>
+</script>
