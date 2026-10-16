@@ -1,8 +1,41 @@
 'use strict'
 const { schema, normalizeConfig, normalizeEditorActions } = require('../lib/protocol')
 const StateManager = require('../lib/state')
+const icons = require('../lib/icons.json')
+const fs = require('node:fs')
+const path = require('node:path')
+// Material Design Icons as the installed Dashboard ships them (names, code points and font), read once on demand.
+let mdi
+function loadMdi () {
+  if (mdi !== undefined) return mdi
+  mdi = null
+  try {
+    const assets = path.join(path.dirname(require.resolve('@flowfuse/node-red-dashboard/package.json')), 'dist', 'assets')
+    const files = fs.readdirSync(assets)
+    const font = files.find(file => /^materialdesignicons-webfont-.*\.woff2$/.test(file))
+    for (const file of files.filter(file => file.endsWith('.css'))) {
+      const css = fs.readFileSync(path.join(assets, file), 'utf8')
+      const names = {}
+      for (const match of css.matchAll(/\.(mdi-[a-z0-9-]+):before\{content:"([^"]+)"\}/gu)) names[match[1]] = match[2].codePointAt(0).toString(16)
+      if (font && Object.keys(names).length) { mdi = { icons: names, font: path.join(assets, font) }; break }
+    }
+  } catch (error) { mdi = null }
+  return mdi
+}
 module.exports = function (RED) {
+  // Fallback for editors whose settings predate the node install; the editor normally reads RED.settings.uiSpeedDialSchema.
   RED.httpAdmin.get('/ui-speed-dial/schema', RED.auth.needsPermission('ui-speed-dial.read'), (req, res) => res.json(schema))
+  RED.httpAdmin.get('/ui-speed-dial/mdi-icons', RED.auth.needsPermission('ui-speed-dial.read'), (req, res) => {
+    const set = loadMdi()
+    if (!set) return res.status(404).json({ error: 'Material Design Icons not found in @flowfuse/node-red-dashboard' })
+    res.json(set.icons)
+  })
+  // Loaded by an @font-face rule in the editor, which cannot send the admin token; the file is the public MDI font.
+  RED.httpAdmin.get('/ui-speed-dial/mdi.woff2', (req, res) => {
+    const set = loadMdi()
+    if (!set) return res.sendStatus(404)
+    res.sendFile(set.font, { maxAge: '7d', headers: { 'Content-Type': 'font/woff2' } })
+  })
   function SpeedDialNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
@@ -58,5 +91,11 @@ module.exports = function (RED) {
       node.status({ fill: 'red', shape: 'ring', text: 'Invalid configuration' })
     }
   }
-  RED.nodes.registerType('ui-speed-dial', SpeedDialNode)
+  // Exported to the editor as RED.settings.uiSpeedDialSchema / uiSpeedDialIcons, available as soon as the editor opens.
+  RED.nodes.registerType('ui-speed-dial', SpeedDialNode, {
+    settings: {
+      uiSpeedDialSchema: { value: schema, exportable: true },
+      uiSpeedDialIcons: { value: icons, exportable: true }
+    }
+  })
 }

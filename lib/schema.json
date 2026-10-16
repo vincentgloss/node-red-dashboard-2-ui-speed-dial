@@ -4,6 +4,10 @@
       "type": "icon",
       "default": "pi-plus"
     },
+    "closeIcon": {
+      "type": "icon",
+      "default": "pi-times"
+    },
     "label": {
       "type": "string",
       "default": "",
@@ -16,11 +20,11 @@
     },
     "background": {
       "type": "color",
-      "default": "#2563eb"
+      "default": ""
     },
     "color": {
       "type": "color",
-      "default": "#ffffff"
+      "default": ""
     },
     "size": {
       "type": "number",
@@ -30,7 +34,7 @@
     },
     "radius": {
       "type": "number",
-      "default": 28,
+      "default": 48,
       "min": 0,
       "max": 48
     },
@@ -83,8 +87,9 @@
     },
     "direction": {
       "type": "enum",
-      "default": "up",
+      "default": "auto",
       "values": [
+        "auto",
         "up",
         "down",
         "left",
@@ -222,7 +227,8 @@
   "limits": {
     "actions": 100,
     "jsonBytes": 262144,
-    "jsonDepth": 32
+    "jsonDepth": 32,
+    "iconImageChars": 22000
   },
   "geometry": {
     "directions": {

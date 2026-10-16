@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="cfg.button.visible && anchorVisible" ref="root" class="ff-speed-dial"
-      :class="{ 'ff-speed-dial-open': opened, 'ff-speed-dial-dark': dark, 'ff-speed-dial-labelled': labels, 'ff-speed-dial-shadow': cfg.theme.shadow, 'ff-speed-dial-radial': radial }"
+      :class="{ 'ff-speed-dial-open': opened, 'ff-speed-dial-labelled': labels, 'ff-speed-dial-shadow': cfg.theme.shadow, 'ff-speed-dial-radial': radial }"
       :data-widget="widgetId" :data-direction="direction" :data-shape="primeType" :data-mode="cfg.menu.mode" :style="rootStyle" @keydown.capture="keydown">
       <div v-if="opened && cfg.menu.overlay" class="ff-speed-dial-overlay" aria-hidden="true" @pointerdown="close(true)" />
       <SpeedDial ref="dial" :visible="opened" @show="opened=true" @hide="opened=false" :model="model" :direction="direction" :type="primeType" :radius="radiusValue" unstyled
@@ -10,7 +10,7 @@
           <button ref="trigger" class="ff-speed-dial-button ff-speed-dial-trigger" type="button" :disabled="!cfg.button.enabled"
             :aria-label="cfg.button.label || cfg.button.tooltip || 'Actions'" :aria-expanded="opened" aria-haspopup="menu"
             :aria-controls="menuId" :title="cfg.button.tooltip || undefined" :style="buttonStyle" @click="toggle(toggleCallback, $event)">
-            <span v-if="cfg.button.icon" :class="['pi', opened ? 'pi-times' : cfg.button.icon]" aria-hidden="true" />
+            <span v-if="triggerIcon" v-bind="iconProps(triggerIcon)" aria-hidden="true" />
             <span v-if="cfg.button.label" class="ff-speed-dial-label">{{ cfg.button.label }}</span>
           </button>
         </template>
@@ -18,7 +18,7 @@
           <button class="ff-speed-dial-button ff-speed-dial-action" type="button" role="menuitem" :data-action="item.id"
             :tabindex="opened && item.enabled ? 0 : -1" :disabled="!item.enabled || !cfg.button.enabled" :aria-label="item.label || item.tooltip || item.id"
             :title="item.tooltip || (!labels ? item.label : undefined)" :style="actionStyle(item)" @click="choose(item)">
-            <span v-if="item.icon" :class="['pi', item.icon]" aria-hidden="true" />
+            <span v-if="item.icon" v-bind="iconProps(item.icon)" aria-hidden="true" />
             <span v-if="labels" class="ff-speed-dial-label">{{ item.label }}</span>
           </button>
         </template>
@@ -29,11 +29,29 @@
 <script>
 import SpeedDial from 'primevue/speeddial'
 import './icons.css'
+// Readable text colour (dark or white) for a custom hex background; undefined keeps the theme colour,
+// also for (mostly) transparent backgrounds where the page behind decides.
+function contrastColor (hex) {
+  const match = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(hex || '')
+  if (!match || isTransparent(hex)) return undefined
+  const h = match[1].length === 3 ? match[1].replace(/./g, '$&$&') : match[1]
+  const [r, g, b] = [0, 2, 4].map(i => { const c = parseInt(h.slice(i, i + 2), 16) / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179 ? '#0f172a' : '#ffffff'
+}
+function isTransparent (hex) { return /^#[0-9a-f]{6}[0-7][0-9a-f]$/i.test(hex || '') }
+// Dashboard 2 publishes its theme as Vuetify variables on :root, so they also reach the teleported widget.
+const palettes = {
+  auto: { background: 'rgb(var(--v-theme-surface, 255, 255, 255))', color: 'rgb(var(--v-theme-on-surface, 15, 23, 42))' },
+  light: { background: '#ffffff', color: '#0f172a' },
+  dark: { background: '#1e293b', color: '#f8fafc' }
+}
 export default {
   components: { SpeedDial }, props: ['bridge', 'widgetId', 'select', 'anchorElement'],
   data: () => ({ centerPosition: {}, opened: false, direction: 'up', listStyle: {}, groupPosition: {}, anchorVisible: true, reduced: false }),
   computed: {
     cfg () { return this.bridge.config },
+    // An empty close icon keeps the normal icon while the menu is open.
+    triggerIcon () { return this.opened && this.cfg.button.closeIcon ? this.cfg.button.closeIcon : this.cfg.button.icon },
     model () { return this.cfg.actions.filter(a => a.visible).map(a => ({ ...a, disabled: !a.enabled })) },
     // Horizontal (left|center|right) and vertical (top|center|bottom) anchor of the configured position.
     axes () {
@@ -43,6 +61,15 @@ export default {
       return first === 'center' ? { h: second, v: 'center' } : { h: second === 'center' ? 'center' : second, v: first }
     },
     shape () { return this.cfg.menu.mode === 'menu' ? 'linear' : this.cfg.menu.shape },
+    // "auto" opens away from the nearest screen edges, matching the first allowed direction of each corner.
+    configuredDirection () {
+      const d = this.cfg.menu.direction
+      if (d !== 'auto') return d
+      const { h, v } = this.axes
+      if (this.shape === 'quarter-circle') return (v === 'top' ? 'down' : 'up') + '-' + (h === 'left' ? 'right' : 'left')
+      if (v !== 'center') return v === 'top' ? 'down' : 'up'
+      return h === 'left' ? 'right' : h === 'right' ? 'left' : 'up'
+    },
     // PrimeVue divides by (n - 1) for semi and quarter circles, so a single action falls back to a short linear row.
     primeType () { return this.shape !== 'linear' && this.shape !== 'circle' && this.model.length < 2 ? 'linear' : this.shape },
     radial () { return this.primeType !== 'linear' },
@@ -55,7 +82,12 @@ export default {
       const chord = n > 1 ? (m.actionSize + m.gap) / (2 * Math.sin(Math.min(arcs[this.primeType] || Math.PI, Math.PI) / 2)) : 0
       return Math.ceil(Math.max(chord, (this.cfg.button.size + m.actionSize) / 2 + m.gap))
     },
-    dark () { return this.cfg.theme.mode === 'dark' || (this.cfg.theme.mode === 'auto' && this.bridge.dark) },
+    palette () { return palettes[this.cfg.theme.mode] || palettes.auto },
+    // In a group the widget reserves enough room for the button and its offset from the group edge.
+    groupMinHeight () {
+      const b = this.cfg.button
+      return b.size + 2 * (this.axes.v === 'center' ? 8 : b.offsetY)
+    },
     menuId () { return 'ff-speed-dial-menu-' + this.widgetId },
     passThrough () {
       return { root: { class: 'ff-speed-dial-prime' }, list: { id: this.menuId, class: 'ff-speed-dial-list', style: this.listStyle, 'aria-hidden': !this.opened, tabindex: -1 }, item: { class: 'ff-speed-dial-item' } }
@@ -65,8 +97,8 @@ export default {
       const style = {
         '--sd-size': b.size + 'px', '--sd-action-size': this.cfg.menu.actionSize + 'px', '--sd-gap': this.cfg.menu.gap + 'px',
         '--sd-duration': (this.reduced ? 0 : this.cfg.menu.duration) + 'ms', '--sd-radius': this.cfg.theme.radius + 'px',
-        '--sd-background': this.cfg.theme.background || (this.dark ? '#1e293b' : '#ffffff'),
-        '--sd-color': this.cfg.theme.color || (this.dark ? '#f8fafc' : '#0f172a'), zIndex: this.cfg.theme.zIndex
+        '--sd-background': this.cfg.theme.background || this.palette.background,
+        '--sd-color': this.cfg.theme.color || contrastColor(this.cfg.theme.background) || this.palette.color, zIndex: this.cfg.theme.zIndex
       }
       if (this.bridge.scope === 'group') return { ...style, ...this.groupPosition }
       const { h, v } = this.axes
@@ -79,14 +111,20 @@ export default {
     },
     buttonStyle () {
       const b = this.cfg.button
-      const style = { background: b.background || undefined, color: b.color || undefined, borderRadius: b.radius + 'px' }
+      const style = {
+        background: b.background || 'rgb(var(--v-theme-primary, 13, 116, 206))',
+        // A transparent button shows its icon in the primary colour, like a text button.
+        color: b.color || contrastColor(b.background) || (isTransparent(b.background) ? 'rgb(var(--v-theme-primary, 13, 116, 206))' : 'rgb(var(--v-theme-on-primary, 255, 255, 255))'),
+        borderRadius: b.radius + 'px'
+      }
       // Without a label the button is an exact square, so very small sizes work too.
       if (!b.label) Object.assign(style, { width: b.size + 'px', height: b.size + 'px', padding: '0', '--sd-icon': Math.min(24, Math.max(6, b.size * 0.5)) + 'px' })
       return style
     }
   },
   watch: {
-    'bridge.config': { deep: true, handler () { this.close(false); this.direction = this.baseDirection(); this.$nextTick(this.resize) } }
+    'bridge.config': { deep: true, handler () { this.close(false); this.direction = this.baseDirection(); this.$nextTick(this.resize) } },
+    groupMinHeight: { immediate: true, handler (value) { if (this.bridge.scope === 'group') this.anchorElement.style.minHeight = value + 'px' } }
   },
   mounted () {
     this.direction = this.baseDirection()
@@ -116,7 +154,7 @@ export default {
   methods: {
     // Linear rows only know four directions; a diagonal one keeps its vertical part.
     baseDirection () {
-      const d = this.cfg.menu.direction
+      const d = this.configuredDirection
       if (this.primeType === 'linear') return d.split('-')[0]
       return this.shape === 'semi-circle' && d.includes('-') ? d.split('-')[0] : d
     },
@@ -159,7 +197,15 @@ export default {
       }
       this.listStyle = { ...vars, transform: dx || dy ? `translate(${dx}px, ${dy}px)` : undefined }
     },
-    actionStyle (item) { return { background: item.background || undefined, color: item.color || undefined } },
+    // PrimeIcons are bundled, Material Design Icons come from the Dashboard's own stylesheet,
+    // images are drawn as a mask so they take the icon colour like the font icons.
+    iconProps (icon) {
+      if (icon.startsWith('pi-')) return { class: ['ff-speed-dial-icon', 'pi', icon] }
+      if (icon.startsWith('mdi-')) return { class: ['ff-speed-dial-icon', 'mdi', icon] }
+      const image = `url("${icon}")`
+      return { class: ['ff-speed-dial-icon', 'ff-speed-dial-image'], style: { maskImage: image, WebkitMaskImage: image } }
+    },
+    actionStyle (item) { return { background: item.background || undefined, color: item.color || contrastColor(item.background) || undefined } },
     close (focus) { this.$refs.dial?.hide(); this.opened = false; if (focus) this.$nextTick(() => this.$refs.trigger?.focus()) },
     toggle (callback, event) {
       if (!this.cfg.button.enabled) return
@@ -203,8 +249,11 @@ export default {
       const available = { up: rect.top - gap - 8, down: window.innerHeight - rect.bottom - gap - 8, left: rect.left - gap - 8, right: window.innerWidth - rect.right - gap - 8 }
       const n = this.model.length
       const labelWidth = this.labels ? Math.min(280, Math.max(120, ...this.model.map(a => a.label.length * 8 + 68))) : this.cfg.menu.actionSize
-      const need = direction => (direction === 'up' || direction === 'down' ? this.cfg.menu.actionSize : labelWidth) * n + Math.max(0, n - 1) * gap
-      const wanted = this.cfg.menu.direction
+      // A menu is always one column of rows; the other styles line their buttons up along the direction.
+      const need = this.cfg.menu.mode === 'menu'
+        ? direction => (direction === 'up' || direction === 'down' ? 40 * n + 8 : labelWidth)
+        : direction => (direction === 'up' || direction === 'down' ? this.cfg.menu.actionSize : labelWidth) * n + Math.max(0, n - 1) * gap
+      const wanted = this.baseDirection()
       // Prefer configured direction. If space is insufficient, choose the axis with most usable room.
       const direction = available[wanted] >= Math.min(need(wanted), 160) ? wanted : Object.keys(available).sort((a, b) => available[b] - available[a])[0]
       this.direction = direction
@@ -254,18 +303,26 @@ export default {
 .ff-speed-dial .ff-speed-dial-button:not(:disabled):hover { filter:brightness(0.94); }
 .ff-speed-dial .ff-speed-dial-button:disabled { opacity:.45; cursor:default; }
 .ff-speed-dial .ff-speed-dial-trigger { min-height:var(--sd-size); min-width:var(--sd-size); overflow:hidden; }
-.ff-speed-dial .ff-speed-dial-trigger .pi { font-size:var(--sd-icon, 24px); flex-shrink:0; }
+.ff-speed-dial .ff-speed-dial-icon { display:inline-block; line-height:1; flex-shrink:0; }
+.ff-speed-dial .ff-speed-dial-image { width:1em; height:1em; background-color:currentColor; -webkit-mask:center / contain no-repeat; mask:center / contain no-repeat; }
+.ff-speed-dial .ff-speed-dial-trigger .ff-speed-dial-icon { font-size:var(--sd-icon, 24px); }
 .ff-speed-dial .ff-speed-dial-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ff-speed-dial .ff-speed-dial-list { position:absolute; display:flex; gap:var(--sd-gap); list-style:none; padding:3px; margin:0; width:max-content; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; transition:opacity var(--sd-duration); }
 .ff-speed-dial:not(.ff-speed-dial-open) .ff-speed-dial-list { visibility:hidden; pointer-events:none; opacity:0; }
 .ff-speed-dial .ff-speed-dial-item { list-style:none; flex-shrink:0; padding:0; margin:0; display:flex; transition:opacity var(--sd-duration), transform var(--sd-duration); }
 .ff-speed-dial:not(.ff-speed-dial-open) .ff-speed-dial-item { transform:scale(.85); opacity:0; }
 .ff-speed-dial .ff-speed-dial-action { min-height:var(--sd-action-size); width:var(--sd-action-size); min-width:var(--sd-action-size); border-radius:var(--sd-radius); }
-.ff-speed-dial .ff-speed-dial-action .pi { font-size:20px; flex-shrink:0; }
+.ff-speed-dial .ff-speed-dial-action .ff-speed-dial-icon { font-size:20px; }
 .ff-speed-dial.ff-speed-dial-labelled .ff-speed-dial-action { width:auto; max-width:min(280px, calc(100vw - 24px)); justify-content:flex-start; }
 .ff-speed-dial.ff-speed-dial-radial .ff-speed-dial-prime { display:flex; }
 .ff-speed-dial.ff-speed-dial-radial .ff-speed-dial-list { display:block; inset:0; width:auto; padding:0; overflow:visible; pointer-events:none; }
 .ff-speed-dial.ff-speed-dial-radial .ff-speed-dial-item { position:absolute; pointer-events:auto; }
 .ff-speed-dial.ff-speed-dial-shadow .ff-speed-dial-button { box-shadow:0 4px 14px #0003; }
+/* Menu list: one panel with full-width rows in reading order, instead of separate buttons. */
+.ff-speed-dial[data-mode="menu"] .ff-speed-dial-list { flex-direction:column !important; gap:0; padding:4px; background:var(--sd-background); color:var(--sd-color); border:1px solid #8884; border-radius:var(--sd-radius); }
+.ff-speed-dial[data-mode="menu"].ff-speed-dial-shadow .ff-speed-dial-list { box-shadow:0 6px 20px #0003; }
+.ff-speed-dial[data-mode="menu"]:not(.ff-speed-dial-open) .ff-speed-dial-item { transform:none; }
+.ff-speed-dial[data-mode="menu"] .ff-speed-dial-list .ff-speed-dial-action { width:100%; max-width:min(280px, calc(100vw - 32px)); min-height:40px; padding:8px 12px; border:0; border-radius:calc(var(--sd-radius) * .6); background:transparent; box-shadow:none; }
+.ff-speed-dial[data-mode="menu"] .ff-speed-dial-list .ff-speed-dial-action:not(:disabled):hover { filter:none; background:color-mix(in srgb, currentColor 10%, transparent); }
 @media(prefers-reduced-motion:reduce) { .ff-speed-dial .ff-speed-dial-list, .ff-speed-dial .ff-speed-dial-item { transition:none; } }
 </style>

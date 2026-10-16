@@ -1,65 +1,247 @@
 <script type="text/html" data-help-name="ui-speed-dial">
-    <p>Fügt einer Dashboard-Gruppe, einer Seite oder allen Seiten einen schwebenden PrimeVue-Aktionsbutton hinzu. Die Node sendet eine Nachricht, wenn eine sichtbare, aktivierte Aktion ausgewählt wird.</p>
-    <h3>Konfiguration</h3>
-    <p>Die Einstellungen sind in die Tabs <b>Allgemein</b>, <b>Schaltfläche</b>, <b>Menü</b>, <b>Aktionen</b> und <b>Design</b> gegliedert. Alle Beschriftungen und Tooltips werden als reiner Text dargestellt; HTML wird nicht interpretiert. Ungültige Werte werden im Editor markiert. Zahlenfelder zeigen eine Reset-Schaltfläche (&#8634;), sobald der Wert vom Standard abweicht.</p>
-    <h4>Node</h4>
+    <p>Ein schwebender Aktionsbutton für das Dashboard. Ein Klick öffnet ein kleines Menü; jede Aktion sendet eine Nachricht in den Flow.</p>
+    <p><b>Auch per Nachricht steuerbar:</b> Aktionen ersetzen, einzeln ändern oder entfernen, Aussehen und Verhalten ändern, auf den Editor-Stand zurücksetzen – für alle oder nur für einen Browser. Beispiele und alle Felder unter <i>Eingang</i>.</p>
+
+    <h3>Grundeinstellungen</h3>
+    <dl class="message-properties">
+        <dt>Anzeigen</dt>
+        <dd><i>Im Layout einer Gruppe</i>: Der Button bekommt einen festen Platz in einer Gruppe; die <b>Größe</b> wird wie bei anderen Widgets über das Raster gewählt. <i>Schwebend auf einer Seite</i> bzw. <i>auf allen Seiten</i>: Der Button liegt über dem Inhalt des Browserfensters.</dd>
+    </dl>
+
+    <h3>Tab „Aktionen“</h3>
+    <p>Die Liste der Einträge im Menü (bis zu 100). <b>Aktion hinzufügen</b> legt einen Eintrag an, per Ziehen ändert sich die Reihenfolge, die Kopier-Schaltfläche dupliziert einen Eintrag.</p>
     <ul>
-        <li><b>Name</b>: Name der Node im Editor.</li>
-        <li><b>Bereich</b>: <i>Gruppe</i> zeigt das Widget innerhalb einer Dashboard-Gruppe, <i>Seite</i> schwebend auf einer Seite, <i>Alle Seiten</i> auf jeder Seite. Es wird nur das zum Bereich passende Referenzfeld angezeigt.</li>
-        <li><b>Gruppe / Seite / UI-Basis</b>: Die Gruppe, Seite oder das Dashboard, zu dem das Widget gehört.</li>
-        <li><b>Reihenfolge, Breite, Höhe</b>: Nur für den Bereich Gruppe. Position und Größe des Widgets im Raster der Gruppe (ganze Zahlen; Reihenfolge mindestens 0, Breite und Höhe mindestens 1).</li>
+        <li><b>Icon</b>: Aus PrimeIcons oder Material Design Icons wählen oder ein eigenes Bild verwenden (siehe <i>Icons</i>).</li>
+        <li><b>Beschriftung</b>: Text der Aktion. In den Stilen ohne Text erscheint sie als Tooltip.</li>
+        <li><b>Payload</b>: Wert von <code>msg.payload</code> beim Klick – Text, Zahl, true/false oder JSON (auch <code>null</code>).</li>
+        <li><b>Weitere Optionen</b>:
+            <ul>
+                <li><b>ID</b>: Eindeutiger Name der Aktion, wird als <code>msg.action</code> gesendet. Bei neuen Aktionen wird sie automatisch aus der Beschriftung erzeugt (und der Payload ebenfalls, solange er nicht geändert wurde). Erlaubt sind Buchstaben, Ziffern und <code>_ . : -</code>, höchstens 64 Zeichen. Wird die ID nachträglich geändert, müssen Nachrichten mit <code>patch</code>/<code>remove</code> angepasst werden.</li>
+                <li><b>Topic</b>: Optionales <code>msg.topic</code>.</li>
+                <li><b>Tooltip</b>: Hover-Text.</li>
+                <li><b>Farbe / Icon-Farbe</b>: Eigene Farben für diese Aktion. <i>Standard</i> bzw. <i>Automatisch</i> = Farben des Dashboard-Themes; die Icon-Farbe passt sich automatisch an eine gewählte Farbe an.</li>
+                <li><b>Sichtbar / Aktiviert</b>: Versteckte oder deaktivierte Aktionen senden nichts.</li>
+            </ul>
+        </li>
     </ul>
-    <h4>Schaltfläche</h4>
+
+    <h3>Tab „Aussehen“</h3>
+    <p>Oben lässt sich eine <b>Vorschau</b> aufklappen. Sie zeigt eine Dashboard-Seite in den Farben des gewählten Themes. Ein Klick auf den Button öffnet das Menü mit allen aktuellen Einstellungen und den eingetragenen Aktionen – auch Einstellungen aus <i>Erweitert</i> wirken sofort. Solange es noch keine Aktionen gibt, erscheinen fünf Beispiel-Aktionen. Ein Klick auf eine Aktion zeigt, was sie senden würde; die Vorschau selbst sendet nichts.</p>
     <ul>
-        <li><b>Icon</b>: Ein PrimeIcons-Name einschließlich Präfix <code>pi-</code>, z. B. <code>pi-plus</code> oder <code>pi-bolt</code>. Leer für kein Icon. Es stehen nur die Icons des mitgelieferten PrimeIcons 7.0.0 zur Verfügung, siehe die <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons-Liste</a>.</li>
-        <li><b>Beschriftung</b>: Optionaler Text neben dem Icon, bis zu 160 Zeichen.</li>
-        <li><b>Tooltip</b>: Hover-Text und zugänglicher Name des Buttons, bis zu 240 Zeichen. Standard <code>Actions</code>.</li>
-        <li><b>Hintergrund / Farbe</b>: Button- und Icon-Farbe als Hex-Wert: <code>#rgb</code>, <code>#rrggbb</code> oder <code>#rrggbbaa</code>, z. B. <code>#2563eb</code> (siehe <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a>). Den Farbwähler neben dem Feld benutzen oder den Wert eintippen; der Farbwähler unterstützt keine Transparenz, dafür einen 8-stelligen Wert eintippen. Die Schaltfläche &times; leert das Feld. Farbnamen wie <code>red</code> werden nicht akzeptiert. Leer verwendet den Standard.</li>
-        <li><b>Größe</b>: Durchmesser des Buttons in px, 11 bis 96. Standard 56. Sehr kleine Buttons sind per Touch schwer zu treffen.</li>
-        <li><b>Rundung</b>: Eckenradius in px, 0 (eckig) bis 48. Standard 28.</li>
-        <li><b>Sichtbar / Aktiviert</b>: Button ausblenden oder anzeigen, aber nicht klickbar machen.</li>
-        <li><b>Position</b>: Wo der Button verankert ist: die Ecken <code>top-left</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-right</code>, die Kantenmitten <code>top-center</code>, <code>bottom-center</code>, <code>center-left</code>, <code>center-right</code> oder <code>center</code>. Zentrierte Positionen sind für Kreisformen nützlich. Beim Bereich Gruppe bezieht sich die Position auf die Gruppenfläche, sonst auf das Browserfenster.</li>
-        <li><b>Abstand X / Abstand Y</b>: Abstand zum horizontalen / vertikalen Rand in px, 0 bis 500. Standard 24. Wird auf einer Achse, auf der der Button zentriert ist, nicht verwendet (und ausgeblendet).</li>
+        <li><b>Position</b>: Feld im 3×3-Raster anklicken. Bei <i>Im Layout einer Gruppe</i> bezieht sie sich auf die Fläche des Widgets, sonst auf das Browserfenster.</li>
+        <li><b>Stil</b>: Wie sich die Aktionen öffnen – als Reihe (runde Icon-Buttons), Reihe mit Text (einzelne Buttons mit Beschriftung), Menüliste (ein gemeinsamer Kasten mit beschrifteten Zeilen in Lesereihenfolge), Halb-, Viertel- oder Vollkreis. Kreise brauchen Platz: Ein Viertelkreis passt in eine Ecke, ein Vollkreis braucht rundherum Raum (Position <i>Mitte</i> eignet sich gut).</li>
+        <li><b>Öffnungsrichtung</b>: Pfeil anklicken (nicht beim Vollkreis). <i>Automatisch</i> öffnet vom nächsten Bildschirmrand weg; angeboten werden nur Richtungen, die zu Stil und Position passen. Reicht der Platz nicht, weicht eine Reihe automatisch in die Richtung mit dem meisten Platz aus.</li>
+        <li><b>Icon</b>: Icon des Haupt-Buttons (siehe <i>Icons</i>).</li>
+        <li><b>Icon beim Öffnen</b>: Ersetzt das Icon, solange das Menü offen ist. Standard ist ein X. <i>Icon beibehalten</i> lässt das normale Icon stehen.</li>
+        <li><b>Farbe</b>: Ein Farbfeld anklicken. <i>Dashboard</i> = Primärfarbe des Dashboard-Themes (aus dem Theme der Seite). Die Icon-Farbe wird automatisch hell oder dunkel gewählt.</li>
+        <li><b>Größe</b>: Klein, Mittel oder Groß. Eigene Werte unter <i>Erweitert</i>.</li>
     </ul>
-    <h4>Menü</h4>
+
+    <h3>Tab „Erweitert“</h3>
     <ul>
-        <li><b>Modus</b>: <code>speed-dial</code> zeigt runde Icon-Buttons in der gewählten Form, <code>menu</code> eine beschriftete Liste (immer linear).</li>
-        <li><b>Form</b> (nur speed-dial): <code>linear</code> (Reihe), <code>circle</code> (Vollkreis um den Button), <code>semi-circle</code> (Halbkreis) oder <code>quarter-circle</code> (Viertelkreis). Kreisformen brauchen freien Platz: Ein Viertelkreis passt in eine Bildschirmecke, ein Halbkreis reicht einen Radius weit nach beiden Seiten des Buttons (den Abstand auf dieser Achse mindestens so groß wie den Radius wählen) und ein Vollkreis braucht auf allen Seiten einen Radius Platz. Passt eine Form nicht auf den Bildschirm, wird sie in den sichtbaren Bereich verschoben. In Kreisformen werden keine Beschriftungen angezeigt, der Tooltip bleibt.</li>
-        <li><b>Richtung</b>: Wohin sich das Menü öffnet. <code>linear</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>. <code>semi-circle</code> und <code>quarter-circle</code>: Angeboten werden nur Richtungen, die von der Bildschirmecke der Button-Position wegzeigen (z. B. bottom-right: Halbkreis <code>up</code>/<code>left</code>, Viertelkreis <code>up-left</code>; bottom-center: Halbkreis <code>up</code>, Viertelkreis <code>up-left</code>/<code>up-right</code>; center bietet alle vier an; die vollständige Tabelle steht in der README des Pakets). <code>circle</code> hat keine Richtung. Lineare Reihen am Bildschirmrand werden automatisch gedreht, damit sie sichtbar bleiben.</li>
-        <li><b>Radius</b> (Kreisformen): Abstand der Aktionen vom Button-Mittelpunkt in px, 0 bis 500. <code>0</code> wählt den kleinsten Radius, bei dem sich die Aktionen nicht überlappen.</li>
-        <li><b>Abstand</b>: Abstand zwischen den Aktionen in px, 0 bis 48.</li>
-        <li><b>Dauer</b>: Animationsdauer in ms, 0 bis 1000. Bei der Betriebssystem-Einstellung „Bewegung reduzieren“ wird nicht animiert.</li>
-        <li><b>Nach Auswahl schließen</b>: Menü nach der Auswahl einer Aktion schließen.</li>
-        <li><b>Overlay</b>: Seite hinter dem geöffneten Menü abdunkeln.</li>
-        <li><b>Beschriftungen zeigen</b>: Aktionsbeschriftungen neben den Icons anzeigen (nur lineares speed-dial).</li>
-        <li><b>Aktionsgröße</b>: Durchmesser der Aktionsbuttons in px, 44 bis 80.</li>
+        <li><b>Haupt-Button</b>: Beschriftung neben dem Icon, Tooltip, Icon- und Textfarbe, Größe in px (11–96), Rundung (0–48; 48 = rund), Randabstand (0–500 px, optional seitlich und oben/unten getrennt), Sichtbar/Aktiviert.</li>
+        <li><b>Menü</b>: Kreisradius (0 = automatisch), Abstand zwischen Aktionen (0–48 px), Größe der Aktionen (44–80 px), Animationsdauer (0–1000 ms), Schließen nach Auswahl, Seite abdunkeln.</li>
+        <li><b>Darstellung</b>: Rundung der Aktionen (0–40 px), Schatten, Z-Index (1–10000; erhöhen, wenn andere Elemente den Button verdecken).</li>
     </ul>
-    <h4>Aktionen</h4>
-    <p>Sortierbare Liste mit bis zu 100 Einträgen. Mit <b>Aktion hinzufügen</b> wird ein Eintrag angehängt, per Ziehen wird die Reihenfolge geändert. Der Pfeil vor jedem Eintrag klappt ihn auf eine Zeile zusammen (<i>Alle einklappen</i> / <i>Alle ausklappen</i> über der Liste wirken auf alle Einträge; das Einklappen ist nur eine Editor-Ansicht und wird nicht gespeichert). Die Kopier-Schaltfläche neben dem Titel dupliziert einen Eintrag direkt darunter mit einer neuen eindeutigen ID (<code>&lt;id&gt;-copy</code>, <code>&lt;id&gt;-copy-2</code>, ...).</p>
+
+    <h3>Icons</h3>
+    <p>Ein Klick auf das Icon-Feld öffnet die Auswahl mit drei Reitern:</p>
     <ul>
-        <li><b>ID</b> (erforderlich): Eindeutiger, stabiler Bezeichner, 1 bis 64 Zeichen: Buchstaben, Ziffern, <code>_ . : -</code>, beginnend mit Buchstabe oder Ziffer. Wird als <code>msg.action</code> gesendet und von <code>patch</code> und <code>remove</code> verwendet.</li>
-        <li><b>Beschriftung</b>: Text der Aktion, bis zu 160 Zeichen. Standard <code>Action</code>.</li>
-        <li><b>Icon</b>: PrimeIcons-Name mit Präfix <code>pi-</code>, z. B. <code>pi-check</code>. Siehe die <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons-Liste</a>.</li>
-        <li><b>Tooltip</b>: Hover-Text, bis zu 240 Zeichen.</li>
-        <li><b>Hintergrund / Farbe</b>: Optionale individuelle Farben in <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a> wie beim Button. Leer übernimmt das Design.</li>
-        <li><b>Topic</b>: Optionales <code>msg.topic</code> der Ausgabe, bis zu 240 Zeichen.</li>
-        <li><b>Payload</b> (erforderlich): Wert von <code>msg.payload</code>. Den Typ in der Auswahl wählen: <i>string</i>, <i>number</i>, <i>boolean</i> oder <i>JSON</i>. JSON akzeptiert Objekte, Arrays und <code>null</code>, z. B. <code>{"name":"evening","brightness":40}</code>.</li>
-        <li><b>Sichtbar / Aktiviert</b>: Versteckte oder deaktivierte Aktionen können nicht ausgewählt werden und erzeugen nie eine Ausgabe.</li>
+        <li><b>PrimeIcons</b>: 314 Icons, im Paket enthalten (<code>pi-…</code>).</li>
+        <li><b>Material Design</b>: über 7.000 Icons, dieselben wie bei den anderen Dashboard-Widgets (<code>mdi-…</code>). Die Suche nutzt die englischen Namen, z. B. <code>lightbulb</code>, <code>home</code>, <code>power</code>.</li>
+        <li><b>Eigenes Bild</b>: eine SVG-, PNG-, WebP-, GIF- oder JPG-Datei
+            <ul>
+                <li><i>hochladen</i> – das Bild wird direkt im Flow gespeichert (höchstens 16 KB), oder</li>
+                <li>per <i>Adresse</i> einbinden: <code>https://…</code> oder ein Pfad wie <code>/icons/lampe.svg</code>. Pfade zeigen auf den Ordner, der in der <code>settings.js</code> von Node-RED als <code>httpStatic</code> eingetragen ist.</li>
+            </ul>
+            Eigene Bilder werden wie die anderen Icons in der Icon-Farbe eingefärbt. Gut geeignet sind daher einfarbige Symbole mit transparentem Hintergrund, am besten als SVG. Bei Fotos oder Bildern ohne transparenten Hintergrund erscheint nur eine einfarbige Fläche.</li>
     </ul>
-    <h4>Design</h4>
+
+    <h3>Farben auswählen</h3>
+    <p>Jedes Farbfeld zeigt eine Reihe von Farbvorschlägen. Das erste Feld (<i>Dashboard</i>, <i>Automatisch</i> bzw. <i>Standard</i>) übernimmt die Farbe aus dem Dashboard-Theme. Das karierte Feld bei Hintergrundfarben steht für <i>transparent</i>: Dann ist nur das Icon zu sehen (beim Haupt-Button in der Primärfarbe). Das bunte Feld mit der Pipette ganz rechts öffnet den Farbdialog des Browsers für jede beliebige Farbe. Daneben steht der Farbwert als Hex-Zahl; dort lässt sich eine Farbe auch eintippen, mit 8 Stellen sogar halbtransparent (z. B. <code>#2563eb80</code>).</p>
+
+    <h3>Farben und Dashboard-Theme</h3>
+    <p>Ohne eigene Farben übernimmt der Speed Dial das Theme des Dashboards: Der Haupt-Button nutzt die Primärfarbe, die Aktionen die Flächen- und Textfarbe der Gruppen. Ein Wechsel des Themes wirkt also automatisch. Eigene Farben überschreiben das Theme nur für den jeweiligen Button bzw. die jeweilige Aktion.</p>
+
+    <h3>Eingang: Menü per Nachricht steuern</h3>
+    <p>Die Aktionen und alle Einstellungen aus den Tabs <i>Aussehen</i> und <i>Erweitert</i> lassen sich zur Laufzeit per Nachricht ändern – zum Beispiel aus einem Function-Node. Nur Anzeigeort, Gruppe/Seite und Größe im Raster sind fest. Eine Nachricht an den Eingang erzeugt <b>keine</b> Ausgabe.</p>
+
+    <h4>Die Nachrichten im Überblick</h4>
+    <dl class="message-properties">
+        <dt>Alle Aktionen ersetzen</dt>
+        <dd><code>msg.payload = [ {…}, {…} ]</code></dd>
+        <dt>Aussehen oder Verhalten ändern</dt>
+        <dd><code>msg.payload = { button: {…}, menu: {…}, theme: {…} }</code></dd>
+        <dt>Beides in einer Nachricht</dt>
+        <dd><code>msg.payload = { actions: [ … ], button: {…} }</code></dd>
+        <dt>Einzelne Aktionen ändern</dt>
+        <dd><code>msg.command = "patch"</code>, <code>msg.payload = [ { id: "…", … } ]</code></dd>
+        <dt>Aktionen entfernen</dt>
+        <dd><code>msg.command = "remove"</code>, <code>msg.payload = [ "id", … ]</code></dd>
+        <dt>Zurück zum Editor-Stand</dt>
+        <dd><code>msg.command = "reset"</code></dd>
+        <dt>Nur für einen Browser</dt>
+        <dd>zusätzlich <code>msg._client</code> mitsenden (siehe unten)</dd>
+    </dl>
+
+    <h4>1. Alle Aktionen ersetzen</h4>
+    <p>Ein Array in <code>msg.payload</code> ersetzt die komplette Liste. Pflicht sind nur <code>id</code> und <code>payload</code>, alle anderen Felder haben Standardwerte. Ein leeres Array entfernt alle Aktionen.</p>
+<pre>msg.payload = [
+    { id: "on",  label: "An",  icon: "mdi-lightbulb-on", payload: true },
+    { id: "off", label: "Aus", icon: "mdi-lightbulb-off", payload: false,
+      topic: "licht", background: "#dc2626" }
+];
+return msg;</pre>
+
+    <h4>2. Aussehen oder Verhalten ändern</h4>
+    <p>Ein Objekt mit <code>button</code>, <code>menu</code> und/oder <code>theme</code>. Es ändern sich <b>nur die angegebenen Felder</b>, alles andere bleibt, wie es ist.</p>
+<pre>msg.payload = {
+    button: { icon: "mdi-bell", background: "#16a34a", label: "Alarm" },
+    menu:   { shape: "semi-circle", direction: "auto" }
+};
+return msg;</pre>
+    <p>Mit <code>actions</code> im selben Objekt werden zusätzlich die Aktionen ersetzt (wie bei 1.).</p>
+
+    <h4>3. Einzelne Aktionen ändern – <code>patch</code></h4>
+    <p>Jedes Objekt nennt die <code>id</code> einer vorhandenen Aktion und nur die Felder, die sich ändern sollen. Mehrere Aktionen in einer Nachricht sind möglich.</p>
+<pre>msg.command = "patch";
+msg.payload = [
+    { id: "off", enabled: false },
+    { id: "on",  label: "Licht ist an", icon: "mdi-check" }
+];
+return msg;</pre>
+    <p>Typische Anwendungen: eine Aktion ausblenden (<code>visible: false</code>), sperren (<code>enabled: false</code>), Beschriftung, Icon, Farbe oder Payload anpassen.</p>
+
+    <h4>4. Aktionen entfernen – <code>remove</code></h4>
+<pre>msg.command = "remove";
+msg.payload = ["off"];
+return msg;</pre>
+
+    <h4>5. Zurücksetzen – <code>reset</code></h4>
+    <p>Stellt die Einstellungen und Aktionen aus dem Editor wieder her und verwirft alle Änderungen per Nachricht. <code>msg.payload</code> wird dabei nicht beachtet.</p>
+<pre>msg.command = "reset";
+return msg;</pre>
+
+    <h4>6. Nur für einen Browser ändern – <code>msg._client</code></h4>
+    <p>Ohne <code>_client</code> gilt jede Änderung für alle Browser. Mit <code>msg._client</code> gilt sie nur für einen bestimmten Browser bzw. Tab – das funktioniert mit allen Nachrichten oben, auch mit <code>patch</code>, <code>remove</code> und <code>reset</code>.</p>
     <ul>
-        <li><b>Modus</b>: <code>light</code>, <code>dark</code> oder <code>auto</code>.</li>
-        <li><b>Hintergrund / Farbe</b>: Fläche und Textfarbe des Menüs in <a href="https://developer.mozilla.org/de/docs/Web/CSS/hex-color" target="_blank" rel="noopener">Hex-Notation</a>. Leer verwendet den Standard des Modus.</li>
-        <li><b>Rundung</b>: Eckenradius des Menüs in px, 0 bis 40. Standard 12.</li>
-        <li><b>Schatten</b>: Schlagschatten unter Button und Menü.</li>
-        <li><b>Z-Index</b>: Stapelreihenfolge, 1 bis 10000. Standard 2000. Erhöhen, wenn andere Elemente das Widget verdecken.</li>
+        <li><code>socketId</code>: genau ein Browser-Tab.</li>
+        <li><code>clientId</code>: alle offenen Tabs dieses Browsers.</li>
     </ul>
-    <h3>Eingang</h3>
-    <p>Eine Eingangsnachricht ohne Command ersetzt die Aktionen, wenn <code>msg.payload</code> ein Array ist. Ein Objekt-Payload kann <code>actions</code>, <code>button</code>, <code>menu</code> und/oder <code>theme</code> liefern. Das gelieferte Aktions-Array ersetzt die aktuellen Aktionen; gelieferte Felder der anderen Abschnitte werden in den jeweiligen Abschnitt eingemischt.</p>
-    <p>Mit <code>msg.command = "patch"</code> und einem Array von Teilobjekten werden Aktionen anhand ihrer ID aktualisiert. <code>remove</code> mit einem Array von IDs entfernt Aktionen, <code>reset</code> stellt die Editor-Konfiguration wieder her. Unbekannte oder doppelte IDs werden abgewiesen. Die vollständigen akzeptierten Eingabeformen und Hinweise zum Client-Targeting stehen im Editor unter <b>Hilfe zu Eingangsnachrichten</b>.</p>
-    <p>Editor-Payload-Typen werden in native String-, Zahl-, Boolean- oder JSON-Werte umgewandelt. JSON-<code>null</code> ist gültig; jede Aktion muss eine Payload-Eigenschaft enthalten.</p>
+    <p><b>Voraussetzungen</b> (beides in den Einstellungen des Dashboards, Bereich <i>Client Data</i>):</p>
+    <ul>
+        <li><i>Accept Client Data</i>: <code>ui-speed-dial</code> freigeben – sonst wird eine Nachricht mit <code>_client</code> abgewiesen.</li>
+        <li><i>Include Client Data</i>: aktivieren, damit ein Klick <code>msg._client</code> am Ausgang mitliefert. So kennt der Flow den Browser, an den er antworten soll.</li>
+    </ul>
+<pre>// Antwort an den Browser, der gerade geklickt hat
+// (msg kommt direkt vom Ausgang des Speed Dial)
+return {
+    _client: msg._client,
+    command: "patch",
+    payload: [{ id: msg.action, enabled: false }]
+};</pre>
+    <p>Der Browser muss gerade verbunden sein. Eine spätere Nachricht ohne <code>_client</code> verwirft alle Einzeländerungen; schließt ein Browser die Seite, wird seine Änderung verworfen.</p>
+
+    <h4>Alle Felder</h4>
+    <p><b>Aktion</b> (in <code>payload</code>, <code>actions</code> oder <code>patch</code>):</p>
+    <dl class="message-properties">
+        <dt>id <span class="property-type">string, Pflicht</span></dt>
+        <dd>Eindeutig, wird als <code>msg.action</code> gesendet. Buchstaben, Ziffern, <code>_ . : -</code>, höchstens 64 Zeichen.</dd>
+        <dt>payload <span class="property-type">beliebig, Pflicht</span></dt>
+        <dd>Wird beim Klick als <code>msg.payload</code> gesendet: Text, Zahl, true/false, Objekt, Array oder <code>null</code>.</dd>
+        <dt class="optional">label <span class="property-type">string</span></dt>
+        <dd>Beschriftung, Standard <code>"Action"</code>. Reiner Text, kein HTML.</dd>
+        <dt class="optional">icon <span class="property-type">string</span></dt>
+        <dd>Standard <code>"pi-circle"</code>. Siehe <i>Werte für Icons</i>.</dd>
+        <dt class="optional">tooltip, topic <span class="property-type">string</span></dt>
+        <dd>Hover-Text bzw. <code>msg.topic</code> beim Klick.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd>Hintergrund- und Icon-Farbe, <code>""</code> = Theme. Siehe <i>Werte für Farben</i>.</dd>
+        <dt class="optional">visible, enabled <span class="property-type">boolean</span></dt>
+        <dd>Standard <code>true</code>. Ausgeblendete oder gesperrte Aktionen senden nichts.</dd>
+    </dl>
+    <p><b>button</b> – der Haupt-Button:</p>
+    <dl class="message-properties">
+        <dt class="optional">icon, closeIcon <span class="property-type">string</span></dt>
+        <dd>Icon und Icon beim Öffnen. Standard <code>"pi-plus"</code> / <code>"pi-times"</code>; <code>closeIcon: ""</code> behält das normale Icon.</dd>
+        <dt class="optional">label, tooltip <span class="property-type">string</span></dt>
+        <dd>Text neben dem Icon bzw. Hover-Text.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd><code>""</code> = Primärfarbe des Themes bzw. automatisch passende Icon-Farbe.</dd>
+        <dt class="optional">size <span class="property-type">number</span></dt>
+        <dd>11–96 px, Standard 56.</dd>
+        <dt class="optional">radius <span class="property-type">number</span></dt>
+        <dd>0–48 px, Standard 48 (rund).</dd>
+        <dt class="optional">position <span class="property-type">string</span></dt>
+        <dd><code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>center-left</code>, <code>center</code>, <code>center-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, <code>bottom-right</code> (Standard).</dd>
+        <dt class="optional">offsetX, offsetY <span class="property-type">number</span></dt>
+        <dd>Abstand zum Rand, 0–500 px, Standard 24.</dd>
+        <dt class="optional">visible, enabled <span class="property-type">boolean</span></dt>
+        <dd>Button ein-/ausblenden bzw. sperren.</dd>
+    </dl>
+    <p><b>menu</b> – Anordnung und Verhalten:</p>
+    <dl class="message-properties">
+        <dt class="optional">mode, shape, showLabels</dt>
+        <dd>Der <i>Stil</i> aus dem Editor:
+            Reihe = <code>{ mode: "speed-dial", shape: "linear", showLabels: false }</code>,
+            Reihe mit Text = stattdessen <code>showLabels: true</code>,
+            Menüliste = <code>{ mode: "menu" }</code>,
+            Kreise = <code>shape: "semi-circle"</code>, <code>"quarter-circle"</code> oder <code>"circle"</code>.</dd>
+        <dt class="optional">direction <span class="property-type">string</span></dt>
+        <dd><code>auto</code> (Standard), bei Reihen <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>, beim Halbkreis ebenso, beim Viertelkreis <code>up-left</code>, <code>up-right</code>, <code>down-left</code>, <code>down-right</code>. Der Vollkreis hat keine Richtung.</dd>
+        <dt class="optional">gap, actionSize, radius <span class="property-type">number</span></dt>
+        <dd>Abstand zwischen Aktionen (0–48, Standard 8), Größe der Aktionen (44–80, Standard 44), Kreisradius (0–500, 0 = automatisch).</dd>
+        <dt class="optional">duration <span class="property-type">number</span></dt>
+        <dd>Animationsdauer 0–1000 ms, Standard 150.</dd>
+        <dt class="optional">closeOnSelect, overlay <span class="property-type">boolean</span></dt>
+        <dd>Nach Auswahl schließen (Standard <code>true</code>), Seite abdunkeln (Standard <code>false</code>).</dd>
+    </dl>
+    <p><b>theme</b> – Darstellung aller Aktionen:</p>
+    <dl class="message-properties">
+        <dt class="optional">mode <span class="property-type">string</span></dt>
+        <dd><code>auto</code> = Farben des Dashboard-Themes (Standard), <code>light</code> oder <code>dark</code> = feste helle bzw. dunkle Farben. Nur per Nachricht.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd>Gemeinsame Hintergrund- und Textfarbe aller Aktionen. Nur per Nachricht; eigene Farben einer Aktion haben Vorrang.</dd>
+        <dt class="optional">radius <span class="property-type">number</span></dt>
+        <dd>Rundung der Aktionen, 0–40 px, Standard 12.</dd>
+        <dt class="optional">shadow <span class="property-type">boolean</span></dt>
+        <dd>Schatten, Standard <code>true</code>.</dd>
+        <dt class="optional">zIndex <span class="property-type">number</span></dt>
+        <dd>1–10000, Standard 2000.</dd>
+    </dl>
+
+    <h4>Werte für Farben und Icons</h4>
+    <ul>
+        <li><b>Farben</b>: Hex-Werte <code>#rgb</code>, <code>#rrggbb</code> oder <code>#rrggbbaa</code> (mit Transparenz), z. B. <code>"#2563eb"</code>. <code>""</code> = Farbe aus dem Theme, <code>"#00000000"</code> = transparent. Farbnamen wie <code>"red"</code> gehen nicht.</li>
+        <li><b>Icons</b>: <code>"pi-…"</code> (PrimeIcons), <code>"mdi-…"</code> (Material Design Icons), eine Bildadresse (<code>"/icons/lampe.svg"</code>, <code>"https://…"</code>), ein Bild als <code>"data:image/…;base64,…"</code> (höchstens 16 KB) oder <code>""</code> für kein Icon.</li>
+    </ul>
+
+    <h4>Wenn eine Nachricht nicht wirkt</h4>
+    <p>Eine fehlerhafte Nachricht wird <b>komplett</b> verworfen – es ändert sich gar nichts – und in der Debug-Seitenleiste erscheint eine Warnung mit dem Grund. Häufige Ursachen:</p>
+    <ul>
+        <li>Tippfehler im Feldnamen (z. B. <code>colour</code> statt <code>color</code>) oder ein Feld, das es nicht gibt.</li>
+        <li>Zahlen als Text (<code>"56"</code> statt <code>56</code>) oder außerhalb des erlaubten Bereichs.</li>
+        <li>Farbnamen statt Hex-Werten; Icon-Namen ohne <code>pi-</code>/<code>mdi-</code>.</li>
+        <li><code>shape</code> geändert, aber die bisherige <code>direction</code> passt nicht zur neuen Form – beide zusammen senden oder <code>direction: "auto"</code> verwenden.</li>
+        <li><code>patch</code>/<code>remove</code> mit einer ID, die es nicht gibt, oder doppelte IDs.</li>
+        <li>Eine Aktion ohne <code>payload</code> (<code>null</code> ist erlaubt, fehlen darf es nicht).</li>
+        <li><code>_client</code> ohne Freigabe unter <i>Accept Client Data</i> oder für einen Browser, der gerade nicht verbunden ist.</li>
+    </ul>
+    <p>Änderungen per Nachricht gelten bis zum nächsten Deploy oder Neustart von Node-RED. Fertige Beispiele für jeden Fall: <b>Menü → Import → Beispiele → node-red-dashboard-2-ui-speed-dial → speed-dial-input-reference</b>.</p>
+
     <h3>Ausgang</h3>
-    <p>Die ausgewählte Aktion sendet ihren nativen Payload, ihre stabile ID in <code>msg.action</code> und <code>msg.topic</code>, wenn die Aktion ein nicht leeres Topic hat.</p>
+    <p>Bei einem Klick auf eine sichtbare, aktivierte Aktion:</p>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">beliebig</span></dt>
+        <dd>Der Payload der gewählten Aktion.</dd>
+        <dt>action <span class="property-type">string</span></dt>
+        <dd>Die ID der Aktion – praktisch für einen Switch-Node.</dd>
+        <dt class="optional">topic <span class="property-type">string</span></dt>
+        <dd>Das Topic der Aktion, falls eingetragen.</dd>
+        <dt class="optional">_client <span class="property-type">object</span></dt>
+        <dd>Browser, in dem geklickt wurde – nur wenn im Dashboard <i>Include Client Data</i> aktiv ist. Damit lässt sich gezielt an diesen Browser antworten (siehe <i>Nur für einen Browser ändern</i>).</dd>
+    </dl>
+
     <h3>Verhalten</h3>
-    <p>Reduzierte Bewegung wird automatisch beachtet. Das Menü schließt bei Escape und Klick außerhalb; diese Verhalten sind immer aktiv.</p>
+    <p>Das Menü schließt bei Escape und bei einem Klick außerhalb. Bei der Systemeinstellung „Bewegung reduzieren“ wird nicht animiert. Der Button ist per Tastatur bedienbar (Pfeiltasten, Pos1/Ende, Enter).</p>
 </script>

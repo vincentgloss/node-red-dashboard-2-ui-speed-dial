@@ -1,65 +1,247 @@
 <script type="text/html" data-help-name="ui-speed-dial">
-    <p>Adds a floating PrimeVue action button to a Dashboard group, page, or all pages. The node sends one message when a visible, enabled action is selected.</p>
-    <h3>Configuration</h3>
-    <p>Settings are grouped in the tabs <b>General</b>, <b>Button</b>, <b>Menu</b>, <b>Actions</b> and <b>Theme</b>. All labels and tooltips are rendered as plain text; HTML is not interpreted. Invalid values are marked in the editor. Number fields show a reset button (&#8634;) as soon as the value differs from the default.</p>
-    <h4>Node</h4>
+    <p>A floating action button for the dashboard. A click opens a small menu; every action sends a message into the flow.</p>
+    <p><b>Also controllable by message:</b> replace actions, change or remove single ones, change appearance and behavior, reset to the editor settings – for everybody or for one browser only. Examples and all fields under <i>Input</i>.</p>
+
+    <h3>Basics</h3>
+    <dl class="message-properties">
+        <dt>Show</dt>
+        <dd><i>In a group's layout</i>: the button gets a fixed place in a group; pick its <b>size</b> on the grid, like other widgets. <i>Floating on one page</i> or <i>on all pages</i>: the button lies above the content of the browser window.</dd>
+    </dl>
+
+    <h3>Actions tab</h3>
+    <p>The entries of the menu (up to 100). <b>Add action</b> creates one, drag to reorder, the copy button duplicates an entry.</p>
     <ul>
-        <li><b>Name</b>: Name of the node in the editor.</li>
-        <li><b>Scope</b>: <i>Group</i> shows the widget inside one dashboard group, <i>Page</i> shows it floating on one page, <i>All pages</i> shows it on every page. Only the reference field that matches the scope is shown.</li>
-        <li><b>Group / Page / UI base</b>: The group, page or dashboard the widget belongs to.</li>
-        <li><b>Order, Width, Height</b>: Only for scope Group. Position and size of the widget within the group grid (whole numbers; Order at least 0, Width and Height at least 1).</li>
+        <li><b>Icon</b>: pick one from PrimeIcons or Material Design Icons, or use your own image (see <i>Icons</i>).</li>
+        <li><b>Label</b>: text of the action. Styles without text show it as a tooltip.</li>
+        <li><b>Payload</b>: value of <code>msg.payload</code> on click – text, number, true/false or JSON (including <code>null</code>).</li>
+        <li><b>More options</b>:
+            <ul>
+                <li><b>ID</b>: unique name of the action, sent as <code>msg.action</code>. New actions derive it from the label automatically (and the payload too, as long as it was not changed). Letters, digits and <code>_ . : -</code>, at most 64 characters. If you change an ID later, update messages that use <code>patch</code>/<code>remove</code>.</li>
+                <li><b>Topic</b>: optional <code>msg.topic</code>.</li>
+                <li><b>Tooltip</b>: hover text.</li>
+                <li><b>Color / Icon color</b>: custom colors for this action. <i>Default</i> or <i>Automatic</i> = Dashboard theme colors; the icon color adapts to a chosen color automatically.</li>
+                <li><b>Visible / Enabled</b>: hidden or disabled actions send nothing.</li>
+            </ul>
+        </li>
     </ul>
-    <h4>Button</h4>
+
+    <h3>Appearance tab</h3>
+    <p>At the top you can expand a <b>preview</b>. It shows a dashboard page in the colors of the selected theme. Clicking the button opens the menu with all current settings and the configured actions – settings from <i>Advanced</i> apply immediately, too. While there are no actions yet, five example actions are shown. Clicking an action tells you what it would send; the preview itself sends nothing.</p>
     <ul>
-        <li><b>Icon</b>: A PrimeIcons name including the <code>pi-</code> prefix, e.g. <code>pi-plus</code> or <code>pi-bolt</code>. Empty for no icon. Only icons of the bundled PrimeIcons 7.0.0 are available, see the <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons list</a>.</li>
-        <li><b>Label</b>: Optional text next to the icon, up to 160 characters.</li>
-        <li><b>Tooltip</b>: Hover text and accessible name of the button, up to 240 characters. Default <code>Actions</code>.</li>
-        <li><b>Background / Color</b>: Button and icon color as hex value: <code>#rgb</code>, <code>#rrggbb</code> or <code>#rrggbbaa</code>, e.g. <code>#2563eb</code> (see <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a>). Use the color picker next to the field or type the value; the picker does not support transparency, type an 8 digit value for that. The &times; button clears the field. Color names such as <code>red</code> are not accepted. Empty uses the default.</li>
-        <li><b>Size</b>: Button diameter in px, 11 to 96. Default 56. Very small buttons are hard to hit on touch screens.</li>
-        <li><b>Radius</b>: Corner radius in px, 0 (square) to 48. Default 28.</li>
-        <li><b>Visible / Enabled</b>: Hide the button, or show it but make it unclickable.</li>
-        <li><b>Position</b>: Where the button is anchored: the corners <code>top-left</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-right</code>, the edge centers <code>top-center</code>, <code>bottom-center</code>, <code>center-left</code>, <code>center-right</code>, or <code>center</code>. Centered positions are useful for circle shapes. In scope Group the position refers to the group area, otherwise to the browser window.</li>
-        <li><b>Offset X / Offset Y</b>: Distance to the horizontal / vertical edge in px, 0 to 500. Default 24. Not used (and hidden) on an axis where the button is centered.</li>
+        <li><b>Position</b>: click a cell of the 3×3 grid. For <i>In a group's layout</i> it is relative to the widget's area, otherwise to the browser window.</li>
+        <li><b>Style</b>: how the actions open – row (round icon buttons), row with text (separate buttons with labels), menu list (one panel with labelled rows in reading order), half, quarter or full circle. Circles need room: a quarter circle fits a corner, a full circle needs space all around (the <i>center</i> position works well).</li>
+        <li><b>Opening direction</b>: click an arrow (not for the full circle). <i>Automatic</i> opens away from the nearest screen edge; only directions that fit the style and position are offered. Without enough room, a row moves to the side with the most space.</li>
+        <li><b>Icon</b>: icon of the main button (see <i>Icons</i>).</li>
+        <li><b>Icon when open</b>: replaces the icon while the menu is open. The default is an X. <i>Keep icon</i> leaves the normal icon in place.</li>
+        <li><b>Color</b>: click a swatch. <i>Dashboard</i> = primary color of the Dashboard theme (the theme of the page). The icon color is chosen light or dark automatically.</li>
+        <li><b>Size</b>: small, medium or large. Custom values under <i>Advanced</i>.</li>
     </ul>
-    <h4>Menu</h4>
+
+    <h3>Advanced tab</h3>
     <ul>
-        <li><b>Mode</b>: <code>speed-dial</code> shows round icon buttons in the chosen shape, <code>menu</code> shows a labelled list (always linear).</li>
-        <li><b>Shape</b> (speed-dial only): <code>linear</code> row, <code>circle</code> (full circle around the button), <code>semi-circle</code> (half circle) or <code>quarter-circle</code> (quarter circle). Circle shapes need free space: a quarter circle fits into a screen corner, a semi circle reaches one radius to both sides of the button (set the offset on that axis to at least the radius) and a full circle needs a radius of space on all sides. If a shape does not fit on screen it is shifted into view. Action labels are not shown in circle shapes, use the tooltip.</li>
-        <li><b>Direction</b>: Where the menu opens. <code>linear</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>. <code>semi-circle</code> and <code>quarter-circle</code>: only directions that point away from the screen corner of the button position are offered (for example bottom-right: semi <code>up</code>/<code>left</code>, quarter <code>up-left</code>; bottom-center: semi <code>up</code>, quarter <code>up-left</code>/<code>up-right</code>; center offers all four; the full table is in the package README). <code>circle</code> has no direction. Linear rows near a screen edge are flipped automatically so they stay visible.</li>
-        <li><b>Radius</b> (circle shapes): Distance of the actions from the button center in px, 0 to 500. <code>0</code> picks the smallest radius at which the actions do not overlap.</li>
-        <li><b>Gap</b>: Space between actions in px, 0 to 48.</li>
-        <li><b>Duration</b>: Animation time in ms, 0 to 1000. With the operating system setting "reduce motion" no animation is played.</li>
-        <li><b>Close on select</b>: Close the menu after an action was chosen.</li>
-        <li><b>Overlay</b>: Dim the page behind the open menu.</li>
-        <li><b>Show labels</b>: Show action labels next to the icons (linear speed-dial only).</li>
-        <li><b>Action size</b>: Diameter of the action buttons in px, 44 to 80.</li>
+        <li><b>Main button</b>: label next to the icon, tooltip, icon and text color, size in px (11–96), corner radius (0–48; 48 = round), edge distance (0–500 px, optionally separate for side and top/bottom), visible/enabled.</li>
+        <li><b>Menu</b>: circle radius (0 = automatic), gap between actions (0–48 px), action size (44–80 px), animation duration (0–1000 ms), close after selection, dim the page.</li>
+        <li><b>Display</b>: action corner radius (0–40 px), shadow, z-index (1–10000; increase it if other elements cover the button).</li>
     </ul>
-    <h4>Actions</h4>
-    <p>Sortable list with up to 100 entries. Use <b>Add action</b> to append one and drag entries to reorder them. The arrow in front of each entry collapses it to one line (<i>Collapse all</i> / <i>Expand all</i> above the list affect all entries; collapsing is only an editor view and is not saved). The copy button next to the title duplicates an entry directly below it with a new unique id (<code>&lt;id&gt;-copy</code>, <code>&lt;id&gt;-copy-2</code>, ...).</p>
+
+    <h3>Icons</h3>
+    <p>A click on the icon field opens the picker with three tabs:</p>
     <ul>
-        <li><b>Id</b> (required): Unique, stable identifier, 1 to 64 characters: letters, digits, <code>_ . : -</code>, starting with a letter or digit. It is sent as <code>msg.action</code> and used by <code>patch</code> and <code>remove</code>.</li>
-        <li><b>Label</b>: Text of the action, up to 160 characters. Default <code>Action</code>.</li>
-        <li><b>Icon</b>: PrimeIcons name with <code>pi-</code> prefix, e.g. <code>pi-check</code>. See the <a href="https://primevue.org/icons/" target="_blank" rel="noopener">PrimeIcons list</a>.</li>
-        <li><b>Tooltip</b>: Hover text, up to 240 characters.</li>
-        <li><b>Background / Color</b>: Optional individual colors in <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a> as for the button. Empty inherits from the theme.</li>
-        <li><b>Topic</b>: Optional <code>msg.topic</code> of the output, up to 240 characters.</li>
-        <li><b>Payload</b> (required): Value of <code>msg.payload</code>. Choose the type in the selector: <i>string</i>, <i>number</i>, <i>boolean</i> or <i>JSON</i>. JSON accepts objects, arrays and <code>null</code>, e.g. <code>{"name":"evening","brightness":40}</code>.</li>
-        <li><b>Visible / Enabled</b>: Hidden or disabled actions can not be selected and never produce output.</li>
+        <li><b>PrimeIcons</b>: 314 icons, included in the package (<code>pi-…</code>).</li>
+        <li><b>Material Design</b>: more than 7,000 icons, the same as in the other Dashboard widgets (<code>mdi-…</code>). Search by name, e.g. <code>lightbulb</code>, <code>home</code>, <code>power</code>.</li>
+        <li><b>Own image</b>: an SVG, PNG, WebP, GIF or JPG file
+            <ul>
+                <li><i>upload</i> it – the image is stored in the flow (at most 16 KB), or</li>
+                <li>link it by <i>address</i>: <code>https://…</code> or a path like <code>/icons/lamp.svg</code>. Paths point to the folder set as <code>httpStatic</code> in Node-RED's <code>settings.js</code>.</li>
+            </ul>
+            Like the other icons, own images are tinted in the icon color. Single-color symbols with a transparent background work best, ideally as SVG. Photos or images without a transparent background show up as a plain colored area.</li>
     </ul>
-    <h4>Theme</h4>
+
+    <h3>Choosing colors</h3>
+    <p>Every color field shows a row of suggested colors. The first one (<i>Dashboard</i>, <i>Automatic</i> or <i>Default</i>) takes the color from the Dashboard theme. The checkered swatch of background colors means <i>transparent</i>: only the icon is visible (on the main button in the primary color). The colorful swatch with the eyedropper on the right opens the browser's color dialog for any color. Next to it is the color as a hex value; you can also type a color there, with 8 digits even semi-transparent (e.g. <code>#2563eb80</code>).</p>
+
+    <h3>Colors and the Dashboard theme</h3>
+    <p>Without custom colors the speed dial follows the Dashboard theme: the main button uses the primary color, the actions use the surface and text color of the groups. Changing the theme therefore applies automatically. Custom colors override the theme only for that button or action.</p>
+
+    <h3>Input: control the menu with messages</h3>
+    <p>The actions and every setting of the <i>Appearance</i> and <i>Advanced</i> tabs can be changed at runtime with a message – for example from a function node. Only where it is shown, the group/page and the grid size are fixed. A message on the input produces <b>no</b> output.</p>
+
+    <h4>The messages at a glance</h4>
+    <dl class="message-properties">
+        <dt>Replace all actions</dt>
+        <dd><code>msg.payload = [ {…}, {…} ]</code></dd>
+        <dt>Change appearance or behavior</dt>
+        <dd><code>msg.payload = { button: {…}, menu: {…}, theme: {…} }</code></dd>
+        <dt>Both in one message</dt>
+        <dd><code>msg.payload = { actions: [ … ], button: {…} }</code></dd>
+        <dt>Change single actions</dt>
+        <dd><code>msg.command = "patch"</code>, <code>msg.payload = [ { id: "…", … } ]</code></dd>
+        <dt>Remove actions</dt>
+        <dd><code>msg.command = "remove"</code>, <code>msg.payload = [ "id", … ]</code></dd>
+        <dt>Back to the editor settings</dt>
+        <dd><code>msg.command = "reset"</code></dd>
+        <dt>For one browser only</dt>
+        <dd>add <code>msg._client</code> (see below)</dd>
+    </dl>
+
+    <h4>1. Replace all actions</h4>
+    <p>An array in <code>msg.payload</code> replaces the whole list. Only <code>id</code> and <code>payload</code> are required, all other fields have defaults. An empty array removes all actions.</p>
+<pre>msg.payload = [
+    { id: "on",  label: "On",  icon: "mdi-lightbulb-on", payload: true },
+    { id: "off", label: "Off", icon: "mdi-lightbulb-off", payload: false,
+      topic: "light", background: "#dc2626" }
+];
+return msg;</pre>
+
+    <h4>2. Change appearance or behavior</h4>
+    <p>An object with <code>button</code>, <code>menu</code> and/or <code>theme</code>. <b>Only the given fields</b> change, everything else stays as it is.</p>
+<pre>msg.payload = {
+    button: { icon: "mdi-bell", background: "#16a34a", label: "Alarm" },
+    menu:   { shape: "semi-circle", direction: "auto" }
+};
+return msg;</pre>
+    <p>With <code>actions</code> in the same object the actions are replaced as well (as in 1.).</p>
+
+    <h4>3. Change single actions – <code>patch</code></h4>
+    <p>Each object names the <code>id</code> of an existing action and only the fields that should change. Several actions per message are possible.</p>
+<pre>msg.command = "patch";
+msg.payload = [
+    { id: "off", enabled: false },
+    { id: "on",  label: "Light is on", icon: "mdi-check" }
+];
+return msg;</pre>
+    <p>Typical uses: hide an action (<code>visible: false</code>), disable it (<code>enabled: false</code>), change its label, icon, color or payload.</p>
+
+    <h4>4. Remove actions – <code>remove</code></h4>
+<pre>msg.command = "remove";
+msg.payload = ["off"];
+return msg;</pre>
+
+    <h4>5. Reset – <code>reset</code></h4>
+    <p>Restores the settings and actions from the editor and discards all changes made by messages. <code>msg.payload</code> is ignored.</p>
+<pre>msg.command = "reset";
+return msg;</pre>
+
+    <h4>6. Change it for one browser only – <code>msg._client</code></h4>
+    <p>Without <code>_client</code> every change applies to all browsers. With <code>msg._client</code> it applies to one browser or tab only – this works with all messages above, including <code>patch</code>, <code>remove</code> and <code>reset</code>.</p>
     <ul>
-        <li><b>Mode</b>: <code>light</code>, <code>dark</code> or <code>auto</code>.</li>
-        <li><b>Background / Color</b>: Menu surface and text color in <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color" target="_blank" rel="noopener">hex notation</a>. Empty uses the default of the mode.</li>
-        <li><b>Radius</b>: Corner radius of the menu in px, 0 to 40. Default 12.</li>
-        <li><b>Shadow</b>: Drop shadow below button and menu.</li>
-        <li><b>Z index</b>: Stacking order, 1 to 10000. Default 2000. Increase it if other elements cover the widget.</li>
+        <li><code>socketId</code>: exactly one browser tab.</li>
+        <li><code>clientId</code>: all open tabs of that browser.</li>
     </ul>
-    <h3>Input</h3>
-    <p>An input message without a command replaces the actions when <code>msg.payload</code> is an array. An object payload may supply <code>actions</code>, <code>button</code>, <code>menu</code>, and/or <code>theme</code>. The supplied actions array replaces the current actions; supplied fields in each other section merge into that section.</p>
-    <p>Use <code>msg.command = "patch"</code> with an array of partial action objects to update actions by ID. Use <code>remove</code> with an array of IDs to remove actions, or <code>reset</code> to restore the editor configuration. Unknown or duplicate IDs are rejected. The complete accepted input shapes and client-targeting notes are documented in the editor under <b>Input message help</b>.</p>
-    <p>Editor payload types are converted to native string, number, boolean, or JSON values. JSON <code>null</code> is valid; every action must include a payload property.</p>
+    <p><b>Requirements</b> (both in the Dashboard settings, <i>Client Data</i> section):</p>
+    <ul>
+        <li><i>Accept Client Data</i>: enable <code>ui-speed-dial</code> – otherwise a message with <code>_client</code> is rejected.</li>
+        <li><i>Include Client Data</i>: enable it so that a click delivers <code>msg._client</code> on the output. That way the flow knows which browser to answer.</li>
+    </ul>
+<pre>// Answer the browser that just clicked
+// (msg comes straight from the speed dial output)
+return {
+    _client: msg._client,
+    command: "patch",
+    payload: [{ id: msg.action, enabled: false }]
+};</pre>
+    <p>The browser must be connected at that moment. A later message without <code>_client</code> discards all per-browser changes; when a browser leaves the page, its change is discarded.</p>
+
+    <h4>All fields</h4>
+    <p><b>Action</b> (in <code>payload</code>, <code>actions</code> or <code>patch</code>):</p>
+    <dl class="message-properties">
+        <dt>id <span class="property-type">string, required</span></dt>
+        <dd>Unique, sent as <code>msg.action</code>. Letters, digits, <code>_ . : -</code>, at most 64 characters.</dd>
+        <dt>payload <span class="property-type">any, required</span></dt>
+        <dd>Sent as <code>msg.payload</code> on click: text, number, true/false, object, array or <code>null</code>.</dd>
+        <dt class="optional">label <span class="property-type">string</span></dt>
+        <dd>Label, default <code>"Action"</code>. Plain text, no HTML.</dd>
+        <dt class="optional">icon <span class="property-type">string</span></dt>
+        <dd>Default <code>"pi-circle"</code>. See <i>Values for colors and icons</i>.</dd>
+        <dt class="optional">tooltip, topic <span class="property-type">string</span></dt>
+        <dd>Hover text and <code>msg.topic</code> on click.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd>Background and icon color, <code>""</code> = theme. See <i>Values for colors and icons</i>.</dd>
+        <dt class="optional">visible, enabled <span class="property-type">boolean</span></dt>
+        <dd>Default <code>true</code>. Hidden or disabled actions send nothing.</dd>
+    </dl>
+    <p><b>button</b> – the main button:</p>
+    <dl class="message-properties">
+        <dt class="optional">icon, closeIcon <span class="property-type">string</span></dt>
+        <dd>Icon and icon while open. Default <code>"pi-plus"</code> / <code>"pi-times"</code>; <code>closeIcon: ""</code> keeps the normal icon.</dd>
+        <dt class="optional">label, tooltip <span class="property-type">string</span></dt>
+        <dd>Text next to the icon and hover text.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd><code>""</code> = primary color of the theme and a matching icon color.</dd>
+        <dt class="optional">size <span class="property-type">number</span></dt>
+        <dd>11–96 px, default 56.</dd>
+        <dt class="optional">radius <span class="property-type">number</span></dt>
+        <dd>0–48 px, default 48 (round).</dd>
+        <dt class="optional">position <span class="property-type">string</span></dt>
+        <dd><code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>center-left</code>, <code>center</code>, <code>center-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, <code>bottom-right</code> (default).</dd>
+        <dt class="optional">offsetX, offsetY <span class="property-type">number</span></dt>
+        <dd>Distance to the edge, 0–500 px, default 24.</dd>
+        <dt class="optional">visible, enabled <span class="property-type">boolean</span></dt>
+        <dd>Show/hide or disable the button.</dd>
+    </dl>
+    <p><b>menu</b> – layout and behavior:</p>
+    <dl class="message-properties">
+        <dt class="optional">mode, shape, showLabels</dt>
+        <dd>The <i>style</i> from the editor:
+            row = <code>{ mode: "speed-dial", shape: "linear", showLabels: false }</code>,
+            row with text = <code>showLabels: true</code> instead,
+            menu list = <code>{ mode: "menu" }</code>,
+            circles = <code>shape: "semi-circle"</code>, <code>"quarter-circle"</code> or <code>"circle"</code>.</dd>
+        <dt class="optional">direction <span class="property-type">string</span></dt>
+        <dd><code>auto</code> (default); rows and half circles <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>; quarter circles <code>up-left</code>, <code>up-right</code>, <code>down-left</code>, <code>down-right</code>. The full circle has no direction.</dd>
+        <dt class="optional">gap, actionSize, radius <span class="property-type">number</span></dt>
+        <dd>Gap between actions (0–48, default 8), action size (44–80, default 44), circle radius (0–500, 0 = automatic).</dd>
+        <dt class="optional">duration <span class="property-type">number</span></dt>
+        <dd>Animation duration 0–1000 ms, default 150.</dd>
+        <dt class="optional">closeOnSelect, overlay <span class="property-type">boolean</span></dt>
+        <dd>Close after a selection (default <code>true</code>), dim the page (default <code>false</code>).</dd>
+    </dl>
+    <p><b>theme</b> – display of all actions:</p>
+    <dl class="message-properties">
+        <dt class="optional">mode <span class="property-type">string</span></dt>
+        <dd><code>auto</code> = Dashboard theme colors (default), <code>light</code> or <code>dark</code> = fixed light or dark colors. Messages only.</dd>
+        <dt class="optional">background, color <span class="property-type">string</span></dt>
+        <dd>Shared background and text color of all actions. Messages only; an action's own colors take precedence.</dd>
+        <dt class="optional">radius <span class="property-type">number</span></dt>
+        <dd>Action corner radius, 0–40 px, default 12.</dd>
+        <dt class="optional">shadow <span class="property-type">boolean</span></dt>
+        <dd>Shadow, default <code>true</code>.</dd>
+        <dt class="optional">zIndex <span class="property-type">number</span></dt>
+        <dd>1–10000, default 2000.</dd>
+    </dl>
+
+    <h4>Values for colors and icons</h4>
+    <ul>
+        <li><b>Colors</b>: hex values <code>#rgb</code>, <code>#rrggbb</code> or <code>#rrggbbaa</code> (with transparency), e.g. <code>"#2563eb"</code>. <code>""</code> = color from the theme, <code>"#00000000"</code> = transparent. Color names like <code>"red"</code> do not work.</li>
+        <li><b>Icons</b>: <code>"pi-…"</code> (PrimeIcons), <code>"mdi-…"</code> (Material Design Icons), an image address (<code>"/icons/lamp.svg"</code>, <code>"https://…"</code>), an image as <code>"data:image/…;base64,…"</code> (at most 16 KB) or <code>""</code> for no icon.</li>
+    </ul>
+
+    <h4>When a message has no effect</h4>
+    <p>A faulty message is discarded <b>completely</b> – nothing changes – and a warning with the reason appears in the debug sidebar. Common causes:</p>
+    <ul>
+        <li>A typo in a field name (e.g. <code>colour</code> instead of <code>color</code>) or a field that does not exist.</li>
+        <li>Numbers as text (<code>"56"</code> instead of <code>56</code>) or outside the allowed range.</li>
+        <li>Color names instead of hex values; icon names without <code>pi-</code>/<code>mdi-</code>.</li>
+        <li><code>shape</code> changed while the previous <code>direction</code> does not fit the new shape – send both together or use <code>direction: "auto"</code>.</li>
+        <li><code>patch</code>/<code>remove</code> with an ID that does not exist, or duplicate IDs.</li>
+        <li>An action without <code>payload</code> (<code>null</code> is allowed, missing is not).</li>
+        <li><code>_client</code> without enabling <i>Accept Client Data</i>, or for a browser that is not connected.</li>
+    </ul>
+    <p>Changes made by messages last until the next deploy or restart of Node-RED. Ready-made examples for every case: <b>Menu → Import → Examples → node-red-dashboard-2-ui-speed-dial → speed-dial-input-reference</b>.</p>
+
     <h3>Output</h3>
-    <p>The selected action sends its native payload, its stable ID in <code>msg.action</code>, and <code>msg.topic</code> when the action has a non-empty topic.</p>
+    <p>On a click on a visible, enabled action:</p>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>The payload of the chosen action.</dd>
+        <dt>action <span class="property-type">string</span></dt>
+        <dd>The ID of the action – handy for a switch node.</dd>
+        <dt class="optional">topic <span class="property-type">string</span></dt>
+        <dd>The topic of the action, if set.</dd>
+        <dt class="optional">_client <span class="property-type">object</span></dt>
+        <dd>The browser that clicked – only if <i>Include Client Data</i> is enabled in the Dashboard. Use it to answer exactly that browser (see <i>Change it for one browser only</i>).</dd>
+    </dl>
+
     <h3>Behavior</h3>
-    <p>Reduced motion is handled automatically. The menu closes on Escape and outside click; these behaviors are always enabled.</p>
+    <p>The menu closes on Escape and on a click outside. With the system setting “reduce motion” nothing is animated. The button works with the keyboard (arrow keys, Home/End, Enter).</p>
 </script>

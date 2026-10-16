@@ -1,61 +1,474 @@
 <script type="text/javascript">
 /* global RED, $, document, window */
 (function () {
-    const fieldDefaults = {
-        name: { value: '' },
-        scope: { value: 'page' },
-        group: { value: '', type: 'ui-group', validate: function (v) { return this.scope !== 'group' || !!v; } },
-        page: { value: '', type: 'ui-page', validate: function (v) { return this.scope !== 'page' || !!v; } },
-        ui: { value: '', type: 'ui-base', validate: function (v) { return this.scope !== 'all' || !!v; } },
-        order: { value: 0 },
-        width: { value: 3 },
-        height: { value: 4 },
-        actions: { value: [] },
-        button: { value: {} },
-        menu: { value: {} },
-        theme: { value: {} }
+    const NS = 'node-red-dashboard-2-ui-speed-dial/ui-speed-dial:';
+    const SECTIONS = ['button', 'menu', 'theme'];
+    const PAYLOAD_TYPES = ['str', 'num', 'bool', 'json'];
+    const POSITIONS = ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right'];
+    // One style card sets menu.mode, menu.shape and menu.showLabels together.
+    const STYLES = {
+        row: { mode: 'speed-dial', shape: 'linear', showLabels: false },
+        'row-labels': { mode: 'speed-dial', shape: 'linear', showLabels: true },
+        list: { mode: 'menu', shape: 'linear', showLabels: false },
+        'semi-circle': { mode: 'speed-dial', shape: 'semi-circle', showLabels: false },
+        'quarter-circle': { mode: 'speed-dial', shape: 'quarter-circle', showLabels: false },
+        circle: { mode: 'speed-dial', shape: 'circle', showLabels: false }
     };
+    const dot = function (x, y, r) { return '<circle cx="' + x + '" cy="' + y + '" r="' + (r || 3) + '"' + (r ? '' : ' class="a"') + '/>'; };
+    const bar = function (x, y, w) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="3" rx="1.5" class="a"/>'; };
+    const STYLE_PREVIEWS = {
+        row: dot(44, 31, 6) + dot(44, 20) + dot(44, 12.5) + dot(44, 5),
+        'row-labels': dot(44, 31, 6) + dot(44, 20) + dot(44, 12.5) + dot(44, 5) + bar(24, 18.5, 15) + bar(24, 11, 15) + bar(24, 3.5, 15),
+        list: dot(44, 31, 6) + '<rect x="8" y="2" width="42" height="21" rx="3" class="o"/>' + bar(12, 6, 30) + bar(12, 11, 30) + bar(12, 16, 30),
+        'semi-circle': dot(28, 32, 6) + dot(12, 32) + dot(16.7, 20.7) + dot(28, 16) + dot(39.3, 20.7) + dot(44, 32),
+        'quarter-circle': dot(46, 32, 6) + dot(26, 32) + dot(31.9, 17.9) + dot(46, 12),
+        circle: dot(28, 20, 6) + dot(42, 20) + dot(35, 32.1) + dot(21, 32.1) + dot(14, 20) + dot(21, 7.9) + dot(35, 7.9)
+    };
+    const SIZE_PRESETS = { s: 40, m: 56, l: 72 };
+    const DIRECTION_ANGLES = { up: 0, 'up-right': 45, right: 90, 'down-right': 135, down: 180, 'down-left': 225, left: 270, 'up-left': 315 };
+    const DASHBOARD_PRIMARY = '#0d74ce';
+    // Inline colour swatches; anything else comes from "custom" (the browser's colour dialog) or the hex field.
+    const PREVIEW_HEIGHT = 340;
+    const PREVIEW_MIN_WIDTH = 420;
+    const PREVIEW_EXAMPLE_ICONS = ['pi-home', 'pi-lightbulb', 'pi-bell', 'pi-cog', 'pi-star'];
+    // Fully transparent, as an 8-digit hex value the runtime already accepts.
+    const COLOR_TRANSPARENT = '#00000000';
+    const COLOR_PALETTE = ['#dc2626', '#ea580c', '#d97706', '#16a34a', '#0d9488', '#0284c7', '#2563eb', '#7c3aed', '#db2777', '#475569', '#0f172a', '#ffffff'];
+    // Node-RED serves the package's resources/ folder to the editor.
+    const ICON_FONT = 'resources/node-red-dashboard-2-ui-speed-dial/primeicons.woff2';
+    // Material Design Icons: font and names of the installed Dashboard, served by this node.
+    const MDI_FONT = 'ui-speed-dial/mdi.woff2';
+    const ICON_GRID_LIMIT = 400;
+    // Same rules as lib/protocol.js.
+    const ICON_NAME = /^(?:pi|mdi)-[a-z0-9-]+$/;
+    const ICON_URL = /^(?:https?:\/\/|\/)[^\s"'()\\<>]{1,2047}$/;
+    const ICON_DATA = /^data:image\/(?:svg\+xml|png|gif|webp|jpeg);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+    let schema = null;
+    let icons = null;
+    // null = not requested yet, 'loading', 'failed' or the name -> code point map; kept for the editor session.
+    let mdiIcons = null;
+    let request = null;
+    let session = 0;
+    let rowSeq = 0;
+    // Values of fields the dialog no longer shows (e.g. theme.mode); kept on save unless the user removes them.
+    let preserved = {};
+    let dropPreserved = false;
+    let previewOpen = false;
+    let previewMessage = '';
+
     // Same palette section as the Dashboard 2 widgets (localized by the dashboard itself).
     function dashboardCategory() {
         const label = RED._('@flowfuse/node-red-dashboard/ui-base:ui-base.label.category');
         return label && label.indexOf(':') === -1 ? label : 'Dashboard 2';
     }
     RED.nodes.registerType('ui-speed-dial', {
-        category: dashboardCategory(), color: '#a6bbcf', defaults: fieldDefaults,
-        inputs: 1, outputs: 1, icon: 'font-awesome/fa-plus', paletteLabel: 'speed dial',
+        category: dashboardCategory(),
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: '' },
+            scope: { value: 'page' },
+            group: { value: '', type: 'ui-group', validate: function (v) { return this.scope !== 'group' || !!v; } },
+            page: { value: '', type: 'ui-page', validate: function (v) { return this.scope !== 'page' || !!v; } },
+            ui: { value: '', type: 'ui-base', validate: function (v) { return this.scope !== 'all' || !!v; } },
+            order: { value: 0 },
+            width: { value: 0 },
+            height: { value: 0 },
+            actions: { value: [] },
+            button: { value: {} },
+            menu: { value: {} },
+            theme: { value: {} }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-plus',
+        paletteLabel: 'speed dial',
         label: function () { return this.name || 'speed dial'; },
         oneditprepare: function () { prepareEditor(this); },
         oneditcancel: function () { cancelEditor(); },
         oneditsave: function () { saveEditor(this); }
     });
 
-    const sections = ['button', 'menu', 'theme'];
-    const types = ['str', 'num', 'bool', 'json'];
-    let loadedSchema = null;
-    let list = null;
-    let nodeRef = null;
-    let schemaError = null;
-    let schemaRequest = null;
-
-    function esc(value) { return $('<div>').text(String(value)).html(); }
+    // ---- helpers -------------------------------------------------------------------------------------------
     // Translations live in nodes/locales/<lang>/ui-speed-dial.json (namespace <package>/<node file>).
-    const NS = 'node-red-dashboard-2-ui-speed-dial/ui-speed-dial:';
     function t(key, options) {
         const text = RED._(NS + key, options);
         return text === NS + key || text === key ? key : text;
     }
-    function hasText(key) { return t(key) !== key; }
+    function esc(value) { return $('<div>').text(String(value)).html(); }
+    function has(object, key) { return !!object && Object.prototype.hasOwnProperty.call(object, key); }
+    function defaultFor(field) { return has(field, 'default') ? field.default : ''; }
+    function control(section, key) { return $('#sd-' + section + '-' + key); }
+    function rowOf($el) { return $el.closest('.form-row'); }
+    function codePoint(map, name) { return map && typeof map === 'object' && map[name] ? String.fromCodePoint(parseInt(map[name], 16)) : ''; }
+    function isIconValue(value) {
+        if (value === '') return true;
+        if (ICON_NAME.test(value)) {
+            const map = value.startsWith('pi-') ? icons : mdiIcons;
+            return !map || typeof map !== 'object' || has(map, value);
+        }
+        return ICON_URL.test(value) || (value.length <= schema.limits.iconImageChars && ICON_DATA.test(value));
+    }
+    function iconName(value) {
+        if (!value) return t('icon.none');
+        if (ICON_NAME.test(value)) return value.replace(/^(pi|mdi)-/, '');
+        if (value.startsWith('data:')) return t('icon.ownImage');
+        return value.split(/[/?#]/).filter(Boolean).pop() || value;
+    }
+    // Fills a .sd-icon span: a font glyph for pi-/mdi- names, otherwise the image as a colour mask (as in the dashboard).
+    function renderIcon($el, value) {
+        $el.attr('data-sd-icon', value || '').removeClass('sd-glyph sd-glyph-mdi sd-img').text('').css({ 'mask-image': '', '-webkit-mask-image': '' });
+        if (!value) return $el;
+        if (value.startsWith('pi-')) return $el.addClass('sd-glyph').text(codePoint(icons, value));
+        if (value.startsWith('mdi-')) {
+            loadMdiIcons();
+            return $el.addClass('sd-glyph sd-glyph-mdi').text(codePoint(mdiIcons, value));
+        }
+        if (ICON_URL.test(value) || ICON_DATA.test(value)) $el.addClass('sd-img').css({ 'mask-image': 'url("' + value + '")', '-webkit-mask-image': 'url("' + value + '")' });
+        return $el;
+    }
+    function loadMdiIcons() {
+        if (mdiIcons !== null && mdiIcons !== 'failed') return;
+        mdiIcons = 'loading';
+        $.getJSON('ui-speed-dial/mdi-icons').done(function (map) {
+            mdiIcons = map && typeof map === 'object' && Object.keys(map).length ? map : 'failed';
+        }).fail(function () { mdiIcons = 'failed'; }).always(function () {
+            $('#sd-editor [data-sd-icon]').each(function () { renderIcon($(this), $(this).attr('data-sd-icon')); });
+            $('#sd-editor [data-section="button"][data-key="icon"], #sd-editor [data-section="button"][data-key="closeIcon"], #sd-editor [data-action-key="icon"]').each(function () {
+                const refresh = $(this).data('refreshIcon');
+                if (refresh) refresh();
+            });
+            if (schema) validateEditor();
+        });
+    }
+    function isSchema(value) { return !!(value && value.button && value.menu && value.theme && value.action && value.limits && value.geometry); }
+    function bytes(text) { return new TextEncoder().encode(text).length; }
     function applyI18n() {
         $('#sd-editor [data-sd-i18n]').each(function () { $(this).html(t($(this).attr('data-sd-i18n'))); });
+        $('#sd-editor [data-sd-i18n-placeholder]').each(function () { $(this).attr('placeholder', t($(this).attr('data-sd-i18n-placeholder'))); });
+        $('#sd-editor [data-sd-i18n-title]').each(function () { const text = t($(this).attr('data-sd-i18n-title')); $(this).attr({ title: text, 'aria-label': text }); });
     }
-    function makeId() {
-        if (RED.util && typeof RED.util.generateId === 'function') return RED.util.generateId();
-        return 'action-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+    function ensureIconFont() {
+        if (document.getElementById('sd-icon-font')) return;
+        $('<style id="sd-icon-font"></style>').text('@font-face{font-family:"sd-primeicons";font-display:block;src:url("' + ICON_FONT + '") format("woff2")}' +
+            '@font-face{font-family:"sd-mdi";font-display:block;src:url("' + MDI_FONT + '") format("woff2")}').appendTo(document.head);
     }
-    function defaultFor(field) { return Object.prototype.hasOwnProperty.call(field, 'default') ? field.default : ''; }
-    function fieldTitle(key) {
-        if (hasText('field.' + key)) return t('field.' + key);
-        return key.replace(/([A-Z])/g, ' $1').replace(/^./, function (s) { return s.toUpperCase(); });
+    // Same rule as the widget: dark text on light backgrounds, white on dark ones.
+    function isTransparent(hex) { return /^#[0-9a-f]{6}[0-7][0-9a-f]$/i.test(hex || ''); }
+    // Mostly transparent backgrounds return '' so the caller keeps the colour of what is behind them.
+    function contrastColor(hex) {
+        const match = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(hex || '');
+        if (!match || isTransparent(hex)) return '';
+        const h = match[1].length === 3 ? match[1].replace(/./g, '$&$&') : match[1];
+        const [r, g, b] = [0, 2, 4].map(function (i) { const c = parseInt(h.slice(i, i + 2), 16) / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179 ? '#0f172a' : '#ffffff';
+    }
+    function hexForPicker(text) {
+        const match = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.exec(text || '');
+        if (!match) return null;
+        const h = match[1].length === 3 ? match[1].replace(/./g, '$&$&') : match[1];
+        return '#' + h.slice(0, 6).toLowerCase();
+    }
+    // Colours of the Dashboard theme that the selected group / page / UI uses (defaults of Dashboard 2 otherwise).
+    function dashboardTheme() {
+        const result = { primary: DASHBOARD_PRIMARY, surface: '#ffffff', page: '#f9f9fb' };
+        try {
+            const scope = $('#node-input-scope').val();
+            let page = null;
+            if (scope === 'group') { const group = RED.nodes.node($('#node-input-group').val()); page = group && RED.nodes.node(group.page); }
+            else if (scope === 'page') page = RED.nodes.node($('#node-input-page').val());
+            else {
+                const ui = $('#node-input-ui').val();
+                RED.nodes.eachConfig(function (n) { if (!page && n.type === 'ui-page' && n.ui === ui) page = n; });
+            }
+            const theme = page && page.theme && RED.nodes.node(page.theme);
+            const colors = (theme && theme.colors) || {};
+            if (hexForPicker(colors.primary)) result.primary = colors.primary;
+            if (hexForPicker(colors.groupBg)) result.surface = colors.groupBg;
+            if (hexForPicker(colors.bgPage)) result.page = colors.bgPage;
+        } catch (error) { /* keep the defaults */ }
+        return result;
+    }
+    function dashboardPrimary() { return dashboardTheme().primary; }
+    // Readable, stable action id from a label: "Licht an" -> "licht-an".
+    function slug(text) {
+        const umlauts = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' };
+        const value = String(text || '').toLowerCase().replace(/[äöüß]/g, function (c) { return umlauts[c]; })
+            .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+            .replace(/[^a-z0-9_.:-]+/g, '-').replace(/^[^a-z0-9]+/, '').replace(/-+$/, '').slice(0, 64).replace(/-+$/, '');
+        return value || 'action';
+    }
+    function uniqueId(base, $self) {
+        const ids = new Set();
+        $('#node-input-actions-list .sd-action').not($self || []).each(function () { ids.add($(this).find('[data-action-key="id"]').val()); });
+        if (!ids.has(base)) return base;
+        for (let n = 2; ; n += 1) {
+            const candidate = base.slice(0, 63 - String(n).length) + '-' + n;
+            if (!ids.has(candidate)) return candidate;
+        }
+    }
+
+    // ---- editor lifecycle ----------------------------------------------------------------------------------
+    function prepareEditor(node) {
+        const current = ++session;
+        previewOpen = false;
+        previewMessage = '';
+        if (request) request.abort();
+        schema = null;
+        preserved = {};
+        dropPreserved = false;
+        const iconMap = RED.settings.uiSpeedDialIcons;
+        icons = iconMap && typeof iconMap === 'object' && Object.keys(iconMap).length ? iconMap : null;
+        applyI18n();
+        ensureIconFont();
+        setupSizer(node);
+        $('#node-dialog-ok').prop('disabled', true);
+        showBanner(t('loading'), false);
+        loadSchema(function (loaded) {
+            if (current !== session) return;
+            try {
+                schema = loaded;
+                buildForm(node);
+                buildActionList(node.actions || []);
+                bindEvents();
+                $('#sd-banner').hide();
+                updateDependent();
+                validateEditor();
+            } catch (error) { failed(error); }
+        }, failed);
+        function failed(error) {
+            if (current !== session) return;
+            schema = null;
+            showBanner(t('err.unavailable', { message: error.message }), true);
+            $('#node-dialog-ok').prop('disabled', true);
+        }
+    }
+    function loadSchema(done, fail) {
+        if (isSchema(RED.settings.uiSpeedDialSchema)) { done(RED.settings.uiSpeedDialSchema); return; }
+        // Editors opened before the node was installed have no node settings yet.
+        request = $.getJSON('ui-speed-dial/schema');
+        request.done(function (loaded) {
+            request = null;
+            if (isSchema(loaded)) done(loaded);
+            else fail(new Error(t('err.schemaIncomplete')));
+        }).fail(function (xhr, status) {
+            request = null;
+            if (status !== 'abort') fail(new Error(xhr && xhr.status ? t('err.http', { status: xhr.status }) : t('err.network')));
+        });
+    }
+    function cancelEditor() {
+        session += 1;
+        if (request) request.abort();
+        request = null;
+        schema = null;
+    }
+    function showBanner(text, error) {
+        $('#sd-banner').text(text).toggleClass('sd-banner-error', !!error).show();
+    }
+    // The size grid of the Dashboard widgets; numeric fields in subflows, as the built-in widgets do.
+    function setupSizer(node) {
+        const inSubflow = !!(RED.nodes.subflow && RED.nodes.subflow(node.z));
+        const sizer = !inSubflow && typeof $.fn.elementSizer === 'function';
+        if (sizer) $('#node-input-size').elementSizer({ width: '#node-input-width', height: '#node-input-height', group: '#node-input-group' });
+        else $('#node-input-width, #node-input-height').attr({ type: 'number', min: 0 });
+        $('#sd-editor').data('sizer', sizer);
+    }
+
+    // ---- main form -----------------------------------------------------------------------------------------
+    function writeControl($input, field, value) {
+        if ($input.attr('type') === 'checkbox') $input.prop('checked', value === true);
+        else if (field.type === 'boolean') $input.val(value === true ? 'true' : 'false');
+        else $input.val(value === undefined || value === null ? '' : String(value));
+        if ($input.hasClass('sd-color-text')) syncColor($input);
+    }
+    function readControl($input, field) {
+        if ($input.attr('type') === 'checkbox') return $input.prop('checked');
+        if (field.type === 'boolean') return $input.val() === 'true';
+        if (field.type === 'number') {
+            const raw = String($input.val() == null ? '' : $input.val()).trim();
+            return raw === '' ? undefined : Number(raw);
+        }
+        return String($input.val() == null ? '' : $input.val());
+    }
+    function buildForm(node) {
+        $('#sd-editor .sd-color-text').each(function () { enhanceColor($(this)); });
+        const $direction = control('menu', 'direction').empty();
+        schema.menu.direction.values.forEach(function (v) { $direction.append($('<option>').attr('value', v).text(t('direction.' + v))); });
+        for (const section of SECTIONS) {
+            const stored = Object.assign({}, node[section]);
+            // Earlier versions saved the old fixed blue as an explicit value; it now means "use the Dashboard colour".
+            if (section === 'button' && stored.background === '#2563eb' && stored.color === '#ffffff') { stored.background = ''; stored.color = ''; }
+            for (const [key, field] of Object.entries(schema[section])) {
+                const $input = control(section, key);
+                if (!$input.length) {
+                    if (has(stored, key) && JSON.stringify(stored[key]) !== JSON.stringify(defaultFor(field))) {
+                        (preserved[section] = preserved[section] || {})[key] = stored[key];
+                    }
+                    continue;
+                }
+                writeControl($input, field, has(stored, key) ? stored[key] : defaultFor(field));
+                if (field.type === 'number') $input.attr({ min: field.min, max: field.max, 'data-default': field.default });
+            }
+        }
+        const offsetX = control('button', 'offsetX').val();
+        $('#sd-offset').val(offsetX).attr({ min: schema.button.offsetX.min, max: schema.button.offsetX.max, 'data-default': schema.button.offsetX.default });
+        $('#sd-offset-separate').prop('checked', offsetX !== control('button', 'offsetY').val());
+        buildPositionGrid();
+        buildStyleCards();
+        iconPicker($('#sd-button-icon-slot'), $('#sd-button-icon-panel'), control('button', 'icon'));
+        iconPicker($('#sd-button-closeIcon-slot'), $('#sd-button-closeIcon-panel'), control('button', 'closeIcon'), { noneLabel: t('icon.keep') });
+        attachResets();
+        showPreserved();
+    }
+    function buildPositionGrid() {
+        const $grid = $('#sd-position-grid').empty();
+        control('button', 'position').data('target', $grid);
+        POSITIONS.forEach(function (p) {
+            $('<button type="button" class="sd-pos" role="radio"><span></span></button>')
+                .attr({ 'data-value': p, title: t('position.' + p), 'aria-label': t('position.' + p) }).appendTo($grid);
+        });
+    }
+    function buildStyleCards() {
+        const $cards = $('#sd-style-cards').empty();
+        control('menu', 'mode').data('target', $cards);
+        control('menu', 'shape').data('target', $cards);
+        Object.keys(STYLES).forEach(function (id) {
+            $('<button type="button" class="sd-style" role="radio"></button>')
+                .attr({ 'data-value': id, title: t('style.' + id + '.hint') })
+                .html('<svg viewBox="0 0 56 40" aria-hidden="true">' + STYLE_PREVIEWS[id] + '</svg><span>' + esc(t('style.' + id + '.label')) + '</span>')
+                .appendTo($cards);
+        });
+    }
+    function currentStyle() {
+        if (control('menu', 'mode').val() === 'menu') return 'list';
+        const shape = control('menu', 'shape').val();
+        if (shape === 'linear') return control('menu', 'showLabels').val() === 'true' ? 'row-labels' : 'row';
+        return shape;
+    }
+    function applyStyle(id) {
+        const style = STYLES[id];
+        control('menu', 'mode').val(style.mode);
+        control('menu', 'shape').val(style.shape);
+        control('menu', 'showLabels').val(String(style.showLabels)).trigger('change');
+    }
+    function directionChoices(shape, position) {
+        const g = schema.geometry;
+        if (shape === 'circle') return [];
+        if (shape === 'linear') return g.directions.linear;
+        return (g.corners[position] && g.corners[position][shape]) || g.directions[shape] || [];
+    }
+    // Shows only what applies to the current choices and keeps the visual pickers in sync.
+    function updateDependent() {
+        if (!schema) return;
+        const scope = $('#node-input-scope').val() || 'page';
+        const sizer = $('#sd-editor').data('sizer');
+        $('#sd-ref-group').toggle(scope === 'group');
+        $('#sd-ref-page').toggle(scope === 'page');
+        $('#sd-ref-ui').toggle(scope === 'all');
+        $('.sd-size-sizer').toggle(scope === 'group' && sizer);
+        $('.sd-size-numeric').toggle(scope === 'group' && !sizer);
+        $('#sd-scope-hint').text(t('scopeHint.' + scope));
+        $('#sd-position-hint').text(t(scope === 'group' ? 'hint.positionGroup' : 'hint.positionPage'));
+
+        const position = control('button', 'position').val() || '';
+        $('#sd-position-grid .sd-pos').each(function () {
+            const on = $(this).attr('data-value') === position;
+            $(this).toggleClass('active', on).attr('aria-checked', String(on));
+        });
+        $('#sd-position-name').text(position ? t('position.' + position) : '');
+        const style = currentStyle();
+        $('#sd-style-cards .sd-style').each(function () {
+            const on = $(this).attr('data-value') === style;
+            $(this).toggleClass('active', on).attr('aria-checked', String(on));
+        });
+        const size = Number(control('button', 'size').val());
+        $('#sd-size-presets .sd-size-preset').each(function () { $(this).toggleClass('selected', SIZE_PRESETS[$(this).attr('data-size')] === size); });
+
+        const mode = control('menu', 'mode').val();
+        const shape = mode === 'menu' ? 'linear' : control('menu', 'shape').val();
+        const $direction = control('menu', 'direction');
+        const wanted = $direction.val();
+        const choices = directionChoices(shape, position);
+        $direction.empty().append($('<option value="auto">').text(t('direction.auto')));
+        choices.forEach(function (v) { $direction.append($('<option>').attr('value', v).text(t('direction.' + v))); });
+        $direction.val(choices.includes(wanted) ? wanted : 'auto');
+        rowOf($direction).toggle(shape !== 'circle');
+        $('#sd-direction-hint').toggle(shape !== 'circle');
+        const $arrows = $('#sd-direction-buttons').empty();
+        $direction.data('target', $arrows);
+        ['auto'].concat(choices).forEach(function (value) {
+            const $choice = $('<button type="button" class="red-ui-button toggle sd-direction" role="radio"></button>')
+                .attr({ 'data-value': value, title: t('direction.' + value), 'aria-label': t('direction.' + value), 'aria-checked': String(value === $direction.val()) })
+                .toggleClass('selected', value === $direction.val()).appendTo($arrows);
+            if (value === 'auto') $choice.text(t('direction.auto'));
+            else $('<i class="fa fa-arrow-up" aria-hidden="true"></i>').css('transform', 'rotate(' + DIRECTION_ANGLES[value] + 'deg)').appendTo($choice);
+        });
+        rowOf(control('menu', 'radius')).toggle(shape !== 'linear');
+
+        const centeredX = position === 'center' || position.endsWith('-center');
+        const centeredY = position === 'center' || position.startsWith('center');
+        // With a centred axis only one distance applies, so there is nothing to split.
+        const split = $('#sd-offset-separate').prop('checked') && !centeredX && !centeredY;
+        $('#sd-offset-single').toggle(!split && !(centeredX && centeredY));
+        $('#sd-offset-single label').text(t(centeredX ? 'field.offsetY' : centeredY ? 'field.offsetX' : 'field.offset'));
+        if (!split && document.activeElement !== $('#sd-offset')[0]) $('#sd-offset').val(control('button', centeredX ? 'offsetY' : 'offsetX').val());
+        $('#sd-offset-separate-row').toggle(!centeredX && !centeredY);
+        rowOf(control('button', 'offsetX')).toggle(split);
+        rowOf(control('button', 'offsetY')).toggle(split);
+        control('button', 'offsetX').data('target', split ? null : $('#sd-offset'));
+        control('button', 'offsetY').data('target', split ? null : $('#sd-offset'));
+
+        syncColor(control('button', 'background'));
+    }
+    function showPreserved() {
+        const entries = [];
+        Object.keys(preserved).forEach(function (section) {
+            Object.keys(preserved[section]).forEach(function (key) { entries.push(section + '.' + key + ' = ' + JSON.stringify(preserved[section][key])); });
+        });
+        $('#sd-preserved').toggle(entries.length > 0 && !dropPreserved).find('.sd-preserved-list').text(entries.join(', '));
+    }
+    // A colour field: a row of swatches (default, palette, custom) plus a small hex field that holds the value.
+    // data-kind of the wrapper names the default: "dashboard" (theme primary), "auto" (contrast) or "default".
+    function colorControl(attrs, kind) {
+        return '<span class="sd-color" data-kind="' + kind + '"><input type="text" class="sd-color-text" ' + attrs + '></span>';
+    }
+    function enhanceColor($text) {
+        const $wrap = $text.closest('.sd-color');
+        if ($wrap.find('.sd-swatches').length) return;
+        const kind = $wrap.attr('data-kind') || 'default';
+        const $swatches = $('<div class="sd-swatches" role="radiogroup"></div>');
+        $('<button type="button" class="sd-swatch sd-swatch-default" role="radio" data-color=""><span class="sd-dot"></span><span class="sd-swatch-text"></span></button>')
+            .attr('title', t('color.' + kind + 'Hint')).appendTo($swatches).find('.sd-swatch-text').text(t('color.' + kind));
+        if (kind !== 'auto') {
+            $('<button type="button" class="sd-swatch sd-swatch-transparent" role="radio"></button>')
+                .attr({ 'data-color': COLOR_TRANSPARENT, title: t('color.transparent'), 'aria-label': t('color.transparent') }).appendTo($swatches);
+        }
+        COLOR_PALETTE.forEach(function (color) {
+            $('<button type="button" class="sd-swatch" role="radio"></button>').attr({ 'data-color': color, title: color, 'aria-label': color }).css('background-color', color).appendTo($swatches);
+        });
+        $('<label class="sd-swatch sd-swatch-custom"><i class="fa fa-eyedropper" aria-hidden="true"></i><input type="color" class="sd-color-picker"></label>')
+            .attr('title', t('color.custom')).appendTo($swatches).find('input').attr('aria-label', t('color.custom'));
+        $swatches.prependTo($wrap);
+        $text.attr({ placeholder: '#rrggbb', 'aria-label': t('color.hex'), title: t('color.hexHint') });
+        syncColor($text);
+    }
+    function syncColor($text) {
+        if (!$text || !$text.length) return;
+        const $wrap = $text.closest('.sd-color');
+        const value = String($text.val() || '').trim();
+        const hex = hexForPicker(value);
+        const inPalette = COLOR_PALETTE.includes(value.toLowerCase()) || ($wrap.attr('data-kind') !== 'auto' && value.toLowerCase() === COLOR_TRANSPARENT);
+        const custom = value !== '' && !inPalette;
+        $wrap.find('.sd-swatch').each(function () {
+            const color = $(this).attr('data-color');
+            const on = color === undefined ? custom : color === '' ? value === '' : color === value.toLowerCase();
+            $(this).toggleClass('active', on).attr('aria-checked', String(on));
+        });
+        $wrap.find('.sd-swatch-custom').toggleClass('sd-has-color', custom && !!hex).css({ 'background-color': custom && hex ? value : '', color: custom && hex ? contrastColor(hex) : '' });
+        const kind = $wrap.attr('data-kind');
+        const fallback = kind === 'dashboard' ? dashboardPrimary() : '';
+        $wrap.find('.sd-swatch-default .sd-dot').css('background', kind === 'dashboard' ? fallback : kind === 'auto' ? 'linear-gradient(135deg, #ffffff 50%, #0f172a 50%)' : '#ffffff');
+        $wrap.find('.sd-color-picker').val(hex || hexForPicker(fallback) || '#808080');
     }
     function updateReset($input) {
         const def = $input.attr('data-default');
@@ -67,193 +480,284 @@
         $('#sd-editor input[type=number][data-default]').each(function () {
             const $input = $(this);
             if (!$input.siblings('.sd-reset').length) {
-                $('<button type="button" class="sd-reset">&#8634;</button>').attr('title', t('reset.title')).insertAfter($input);
+                $('<button type="button" class="red-ui-button sd-reset"><i class="fa fa-undo"></i></button>').insertAfter($input);
             }
-            $input.siblings('.sd-reset').attr('aria-label', t('reset.aria', { value: $input.attr('data-default') }));
+            $input.siblings('.sd-reset').attr({ title: t('reset.title', { value: $input.attr('data-default') }), 'aria-label': t('reset.title', { value: $input.attr('data-default') }) });
             updateReset($input);
         });
     }
-    function colorPicker() {
-        return ' <input type="color" class="sd-color-picker" aria-label="' + esc(t('color.pick')) + '" value="#000000" tabindex="0"> <button type="button" class="sd-color-clear" aria-label="' + esc(t('color.clear')) + '" title="' + esc(t('color.clearTitle')) + '">&times;</button>';
-    }
-    function hexForPicker(text) {
-        const m = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.exec(text || '');
-        if (!m) return null;
-        let h = m[1].toLowerCase();
-        if (h.length === 3) h = h.replace(/./g, '$&$&');
-        return '#' + h.slice(0, 6);
-    }
-    function syncPicker($text) {
-        const hex = hexForPicker($text.val());
-        $text.siblings('.sd-color-picker').val(hex || '#000000').toggleClass('sd-color-empty', !hex);
-    }
-    function controlFor(section, key, field) {
-        const id = 'sd-' + section + '-' + key;
-        const value = defaultFor(field);
-        let input;
-        if (field.type === 'enum') {
-            input = '<select id="' + id + '" data-section="' + section + '" data-key="' + key + '">' + field.values.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('') + '</select>';
-        } else if (field.type === 'boolean') {
-            input = '<input id="' + id + '" type="checkbox" data-section="' + section + '" data-key="' + key + '">';
-        } else {
-            const numeric = field.type === 'number';
-            input = '<input id="' + id + '" type="' + (numeric ? 'number' : 'text') + '" data-section="' + section + '" data-key="' + key + '"' +
-                (numeric && field.min !== undefined ? ' min="' + field.min + '"' : '') +
-                (numeric && field.max !== undefined ? ' max="' + field.max + '"' : '') +
-                (numeric ? ' data-default="' + esc(value) + '"' : '') +
-                (field.max !== undefined && field.type === 'string' ? ' maxlength="' + field.max + '"' : '') +
-                ' value="' + esc(value) + '">';
+
+    // ---- icon picker ---------------------------------------------------------------------------------------
+    // A button showing the current icon; it opens a panel below with PrimeIcons, Material Design Icons and own images.
+    // options.noneLabel names the empty choice (e.g. "keep the icon" for the close icon).
+    function iconPicker($slot, $panelSlot, $input, options) {
+        const noneLabel = (options && options.noneLabel) || t('icon.none');
+        const $button = $('<button type="button" class="red-ui-button sd-icon-button" aria-haspopup="dialog"><span class="sd-icon"></span><span class="sd-icon-name"></span><i class="fa fa-caret-down"></i></button>').appendTo($slot);
+        const $panel = $('<div class="sd-icon-panel" hidden>' +
+            '<div class="button-group sd-icon-sets">' +
+                '<button type="button" class="red-ui-button toggle" data-set="pi"></button>' +
+                '<button type="button" class="red-ui-button toggle" data-set="mdi"></button>' +
+                '<button type="button" class="red-ui-button toggle" data-set="image"></button>' +
+            '</div>' +
+            '<div class="sd-icon-browse"><input type="text" class="sd-icon-search"><div class="sd-icon-grid" role="listbox"></div><div class="sd-icon-count"></div></div>' +
+            '<div class="sd-icon-image" hidden>' +
+                '<p class="sd-hint sd-icon-image-intro"></p>' +
+                '<div class="sd-icon-image-row"><button type="button" class="red-ui-button sd-icon-upload"><i class="fa fa-upload"></i> <span></span></button><input type="file" class="sd-icon-file" accept=".svg,.png,.webp,.gif,.jpg,.jpeg" hidden></div>' +
+                '<div class="sd-icon-image-row"><input type="text" class="sd-icon-url"><button type="button" class="red-ui-button sd-icon-url-apply"></button></div>' +
+                '<div class="sd-icon-image-error"></div>' +
+                '<p class="sd-hint sd-icon-image-tips"></p>' +
+            '</div>' +
+        '</div>').appendTo($panelSlot);
+        const maxBytes = Math.floor(schema.limits.iconImageChars * 3 / 4);
+        $panel.find('[data-set="pi"]').text('PrimeIcons');
+        $panel.find('[data-set="mdi"]').text('Material Design');
+        $panel.find('[data-set="image"]').text(t('icon.imageTab'));
+        $panel.find('.sd-icon-image-intro').text(t('icon.imageIntro'));
+        $panel.find('.sd-icon-upload span').text(t('icon.upload'));
+        $panel.find('.sd-icon-url').attr({ placeholder: t('icon.urlPlaceholder'), 'aria-label': t('icon.url') });
+        $panel.find('.sd-icon-url-apply').text(t('icon.apply'));
+        $panel.find('.sd-icon-image-tips').text(t('icon.imageTips', { kb: Math.floor(maxBytes / 1024) }));
+        const $search = $panel.find('.sd-icon-search').attr({ placeholder: t('icon.search'), 'aria-label': t('icon.search') });
+        const $grid = $panel.find('.sd-icon-grid');
+        const $error = $panel.find('.sd-icon-image-error');
+        let set = 'pi';
+        $input.data('target', $button);
+        function refresh() {
+            const value = $input.val();
+            renderIcon($button.find('.sd-icon'), value);
+            $button.find('.sd-icon-name').text(value ? iconName(value) : noneLabel);
+            $button.attr('aria-expanded', String(!$panel.prop('hidden')));
         }
-        if (field.type === 'color') input += colorPicker();
-        return '<div class="form-row sd-schema-row" data-schema-section="' + section + '" data-schema-key="' + key + '"><label for="' + id + '">' + fieldTitle(key) + '</label><div class="sd-control">' + input + '</div></div>';
-    }
-    function prepareEditor(node) {
-        if (schemaRequest && schemaRequest.readyState !== 4) schemaRequest.abort();
-        nodeRef = node;
-        loadedSchema = null;
-        schemaError = null;
-        const $ok = $('#node-dialog-ok');
-        $ok.prop('disabled', true);
-        applyI18n();
-        $('#sd-schema-warning').hide().text(t('loading'));
-        $('#sd-schema-warning').show();
-        const request = $.getJSON('ui-speed-dial/schema');
-        schemaRequest = request;
-        request.done(function (schema) {
-            if (schemaRequest !== request) return;
-            try {
-                if (!schema || !schema.button || !schema.menu || !schema.theme || !schema.action || !schema.limits) throw new Error(t('err.schemaIncomplete'));
-                loadedSchema = schema;
-                buildSchemaForms(schema, node);
-                buildActionList(schema, node.actions || []);
-                bindEditorEvents();
-                $('#sd-schema-warning').hide().text('');
-                validateEditor();
-            } catch (error) { failSchema(error); }
-        }).fail(function (xhr, status) {
-            if (schemaRequest !== request || status === 'abort') return;
-            const message = xhr && xhr.status ? t('err.http', { status: xhr.status }) : t('err.network');
-            failSchema(new Error(t('err.schemaLoad', { message: message })));
-        });
-        function failSchema(error) {
-            schemaError = error.message;
-            $('#sd-schema-warning').text(t('err.unavailable', { message: error.message })).show();
-            $ok.prop('disabled', true);
-        }
-    }
-    function cancelEditor() {
-        if (schemaRequest && schemaRequest.readyState !== 4) schemaRequest.abort();
-        schemaRequest = null;
-        nodeRef = null;
-        loadedSchema = null;
-        schemaError = null;
-        list = null;
-    }
-    function buildSchemaForms(schema, node) {
-        for (const section of sections) {
-            const $target = $('#sd-fields-' + section).empty();
-            for (const [key, field] of Object.entries(schema[section])) $target.append(controlFor(section, key, field));
-            for (const [key, field] of Object.entries(schema[section])) {
-                const $input = $target.find('[data-section="' + section + '"][data-key="' + key + '"]');
-                const value = node[section] && Object.prototype.hasOwnProperty.call(node[section], key) ? node[section][key] : defaultFor(field);
-                if (field.type === 'boolean') $input.prop('checked', value === true);
-                else $input.val(value);
-                if (field.type === 'color') syncPicker($input);
+        function showSet(name) {
+            set = name;
+            $panel.find('.sd-icon-sets button').each(function () { $(this).toggleClass('selected', $(this).attr('data-set') === set); });
+            $panel.find('.sd-icon-browse').prop('hidden', set === 'image');
+            $panel.find('.sd-icon-image').prop('hidden', set !== 'image');
+            $error.text('');
+            if (set === 'image') {
+                const value = $input.val();
+                $panel.find('.sd-icon-url').val(/^(https?:|\/)/.test(value) ? value : '');
+            } else {
+                if (set === 'mdi') loadMdiIcons();
+                fill();
             }
         }
-        attachResets();
+        function fill() {
+            const prefix = set + '-';
+            const query = $search.val().trim().toLowerCase().replace(/\s+/g, '-').replace(/^(pi|mdi)-/, '');
+            const current = $input.val();
+            const map = set === 'pi' ? icons : mdiIcons;
+            $grid.empty();
+            $panel.find('.sd-icon-count').text('');
+            if (map === 'loading') { $('<div class="sd-icon-empty"></div>').text(t('icon.loading')).appendTo($grid); return; }
+            if (!map || typeof map !== 'object') { $('<div class="sd-icon-empty"></div>').text(t('icon.unavailable')).appendTo($grid); return; }
+            if (!query) $('<button type="button" class="sd-icon-option sd-icon-none" data-icon="">&empty;</button>').attr({ title: noneLabel, 'aria-label': noneLabel }).toggleClass('active', current === '').appendTo($grid);
+            const names = Object.keys(map).filter(function (name) { return !query || name.slice(prefix.length).indexOf(query) !== -1; });
+            // Large sets are capped; the search narrows them down.
+            names.slice(0, ICON_GRID_LIMIT).forEach(function (name) {
+                const short = name.slice(prefix.length);
+                $('<button type="button" class="sd-icon-option" role="option"></button>').attr({ 'data-icon': name, title: short, 'aria-label': short })
+                    .toggleClass('active', name === current).append(renderIcon($('<span class="sd-icon"></span>'), name)).appendTo($grid);
+            });
+            if (!names.length) $('<div class="sd-icon-empty"></div>').text(t('icon.noMatch')).appendTo($grid);
+            if (names.length > ICON_GRID_LIMIT) $panel.find('.sd-icon-count').text(t('icon.more', { shown: ICON_GRID_LIMIT, total: names.length }));
+        }
+        function close() { $panel.prop('hidden', true); refresh(); }
+        function choose(value) {
+            $input.val(value).trigger('change');
+            close();
+            $button.trigger('focus');
+        }
+        $button.on('click', function () {
+            const opening = $panel.prop('hidden');
+            $('#sd-editor .sd-icon-panel').prop('hidden', true);
+            $panel.prop('hidden', !opening);
+            if (opening) {
+                const value = $input.val();
+                $search.val('');
+                showSet(value.startsWith('mdi-') ? 'mdi' : value && !value.startsWith('pi-') ? 'image' : 'pi');
+                if (set !== 'image') $search.trigger('focus');
+            }
+            refresh();
+        });
+        $panel.on('click', '.sd-icon-sets button', function () {
+            showSet($(this).attr('data-set'));
+            if (set !== 'image') $search.trigger('focus');
+        });
+        $panel.on('keydown', function (event) {
+            if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); $button.trigger('focus'); }
+        });
+        $search.on('input', fill).on('keydown', function (event) {
+            if (event.key === 'Enter') { event.preventDefault(); $grid.find('.sd-icon-option').first().trigger('click'); }
+        });
+        $panel.on('click', '.sd-icon-option', function () { choose($(this).attr('data-icon')); });
+        $panel.on('click', '.sd-icon-upload', function () { $panel.find('.sd-icon-file').val('').trigger('click'); });
+        $panel.on('change', '.sd-icon-file', function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            const tooLarge = t('icon.errSize', { kb: Math.floor(maxBytes / 1024), size: Math.ceil(file.size / 1024) });
+            if (!/^image\/(svg\+xml|png|gif|webp|jpeg)$/.test(file.type)) { $error.text(t('icon.errType')); return; }
+            if (file.size > maxBytes) { $error.text(tooLarge); return; }
+            const reader = new window.FileReader();
+            reader.onload = function () {
+                if (isIconValue(reader.result)) choose(reader.result);
+                else $error.text(tooLarge);
+            };
+            reader.onerror = function () { $error.text(t('icon.errRead')); };
+            reader.readAsDataURL(file);
+        });
+        $panel.on('click', '.sd-icon-url-apply', function () {
+            const url = $panel.find('.sd-icon-url').val().trim();
+            if (ICON_URL.test(url)) choose(url);
+            else $error.text(t('icon.errUrl'));
+        });
+        $panel.on('keydown', '.sd-icon-url', function (event) {
+            if (event.key === 'Enter') { event.preventDefault(); $panel.find('.sd-icon-url-apply').trigger('click'); }
+        });
+        $input.on('change', refresh);
+        // Called when the Material Design list arrives after the picker was built.
+        $input.data('refreshIcon', function () { refresh(); if (!$panel.prop('hidden') && set === 'mdi') fill(); });
+        refresh();
     }
-    function actionValue(action, key, field) {
-        return Object.prototype.hasOwnProperty.call(action, key) ? action[key] : defaultFor(field);
-    }
-    function buildActionList(schema, actions) {
-        const $list = $('#node-input-actions-list').empty();
-        if ($list.data('editableList')) $list.editableList('destroy');
-        list = $list.editableList({
+
+    // ---- actions -------------------------------------------------------------------------------------------
+    function buildActionList(actions) {
+        const $list = $('#node-input-actions-list');
+        $list.editableList({
             addButton: t('actions.add'),
             removable: true,
             sortable: true,
             height: 'auto',
-            addItem: function (container, index, action) {
-                const item = $.extend(true, {}, action || {});
-                if (!item.id) item.id = makeId();
-                const $row = $('<div class="sd-action"></div>').appendTo(container);
-                $row.data('action', item);
-                const $head = $('<div class="sd-action-head"><button type="button" class="sd-toggle" aria-expanded="true">&#9662;</button><span class="sd-action-title"></span><button type="button" class="sd-copy">&#10697;</button></div>').appendTo($row);
-                $head.find('.sd-toggle').attr('aria-label', t('actions.collapse'));
-                $head.find('.sd-copy').attr({ title: t('actions.duplicate'), 'aria-label': t('actions.duplicate') });
-                const $grid = $('<div class="sd-action-grid"></div>').appendTo($row);
-                $head.on('click', '.sd-toggle, .sd-action-title', function () { setCollapsed($row, $grid.is(':visible')); });
-                $head.on('click', '.sd-copy', function () { duplicateAction($row); });
-                for (const [key, field] of Object.entries(schema.action)) {
-                    const value = actionValue(item, key, field);
-                    if (key === 'visible' || key === 'enabled') {
-                        const id = 'sd-action-' + key + '-' + index;
-                        $('<label class="sd-check" for="' + id + '"><input id="' + id + '" type="checkbox" data-action-key="' + key + '"> ' + fieldTitle(key) + '</label>').appendTo($grid).find('input').prop('checked', value === true);
-                    } else if (key === 'payload') {
-                        const payloadType = types.includes(item.payloadType) ? item.payloadType :
-                            typeof item.payload === 'string' ? 'str' : typeof item.payload === 'number' ? 'num' : typeof item.payload === 'boolean' ? 'bool' : 'json';
-                        let payloadText = item.payload;
-                        if (payloadType === 'json' && typeof payloadText !== 'string') payloadText = JSON.stringify(payloadText === undefined ? null : payloadText, null, 2);
-                        else if (payloadText === undefined || payloadText === null) payloadText = payloadType === 'json' ? 'null' : '';
-                        const id = 'sd-action-payload-' + index;
-                        $('<div class="sd-action-wide"><label for="' + id + '">' + esc(fieldTitle('payload')) + ' <span class="sd-required">' + esc(t('required')) + '</span></label><input id="' + id + '" class="sd-payload" data-action-key="payload" type="text"></div>').appendTo($grid);
-                        const $payload = $grid.find('#' + id);
-                        $payload.typedInput({ default: payloadType, types: types });
-                        $payload.typedInput('type', payloadType);
-                        $payload.typedInput('value', String(payloadText));
-                    } else {
-                        const id = 'sd-action-' + key + '-' + index;
-                        const label = fieldTitle(key) + (field.required ? ' <span class="sd-required">' + esc(t('required')) + '</span>' : '');
-                        const type = key === 'topic' ? 'text' : 'text';
-                        $('<div class="sd-action-field' + (field.type === 'color' ? ' sd-color-field' : '') + '"><label for="' + id + '">' + label + '</label><input id="' + id + '" type="' + type + '" data-action-key="' + key + '">' + (field.type === 'color' ? colorPicker() : '') + '</div>').appendTo($grid).find('[data-action-key]').val(value == null ? '' : value);
-                        if (field.type === 'color') syncPicker($grid.find('#' + id));
-                    }
-                }
-                $('<div class="sd-action-error" aria-live="polite"></div>').appendTo($row);
-                $row.on('input change', 'input,select', function () { updateActionTitle($row); validateEditor(); });
-                updateActionTitle($row);
-                window.setTimeout(validateEditor, 0);
-            },
-            removeItem: function () { window.setTimeout(validateEditor, 0); },
-            sort: function () { window.setTimeout(validateEditor, 0); }
+            addItem: function (container, index, data) { buildActionRow(container, index, data); },
+            removeItem: listChanged,
+            sort: listChanged
         });
-        (actions || []).forEach(function (action, index) { $list.editableList('addItem', action); });
+        actions.forEach(function (action) { $list.editableList('addItem', action); });
+        // Long lists start collapsed to one line per action.
+        if (actions.length > 3) $list.find('.sd-action').each(function () { setCollapsed($(this), true); });
+        updateEmpty();
+    }
+    function listChanged() { window.setTimeout(function () { updateEmpty(); validateEditor(); }, 0); }
+    function updateEmpty() { $('#sd-actions-empty').toggle(!$('#node-input-actions-list').editableList('length')); }
+    function fieldHtml(id, key, extra) {
+        return '<div class="sd-field"><label for="' + id + '">' + esc(t('field.' + key)) + '</label><input type="text" id="' + id + '" data-action-key="' + key + '"' + (extra || '') + '></div>';
+    }
+    function buildActionRow(container, index, data) {
+        const item = $.extend(true, {}, data || {});
+        const isNew = !item.id;
+        const $row = $('<div class="sd-action"></div>').appendTo(container);
+        // New actions derive their ID (and a text payload) from the label until the user edits them.
+        $row.data('auto', { id: isNew, payload: isNew });
+        if (isNew) {
+            item.label = t('actions.newLabel', { n: index + 1 });
+            item.icon = schema.action.icon.default;
+            item.id = uniqueId(slug(item.label), $row);
+            item.payloadType = 'str';
+            item.payload = item.id;
+        }
+        const p = 'sd-a' + (++rowSeq) + '-';
+        $row.html(
+            '<div class="sd-action-head">' +
+                '<button type="button" class="sd-toggle" aria-expanded="true"><i class="fa fa-angle-down"></i></button>' +
+                '<span class="sd-icon sd-action-glyph" aria-hidden="true"></span>' +
+                '<span class="sd-action-title"><span class="sd-action-label"></span> <span class="sd-action-id"></span></span>' +
+                '<button type="button" class="red-ui-button red-ui-button-small sd-copy"><i class="fa fa-clone"></i></button>' +
+            '</div>' +
+            '<div class="sd-action-error" aria-live="polite"></div>' +
+            '<div class="sd-action-body">' +
+                '<div class="sd-action-main">' +
+                    '<div class="sd-field"><label>' + esc(t('field.icon')) + '</label><div class="sd-icon-slot"></div><input type="hidden" data-action-key="icon"></div>' +
+                    fieldHtml(p + 'label', 'label', ' maxlength="' + schema.action.label.max + '"') +
+                '</div>' +
+                '<div class="sd-icon-panel-slot"></div>' +
+                '<div class="sd-field"><label for="' + p + 'payload">' + esc(t('field.payload')) + '</label><input type="text" id="' + p + 'payload" data-action-key="payload"><div class="sd-hint">' + esc(t('hint.payload')) + '</div></div>' +
+                '<details class="sd-more"><summary>' + esc(t('actions.more')) + '</summary><div class="sd-action-grid">' +
+                    '<div class="sd-field sd-wide"><label for="' + p + 'id">' + esc(t('field.id')) + '</label><input type="text" id="' + p + 'id" data-action-key="id" maxlength="64"><div class="sd-hint">' + esc(t('hint.id')) + '</div></div>' +
+                    fieldHtml(p + 'topic', 'topic', ' maxlength="' + schema.action.topic.max + '"') +
+                    fieldHtml(p + 'tooltip', 'tooltip', ' maxlength="' + schema.action.tooltip.max + '"') +
+                    '<div class="sd-field sd-wide"><label for="' + p + 'background">' + esc(t('field.actionBackground')) + '</label>' + colorControl('id="' + p + 'background" data-action-key="background"', 'default') + '</div>' +
+                    '<div class="sd-field sd-wide"><label for="' + p + 'color">' + esc(t('field.iconColor')) + '</label>' + colorControl('id="' + p + 'color" data-action-key="color"', 'auto') + '</div>' +
+                    '<label class="sd-check"><input type="checkbox" data-action-key="visible"> ' + esc(t('field.visible')) + '</label>' +
+                    '<label class="sd-check"><input type="checkbox" data-action-key="enabled"> ' + esc(t('field.enabled')) + '</label>' +
+                '</div></details>' +
+            '</div>');
+        $row.find('.sd-color-text').each(function () { enhanceColor($(this)); });
+        $row.find('[data-action-key]').each(function () {
+            const $input = $(this);
+            const key = $input.attr('data-action-key');
+            const field = schema.action[key];
+            if (key === 'payload') return;
+            const value = has(item, key) ? item[key] : defaultFor(field);
+            if ($input.attr('type') === 'checkbox') $input.prop('checked', value === true);
+            else $input.val(value == null ? '' : String(value));
+            if ($input.hasClass('sd-color-text')) syncColor($input);
+        });
+        const payloadType = PAYLOAD_TYPES.includes(item.payloadType) ? item.payloadType
+            : typeof item.payload === 'string' ? 'str' : typeof item.payload === 'number' ? 'num' : typeof item.payload === 'boolean' ? 'bool' : 'json';
+        let payloadText = item.payload;
+        if (payloadType === 'json' && typeof payloadText !== 'string') payloadText = JSON.stringify(payloadText === undefined ? null : payloadText);
+        else if (payloadText === undefined || payloadText === null) payloadText = payloadType === 'json' ? 'null' : '';
+        const $payload = $row.find('[data-action-key="payload"]');
+        $payload.typedInput({ default: payloadType, types: PAYLOAD_TYPES });
+        $payload.typedInput('type', payloadType);
+        $payload.typedInput('value', String(payloadText));
+        iconPicker($row.find('.sd-icon-slot'), $row.find('.sd-icon-panel-slot'), $row.find('[data-action-key="icon"]'));
+
+        $row.on('click', '.sd-toggle, .sd-action-title', function () { setCollapsed($row, $row.find('.sd-action-body').is(':visible')); });
+        $row.on('click', '.sd-copy', function () { duplicateAction($row); });
+        $row.on('input', '[data-action-key="label"]', function () {
+            const auto = $row.data('auto');
+            if (!auto.id) return;
+            const id = uniqueId(slug($(this).val()), $row);
+            $row.find('[data-action-key="id"]').val(id);
+            if (auto.payload) setPayloadText($row, id);
+        });
+        $row.on('input', '[data-action-key="id"]', function () {
+            const auto = $row.data('auto');
+            auto.id = false;
+            if (auto.payload) setPayloadText($row, $(this).val());
+        });
+        $payload.on('input change', function () { if (!$row.data('settingPayload')) $row.data('auto').payload = false; });
+        $row.on('input change', 'input:not(.sd-icon-search),select', function () { updateActionTitle($row); validateEditor(); });
+        updateActionTitle($row);
+        updateEmpty();
+        window.setTimeout(validateEditor, 0);
+    }
+    function setPayloadText($row, text) {
+        const $payload = $row.find('[data-action-key="payload"]');
+        if ($payload.typedInput('type') !== 'str') return;
+        $row.data('settingPayload', true);
+        $payload.typedInput('value', text);
+        $row.data('settingPayload', false);
     }
     function updateActionTitle($row) {
         const label = $row.find('[data-action-key="label"]').val() || '';
-        const id = $row.find('[data-action-key="id"]').val() || '';
-        const flags = ($row.find('[data-action-key="visible"]').prop('checked') === false ? t('actions.hidden') : '') + ($row.find('[data-action-key="enabled"]').prop('checked') === false ? t('actions.disabled') : '');
-        $row.find('.sd-action-title').text((label || t('actions.noLabel')) + ' \u2014 ' + id + flags);
+        const flags = ($row.find('[data-action-key="visible"]').prop('checked') === false ? t('actions.hidden') : '') +
+            ($row.find('[data-action-key="enabled"]').prop('checked') === false ? t('actions.disabled') : '');
+        $row.find('.sd-action-label').text(label || t('actions.noLabel'));
+        $row.find('.sd-action-id').text($row.find('[data-action-key="id"]').val() + flags);
+        renderIcon($row.find('.sd-action-glyph'), $row.find('[data-action-key="icon"]').val());
     }
     function setCollapsed($row, collapsed) {
-        $row.find('.sd-action-grid').toggle(!collapsed);
-        $row.find('.sd-toggle').attr('aria-expanded', String(!collapsed)).attr('aria-label', collapsed ? t('actions.expand') : t('actions.collapse')).html(collapsed ? '&#9656;' : '&#9662;');
+        $row.find('.sd-action-body').toggle(!collapsed);
+        $row.find('.sd-toggle').attr('aria-expanded', String(!collapsed)).attr('aria-label', t(collapsed ? 'actions.expand' : 'actions.collapse'))
+            .find('i').attr('class', collapsed ? 'fa fa-angle-right' : 'fa fa-angle-down');
         $row.toggleClass('sd-collapsed', collapsed);
     }
-    function readActionRow($row) {
+    function readRow($row) {
         const action = {};
         $row.find('[data-action-key]').each(function () {
             const $input = $(this);
             const key = $input.attr('data-action-key');
-            if (key === 'payload') { action.payloadType = $input.typedInput('type'); action.payload = $input.typedInput('value'); }
+            if (key === 'payload') { action.payloadType = $input.typedInput('type'); action.payload = String($input.typedInput('value')); }
             else if ($input.attr('type') === 'checkbox') action[key] = $input.prop('checked');
             else action[key] = String($input.val() == null ? '' : $input.val());
         });
-        if (action.topic === '') delete action.topic;
         return action;
     }
-    function uniqueCopyId(base) {
-        const ids = new Set();
-        $('#node-input-actions-list .sd-action [data-action-key="id"]').each(function () { ids.add($(this).val()); });
-        base = base.replace(/-copy(-[0-9]+)?$/, '') || base;
-        let candidate = base.slice(0, 59) + '-copy';
-        for (let n = 2; ids.has(candidate); n += 1) candidate = base.slice(0, 52) + '-copy-' + n;
-        return candidate;
-    }
     function duplicateAction($row) {
-        const copy = readActionRow($row);
-        copy.id = uniqueCopyId(copy.id || 'action');
+        const copy = readRow($row);
+        copy.id = uniqueId(copy.id.replace(/-copy(-[0-9]+)?$/, '').slice(0, 59) + '-copy', null);
         const $list = $('#node-input-actions-list');
         $list.editableList('addItem', copy);
         const $new = $list.find('.sd-action').filter(function () { return $(this).find('[data-action-key="id"]').val() === copy.id; }).first();
@@ -262,312 +766,714 @@
         $new.find('[data-action-key="label"]').trigger('focus');
         validateEditor();
     }
-    function bindEditorEvents() {
-        $('#node-input-scope').off('.speedDial').on('change.speedDial', function () { updateScope(); validateEditor(); });
-        $('#sd-editor').off('.speedDial').on('input.speedDial change.speedDial', 'input,select', function () {
-            const $el = $(this);
-            if ($el.hasClass('sd-color-picker')) {
-                const $text = $el.siblings('input[type=text]').first();
-                $text.val($el.val()).trigger('input');
-                $el.removeClass('sd-color-empty');
-                return;
-            }
-            if ($el.attr('type') === 'text' && $el.siblings('.sd-color-picker').length) syncPicker($el);
-            if ($el.attr('type') === 'number') updateReset($el);
-            const section = $el.data('section');
-            const key = $el.data('key');
-            if ((section === 'menu' && (key === 'mode' || key === 'shape' || key === 'direction')) || (section === 'button' && key === 'position')) updateMenuMode();
-            validateEditor();
+
+    // ---- live preview --------------------------------------------------------------------------------------
+    // A small mock of a dashboard page: the button sits at its position and opens the menu with the current
+    // settings and actions (five examples while there are none). Placement follows ui/Dial.vue.
+    function previewConfig() {
+        const cfg = collect(function () {});
+        const clampNumber = function (section, key) {
+            const field = schema[section][key];
+            const value = cfg[section][key];
+            cfg[section][key] = Number.isFinite(value) ? Math.max(field.min, Math.min(field.max, value)) : field.default;
+        };
+        ['size', 'radius', 'offsetX', 'offsetY'].forEach(function (key) { clampNumber('button', key); });
+        ['gap', 'duration', 'actionSize', 'radius'].forEach(function (key) { clampNumber('menu', key); });
+        clampNumber('theme', 'radius');
+        cfg.theme = Object.assign({ mode: 'auto', background: '', color: '' }, dropPreserved ? {} : preserved.theme, cfg.theme);
+        const color = function (value) { return hexForPicker(value) ? value : ''; };
+        ['background', 'color'].forEach(function (key) { cfg.button[key] = color(cfg.button[key]); cfg.theme[key] = color(cfg.theme[key]); });
+        cfg.button.icon = isIconValue(cfg.button.icon) ? cfg.button.icon : '';
+        cfg.button.closeIcon = isIconValue(cfg.button.closeIcon) ? cfg.button.closeIcon : '';
+        cfg.examples = cfg.actions.length === 0;
+        const actions = cfg.examples
+            ? PREVIEW_EXAMPLE_ICONS.map(function (icon, i) { return { id: 'example-' + (i + 1), label: t('preview.example', { n: i + 1 }), icon: icon, tooltip: '', background: '', color: '', visible: true, enabled: true }; })
+            : cfg.actions.filter(function (action) { return action.visible; });
+        cfg.items = actions.map(function (action) {
+            return Object.assign({}, action, { icon: isIconValue(action.icon) ? action.icon : '', background: color(action.background), color: color(action.color) });
         });
-        $('#sd-editor').on('click.speedDial', '.sd-reset', function () {
-            const $input = $(this).siblings('input[type=number]').first();
-            $input.val($input.attr('data-default')).trigger('input');
-            $input.trigger('focus');
-        });
-        $('#sd-editor').on('click.speedDial', '.sd-color-clear', function () {
-            const $text = $(this).siblings('input[type=text]').first();
-            $text.val('').trigger('input');
-        });
-        $('#sd-tab-bar').off('.speedDial').on('click.speedDial', 'button', function () {
-            const pane = $(this).attr('data-pane');
-            $('#sd-tab-bar button').removeClass('active').attr('aria-selected', 'false');
-            $(this).addClass('active').attr('aria-selected', 'true');
-            $('.sd-tab-pane').removeClass('active').attr('hidden', true);
-            $('#sd-pane-' + pane).addClass('active').removeAttr('hidden');
-        });
-        $('#sd-collapse-all').off('.speedDial').on('click.speedDial', function () { $('#node-input-actions-list .sd-action').each(function () { setCollapsed($(this), true); }); });
-        $('#sd-expand-all').off('.speedDial').on('click.speedDial', function () { $('#node-input-actions-list .sd-action').each(function () { setCollapsed($(this), false); }); });
-        attachResets();
-        updateScope();
-        updateMenuMode();
+        return cfg;
     }
-    function updateScope() {
-        const scope = $('#node-input-scope').val() || 'page';
-        $('#sd-ref-group').toggle(scope === 'group');
-        $('#sd-ref-page').toggle(scope === 'page');
-        $('#sd-ref-ui').toggle(scope === 'all');
-        $('.sd-group-size').toggle(scope === 'group');
+    function previewAxes(position) {
+        if (position === 'center') return { h: 'center', v: 'center' };
+        const parts = String(position || 'bottom-right').split('-');
+        return parts[0] === 'center' ? { h: parts[1], v: 'center' } : { h: parts[1], v: parts[0] };
     }
-    function directionChoices(shape, position) {
-        const g = loadedSchema.geometry;
-        if (shape === 'linear') return g.directions.linear;
-        if (shape === 'circle') return [];
-        return (g.corners[position] && g.corners[position][shape]) || g.directions[shape];
-    }
-    function updateMenuMode() {
-        if (!loadedSchema) return;
-        const isMenu = $('#sd-menu-mode').val() === 'menu';
-        if (isMenu) $('#sd-menu-shape').val('linear');
-        const shape = $('#sd-menu-shape').val();
-        const choices = directionChoices(shape, $('#sd-button-position').val());
-        const $dir = $('#sd-menu-direction');
-        if (choices.length) {
-            const current = $dir.val();
-            $dir.empty();
-            choices.forEach(function (v) { $dir.append($('<option>').attr('value', v).text(v)); });
-            $dir.val(choices.includes(current) ? current : choices[0]);
-        } else if (!$dir.find('option[value="' + $dir.val() + '"]').length) {
-            $dir.val(loadedSchema.menu.direction.default);
+    // configuredDirection() + baseDirection() of the widget.
+    function previewDirection(menu, shape, type, axes) {
+        let d = menu.direction;
+        if (d === 'auto') {
+            if (shape === 'quarter-circle') d = (axes.v === 'top' ? 'down' : 'up') + '-' + (axes.h === 'left' ? 'right' : 'left');
+            else if (axes.v !== 'center') d = axes.v === 'top' ? 'down' : 'up';
+            else d = axes.h === 'left' ? 'right' : axes.h === 'right' ? 'left' : 'up';
         }
-        const row = function (k) { return $('[data-schema-section="menu"][data-schema-key="' + k + '"]'); };
-        const position = $('#sd-button-position').val() || '';
-        const centeredX = position === 'center' || position.endsWith('-center');
-        const centeredY = position === 'center' || position.startsWith('center');
-        $('[data-schema-section="button"][data-schema-key="offsetX"]').toggle(!centeredX);
-        $('[data-schema-section="button"][data-schema-key="offsetY"]').toggle(!centeredY);
-        row('shape').toggle(!isMenu);
-        row('direction').toggle(shape !== 'circle');
-        row('radius').toggle(!isMenu && shape !== 'linear');
-        row('showLabels').toggle(!isMenu && shape === 'linear');
-        if (isMenu || shape !== 'linear') $('#sd-menu-showLabels').prop('checked', false);
+        if (type === 'linear') return d.split('-')[0];
+        return shape === 'semi-circle' && d.indexOf('-') !== -1 ? d.split('-')[0] : d;
     }
-    function readValue($input, field, label) {
-        let value;
-        if (field.type === 'boolean') value = $input.prop('checked');
-        else if (field.type === 'number') {
-            if ($input.val() === '') throw new Error(t('err.required', { label: label }));
-            value = Number($input.val());
-        } else value = String($input.val() == null ? '' : $input.val());
-        validateField(value, field, label);
-        return value;
-    }
-    function collectConfig() {
-        const config = { actions: collectActions(), button: {}, menu: {}, theme: {} };
-        for (const section of sections) {
-            for (const [key, field] of Object.entries(loadedSchema[section])) {
-                const $input = $('#sd-' + section + '-' + key);
-                config[section][key] = readValue($input, field, section + '.' + key);
-            }
+    function previewCenters(type, direction, n, r) {
+        const centers = [];
+        for (let i = 0; i < n; i += 1) {
+            if (type === 'circle') { const a = 2 * Math.PI / n * i; centers.push([r * Math.cos(a), r * Math.sin(a)]); continue; }
+            const a = (type === 'semi-circle' ? Math.PI : Math.PI / 2) / (n - 1) * i;
+            const x = r * Math.cos(a); const y = r * Math.sin(a);
+            centers.push({ up: [x, -y], down: [x, y], left: [-y, x], right: [y, x], 'up-left': [-x, -y], 'up-right': [x, -y], 'down-left': [-y, x] }[direction] || [y, x]);
         }
-        return config;
+        return centers;
     }
-    function collectActions() {
-        const actions = [];
-        $('#node-input-actions-list').editableList('items').each(function () {
-            const $row = $(this).find('.sd-action');
-            const action = {};
-            const values = {};
-            $row.find('[data-action-key]').each(function () {
-                const $input = $(this);
-                const key = $input.attr('data-action-key');
-                const field = loadedSchema.action[key];
-                if (key === 'payload') {
-                    const type = $input.typedInput('type');
-                    const text = $input.typedInput('value');
-                    action.payloadType = type;
-                    action.payload = text;
-                    values.payload = parsePayload(type, text, actions.length);
-                } else if (field.type === 'boolean') values[key] = $input.prop('checked');
-                else values[key] = String($input.val() == null ? '' : $input.val());
+    function renderPreview(animate) {
+        const $box = $('#sd-preview');
+        if (!schema || !$box.length || $('#sd-pane-look').prop('hidden') || !$('#sd-preview-details').prop('open')) return;
+        const cfg = previewConfig();
+        const b = cfg.button;
+        const m = cfg.menu;
+        const theme = dashboardTheme();
+        const boxWidth = $box.width() || PREVIEW_MIN_WIDTH;
+        const W = Math.max(PREVIEW_MIN_WIDTH, boxWidth);
+        const H = PREVIEW_HEIGHT;
+        const scale = Math.min(1, boxWidth / W);
+        const open = previewOpen && b.enabled;
+        const $stage = $('<div class="sd-stage" role="presentation"></div>').css({ width: W + 'px', height: H + 'px', transform: 'scale(' + scale + ')', background: theme.page, color: contrastColor(theme.page) });
+        $box.empty().css('height', Math.round(H * scale) + 'px').append($stage);
+        if (m.overlay) $('<div class="sd-p-overlay"></div>').appendTo($stage);
+
+        const palette = cfg.theme.mode === 'dark' ? { background: '#1e293b', color: '#f8fafc' }
+            : cfg.theme.mode === 'light' ? { background: '#ffffff', color: '#0f172a' } : { background: theme.surface, color: contrastColor(theme.surface) };
+        const actionBackground = cfg.theme.background || palette.background;
+        const actionColor = cfg.theme.color || contrastColor(cfg.theme.background) || palette.color;
+        const shape = m.mode === 'menu' ? 'linear' : m.shape;
+        const type = shape !== 'linear' && shape !== 'circle' && cfg.items.length < 2 ? 'linear' : shape;
+        const radial = type !== 'linear';
+        const labels = m.mode === 'menu' || (m.showLabels && !radial);
+
+        const $root = $('<div class="sd-p-root"></div>').toggleClass('sd-p-shadow', cfg.theme.shadow).toggleClass('sd-p-labelled', labels).toggleClass('sd-p-menu', m.mode === 'menu').toggleClass('sd-p-invisible', !b.visible)
+            .css({ '--sd-p-duration': m.duration + 'ms', '--sd-p-gap': m.gap + 'px', '--sd-p-surface': actionBackground, '--sd-p-text': actionColor, '--sd-p-radius': cfg.theme.radius + 'px' }).appendTo($stage);
+        const triggerBackground = b.background || theme.primary;
+        const $trigger = $('<button type="button" class="sd-p-button sd-p-trigger"></button>').appendTo($root)
+            .css({ background: triggerBackground, color: b.color || (isTransparent(triggerBackground) ? theme.primary : contrastColor(triggerBackground)), borderRadius: b.radius + 'px', minWidth: b.size + 'px', minHeight: b.size + 'px' })
+            .attr({ title: b.tooltip || '', 'aria-expanded': String(open), 'aria-label': b.label || b.tooltip || t('preview.button') }).prop('disabled', !b.enabled);
+        // An empty close icon keeps the normal icon while the menu is open.
+        const openIcon = b.closeIcon || b.icon;
+        if (b.icon || openIcon) {
+            const shown = open && !animate ? openIcon : b.icon;
+            $trigger.append(renderIcon($('<span class="sd-icon sd-p-icon"></span>'), shown).css('font-size', Math.min(24, Math.max(6, b.size * 0.5)) + 'px').toggle(!!shown));
+        }
+        if (b.label) $('<span class="sd-p-label"></span>').text(b.label).appendTo($trigger);
+        else $trigger.css({ width: b.size + 'px', height: b.size + 'px', padding: 0 });
+
+        const $list = $('<ul class="sd-p-list"></ul>').toggleClass('sd-p-radial', radial).appendTo($root);
+        cfg.items.forEach(function (item) {
+            const $action = $('<button type="button" class="sd-p-button sd-p-action"></button>')
+                .attr({ 'data-id': item.id, 'data-label': item.label, title: item.tooltip || (!labels ? item.label : '') || '', 'aria-label': item.label || item.tooltip || item.id })
+                .css({ background: item.background || (m.mode === 'menu' ? 'transparent' : actionBackground), color: item.color || contrastColor(item.background) || actionColor, borderRadius: cfg.theme.radius + 'px', minWidth: m.actionSize + 'px', minHeight: m.actionSize + 'px', width: labels ? 'auto' : m.actionSize + 'px' })
+                .prop('disabled', !item.enabled);
+            if (item.icon) $action.append(renderIcon($('<span class="sd-icon sd-p-icon"></span>'), item.icon));
+            if (labels) $('<span class="sd-p-label"></span>').text(item.label).appendTo($action);
+            $('<li class="sd-p-item"></li>').append($action).appendTo($list);
+        });
+
+        // Button position: offsets from the edges, centred axes in the middle, always inside the page.
+        const axes = previewAxes(b.position);
+        const tw = $trigger[0].offsetWidth || b.size;
+        const th = $trigger[0].offsetHeight || b.size;
+        const along = function (axis, offset, extent, size) {
+            const inset = Math.min(offset, Math.max(8, extent - size - 8));
+            if (axis === 'left' || axis === 'top') return inset;
+            if (axis === 'right' || axis === 'bottom') return extent - size - inset;
+            return Math.max(8, (extent - size) / 2);
+        };
+        const rect = { x: along(axes.h, b.offsetX, W, tw), y: along(axes.v, b.offsetY, H, th), w: tw, h: th };
+        $root.css({ left: rect.x + 'px', top: rect.y + 'px' });
+        const direction = previewDirection(m, shape, type, axes);
+        const n = cfg.items.length;
+        if (!radial) {
+            const gap = m.gap;
+            const available = { up: rect.y - gap - 8, down: H - rect.y - rect.h - gap - 8, left: rect.x - gap - 8, right: W - rect.x - rect.w - gap - 8 };
+            const labelWidth = labels ? Math.min(280, Math.max.apply(null, [120].concat(cfg.items.map(function (a) { return a.label.length * 8 + 68; })))) : m.actionSize;
+            const need = m.mode === 'menu'
+                ? function (d) { return d === 'up' || d === 'down' ? 40 * n + 8 : labelWidth; }
+                : function (d) { return (d === 'up' || d === 'down' ? m.actionSize : labelWidth) * n + Math.max(0, n - 1) * gap; };
+            const dir = available[direction] >= Math.min(need(direction), 160) ? direction : Object.keys(available).sort(function (a, c) { return available[c] - available[a]; })[0];
+            const vertical = dir === 'up' || dir === 'down';
+            const style = {
+                flexDirection: m.mode === 'menu' ? 'column' : { up: 'column-reverse', down: 'column', left: 'row-reverse', right: 'row' }[dir],
+                maxHeight: (vertical ? Math.max(44, available[dir]) : H - 16) + 'px',
+                maxWidth: (vertical ? W - 16 : Math.max(44, available[dir])) + 'px'
+            };
+            style[{ up: 'bottom', down: 'top', left: 'right', right: 'left' }[dir]] = 'calc(100% + ' + gap + 'px)';
+            if (vertical) style[rect.x + rect.w / 2 > W / 2 ? 'right' : 'left'] = 0;
+            else style.top = 0;
+            $list.css(style);
+            const list = $list[0];
+            const lx = rect.x + list.offsetLeft; const ly = rect.y + list.offsetTop;
+            const dx = lx < 8 ? 8 - lx : lx + list.offsetWidth > W - 8 ? W - 8 - lx - list.offsetWidth : 0;
+            const dy = ly < 8 ? 8 - ly : ly + list.offsetHeight > H - 8 ? H - 8 - ly - list.offsetHeight : 0;
+            if (dx || dy) $list.css('transform', 'translate(' + dx + 'px, ' + dy + 'px)');
+        } else {
+            const size = m.actionSize;
+            const arcs = { circle: 2 * Math.PI / Math.max(n, 1), 'semi-circle': Math.PI / Math.max(n - 1, 1), 'quarter-circle': Math.PI / 2 / Math.max(n - 1, 1) };
+            const chord = n > 1 ? (size + m.gap) / (2 * Math.sin(Math.min(arcs[type] || Math.PI, Math.PI) / 2)) : 0;
+            const r = m.radius > 0 ? m.radius : Math.ceil(Math.max(chord, (b.size + size) / 2 + m.gap));
+            const centers = previewCenters(type, direction, n, r);
+            const cx = rect.x + rect.w / 2; const cy = rect.y + rect.h / 2;
+            let dx = 0; let dy = 0;
+            if (centers.length) {
+                const left = Math.min.apply(null, centers.map(function (p) { return cx + p[0] - size / 2; }));
+                const right = Math.max.apply(null, centers.map(function (p) { return cx + p[0] + size / 2; }));
+                const top = Math.min.apply(null, centers.map(function (p) { return cy + p[1] - size / 2; }));
+                const bottom = Math.max.apply(null, centers.map(function (p) { return cy + p[1] + size / 2; }));
+                dx = left < 8 ? 8 - left : right > W - 8 ? W - 8 - right : 0;
+                dy = top < 8 ? 8 - top : bottom > H - 8 ? H - 8 - bottom : 0;
+            }
+            $list.children().each(function (i) {
+                $(this).css({ left: (rect.w / 2 + centers[i][0] - size / 2 + dx) + 'px', top: (rect.h / 2 + centers[i][1] - size / 2 + dy) + 'px' });
             });
-            for (const [key, field] of Object.entries(loadedSchema.action)) {
-                if (key === 'payload') continue;
-                const value = Object.prototype.hasOwnProperty.call(values, key) ? values[key] : defaultFor(field);
-                if (key === 'topic' && value === '') continue;
-                validateField(value, field, 'actions[' + actions.length + '].' + key);
-                action[key] = value;
-            }
-            if (!Object.prototype.hasOwnProperty.call(action, 'id')) throw new Error(t('err.needId'));
-            if (!Object.prototype.hasOwnProperty.call(values, 'payload')) throw new Error(t('err.required', { label: 'actions[' + actions.length + '].payload' }));
-            action.payloadType = action.payloadType || 'json';
-            action.payload = action.payloadType === 'str' || action.payloadType === 'json' ? String(action.payload) : String(action.payload);
-            actions.push(action);
-        });
-        if (actions.length > loadedSchema.limits.actions) throw new Error(t('err.maxActions', { max: loadedSchema.limits.actions }));
-        const ids = new Set();
-        actions.forEach(function (action, i) {
-            if (ids.has(action.id)) throw new Error(t('err.dupId', { id: action.id }));
-            ids.add(action.id);
-            // Parsing and limits are checked here while keeping the editable JSON text for the runtime converter.
-            const value = parsePayload(action.payloadType, action.payload, i);
-            const serialized = JSON.stringify(value);
-            if (new TextEncoder().encode(serialized).length > loadedSchema.limits.jsonBytes) throw new Error(t('err.payloadSize', { label: 'actions[' + i + '].payload' }));
-            checkDepth(value, 0, loadedSchema.limits.jsonDepth, 'actions[' + i + '].payload');
-        });
-        return actions;
+        }
+        if (open && animate) {
+            // Start closed and switch on the next frame so the opening transition runs.
+            void $stage[0].offsetWidth;
+            window.requestAnimationFrame(function () {
+                $stage.addClass('sd-p-open');
+                renderIcon($trigger.find('.sd-p-icon'), openIcon).toggle(!!openIcon);
+            });
+        } else $stage.toggleClass('sd-p-open', open);
+        updatePreviewHint(cfg);
     }
-    function parsePayload(type, text, index) {
-        const label = 'actions[' + index + '].payload';
-        if (type === 'str') return String(text);
+    // After a layout choice the expanded preview shows the open menu right away.
+    function showMenuInPreview() {
+        if (!$('#sd-preview-details').prop('open') || !control('button', 'enabled').prop('checked')) return;
+        previewMessage = '';
+        previewOpen = true;
+        renderPreview(true);
+    }
+    function closePreview() {
+        if (!previewOpen) return;
+        previewOpen = false;
+        const $stage = $('#sd-preview .sd-stage').removeClass('sd-p-open');
+        const icon = control('button', 'icon').val();
+        renderIcon($stage.find('.sd-p-trigger .sd-p-icon'), isIconValue(icon) ? icon : '').toggle(!!icon && isIconValue(icon));
+        $stage.find('.sd-p-trigger').attr('aria-expanded', 'false');
+    }
+    function updatePreviewHint(cfg) {
+        const notes = [previewMessage || t(previewOpen ? 'preview.hintOpen' : 'preview.hint')];
+        if (!cfg.button.enabled) notes.push(t('preview.disabled'));
+        else if (!cfg.button.visible) notes.push(t('preview.invisible'));
+        if (cfg.examples) notes.push(t('preview.examples'));
+        else if (!cfg.items.length) notes.push(t('preview.noVisible'));
+        $('#sd-preview-hint').text(notes.join(' '));
+    }
+    function bindPreviewEvents($editor) {
+        $editor.on('click.speedDial', '#sd-preview .sd-p-trigger', function (event) {
+            event.stopPropagation();
+            previewMessage = '';
+            if (previewOpen) { closePreview(); updatePreviewHint(previewConfig()); return; }
+            previewOpen = true;
+            renderPreview(true);
+        });
+        $editor.on('click.speedDial', '#sd-preview .sd-p-action', function (event) {
+            event.stopPropagation();
+            const cfg = previewConfig();
+            const id = $(this).attr('data-id');
+            previewMessage = cfg.examples ? t('preview.sentExample', { label: $(this).attr('data-label') }) : t('preview.sent', { label: $(this).attr('data-label') || id, id: id });
+            if (cfg.menu.closeOnSelect) closePreview();
+            updatePreviewHint(cfg);
+        });
+        // A click on the page or the overlay closes the menu, like in the dashboard.
+        $editor.on('click.speedDial', '#sd-preview .sd-stage, #sd-preview .sd-p-overlay', function (event) {
+            if ($(event.target).closest('.sd-p-root').length) return;
+            closePreview();
+            updatePreviewHint(previewConfig());
+        });
+        $editor.on('keydown.speedDial', '#sd-preview', function (event) {
+            if (event.key === 'Escape' && previewOpen) { event.preventDefault(); event.stopPropagation(); closePreview(); updatePreviewHint(previewConfig()); }
+        });
+    }
+
+    // ---- validation ----------------------------------------------------------------------------------------
+    function checkField(value, field) {
+        switch (field.type) {
+        case 'string':
+            return typeof value === 'string' && (field.max === undefined || value.length <= field.max) ? '' : t('err.maxChars', { max: field.max });
+        case 'number':
+            if (value === undefined) return t('err.required');
+            if (!Number.isFinite(value)) return t('err.number');
+            if ((field.min !== undefined && value < field.min) || (field.max !== undefined && value > field.max)) return t('err.range', { min: field.min, max: field.max });
+            return '';
+        case 'boolean': return typeof value === 'boolean' ? '' : t('err.invalid');
+        case 'enum': return field.values.includes(value) ? '' : t('err.invalid');
+        case 'icon':
+            return isIconValue(value) ? '' : t('err.icon');
+        case 'color': return value === '' || /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value) ? '' : t('err.color');
+        case 'id':
+            if (value === '') return t('err.required');
+            return /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$/.test(value) ? '' : t('err.idFormat');
+        default: return '';
+        }
+    }
+    function checkJsonValue(value, depth) {
+        if (depth > schema.limits.jsonDepth) throw new Error(t('err.depth'));
+        if (typeof value === 'number' && !Number.isFinite(value)) throw new Error(t('err.payloadNumber'));
+        if (Array.isArray(value)) value.forEach(function (v) { checkJsonValue(v, depth + 1); });
+        else if (value && typeof value === 'object') Object.keys(value).forEach(function (k) { checkJsonValue(value[k], depth + 1); });
+    }
+    function parsePayload(type, text) {
+        if (type === 'str') return text;
         if (type === 'bool') {
-            if (text !== 'true' && text !== 'false') throw new Error(t('err.bool', { label: label }));
+            if (text !== 'true' && text !== 'false') throw new Error(t('err.bool'));
             return text === 'true';
         }
         let value;
-        try { value = JSON.parse(text); } catch (error) { throw new Error(t(type === 'num' ? 'err.number' : 'err.json', { label: label })); }
-        if (type === 'num' && (typeof value !== 'number' || !Number.isFinite(value))) throw new Error(t('err.finite', { label: label }));
-        validateJsonValue(value, label, 0, loadedSchema.limits.jsonDepth);
+        try { value = JSON.parse(text); } catch (error) { throw new Error(t(type === 'num' ? 'err.payloadNumber' : 'err.json')); }
+        if (type === 'num' && (typeof value !== 'number' || !Number.isFinite(value))) throw new Error(t('err.payloadNumber'));
+        checkJsonValue(value, 0);
+        if (bytes(JSON.stringify(value)) > schema.limits.jsonBytes) throw new Error(t('err.tooLarge'));
         return value;
     }
-    function validateJsonValue(value, label, depth, maxDepth) {
-        if (depth > maxDepth) throw new Error(t('err.depth', { label: label }));
-        if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
-        if (typeof value === 'number') { if (!Number.isFinite(value)) throw new Error(t('err.finiteNumbers', { label: label })); return; }
-        if (Array.isArray(value)) { value.forEach((v, i) => validateJsonValue(v, label + '[' + i + ']', depth + 1, maxDepth)); return; }
-        if (value && Object.getPrototypeOf(value) === Object.prototype) { Object.keys(value).forEach(k => validateJsonValue(value[k], label + '.' + k, depth + 1, maxDepth)); return; }
-        throw new Error(t('err.notJson', { label: label }));
-    }
-    function checkDepth(value, depth, maxDepth, label) { validateJsonValue(value, label, depth, maxDepth); }
-    function validateField(value, field, label) {
-        const fail = function (key, extra) { throw new Error(t(key, Object.assign({ label: label }, extra))); };
-        switch (field.type) {
-        case 'string':
-            if (typeof value !== 'string') fail('err.text');
-            if (field.max !== undefined && value.length > field.max) fail('err.maxChars', { max: field.max });
-            break;
-        case 'number':
-            if (typeof value !== 'number' || !Number.isFinite(value)) fail('err.finite');
-            if (field.min !== undefined && value < field.min) fail('err.min', { min: field.min });
-            if (field.max !== undefined && value > field.max) fail('err.max', { max: field.max });
-            break;
-        case 'boolean': if (typeof value !== 'boolean') fail('err.onoff'); break;
-        case 'enum': if (!field.values.includes(value)) fail('err.oneOf', { values: field.values.join(', ') }); break;
-        case 'icon': if (typeof value !== 'string' || (value !== '' && !/^pi-[a-z0-9-]+$/.test(value))) fail('err.icon'); break;
-        case 'color': if (typeof value !== 'string' || (value !== '' && !/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value))) fail('err.color'); break;
-        case 'id': if (typeof value !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$/.test(value)) fail('err.idFormat'); break;
-        case 'json': break;
-        default: throw new Error(t('err.unsupported', { type: field.type }));
+    // Reads the dialog; every problem goes to report($field, message[, $actionRow, fieldKey]).
+    function collect(report) {
+        const config = { button: {}, menu: {}, theme: {} };
+        for (const section of SECTIONS) {
+            for (const [key, field] of Object.entries(schema[section])) {
+                const $input = control(section, key);
+                if (!$input.length) continue;
+                const value = readControl($input, field);
+                const problem = checkField(value, field);
+                if (problem) report($input, problem);
+                config[section][key] = value;
+            }
         }
+        const allowed = schema.geometry.directions[config.menu.shape] || [];
+        if (config.menu.direction !== 'auto' && allowed.length && !allowed.includes(config.menu.direction)) report(control('menu', 'direction'), t('err.invalid'));
+        config.actions = [];
+        const ids = new Set();
+        $('#node-input-actions-list').editableList('items').each(function () {
+            const $row = $(this).find('.sd-action');
+            const action = readRow($row);
+            for (const [key, field] of Object.entries(schema.action)) {
+                if (key === 'payload' || (key === 'topic' && action.topic === '')) continue;
+                const problem = checkField(action[key], field);
+                if (problem) report($row.find('[data-action-key="' + key + '"]'), problem, $row, key);
+            }
+            if (action.id && ids.has(action.id)) report($row.find('[data-action-key="id"]'), t('err.dupId'), $row, 'id');
+            ids.add(action.id);
+            try { parsePayload(action.payloadType, action.payload); } catch (error) { report($row.find('[data-action-key="payload"]'), error.message, $row, 'payload'); }
+            if (action.topic === '') delete action.topic;
+            config.actions.push(action);
+        });
+        if (config.actions.length > schema.limits.actions) report($('#node-input-actions-list'), t('err.maxActions', { max: schema.limits.actions }));
+        return config;
+    }
+    function targetOf($input) {
+        const $target = $input.data('target');
+        if ($target && $target.length) return $target;
+        const $typed = $input.closest('.red-ui-typedInput-container');
+        if ($typed.length) return $typed;
+        const $node = $input.siblings('.red-ui-typedInput-container, .red-ui-editableList-container');
+        return $node.length ? $node : $input;
     }
     function validateEditor() {
         const $ok = $('#node-dialog-ok');
-        if (schemaError || !loadedSchema) { $ok.prop('disabled', true); return false; }
-        try {
-            const scope = $('#node-input-scope').val();
-            if (!['group', 'page', 'all'].includes(scope)) throw new Error(t('err.scope'));
-            const ref = scope === 'group' ? $('#node-input-group').val() : scope === 'page' ? $('#node-input-page').val() : $('#node-input-ui').val();
-            if (!ref) throw new Error(t('err.selectRef', { what: t(scope === 'group' ? 'ref.group' : scope === 'page' ? 'ref.page' : 'ref.ui') }));
-            const cfg = collectConfig();
-            const allowedDirections = loadedSchema.geometry.directions[cfg.menu.shape];
-            if (allowedDirections && allowedDirections.length && !allowedDirections.includes(cfg.menu.direction)) throw new Error(t('err.directionShape', { direction: cfg.menu.direction, shape: cfg.menu.shape }));
-            // The editor sends payloadType plus text; validate the same JSON envelope the runtime receives.
-            const runtimeActions = cfg.actions.map(function (action, i) {
-                const converted = Object.assign({}, action, { payload: parsePayload(action.payloadType, action.payload, i) });
+        if (!schema) { $ok.prop('disabled', true); return false; }
+        $('#sd-editor .sd-field-error').remove();
+        $('#sd-editor .input-error').removeClass('input-error');
+        $('#sd-editor .sd-has-error').removeClass('sd-has-error');
+        $('#sd-actions-error').hide().text('');
+        $('#node-input-actions-list .sd-action-error').empty();
+        const panes = new Set();
+        let count = 0;
+        function report($input, message, $row, key) {
+            count += 1;
+            const $target = targetOf($input).addClass('input-error');
+            const pane = $target.closest('.sd-tab-pane').attr('data-pane');
+            if (pane) panes.add(pane);
+            if ($row) {
+                $row.addClass('sd-has-error');
+                $('<div></div>').text(t('field.' + key) + ': ' + message).appendTo($row.find('.sd-action-error'));
+                const $details = $target.closest('details');
+                if ($details.length) $details.addClass('sd-has-error').prop('open', true);
+            } else if ($input.is('#node-input-actions-list')) {
+                $('#sd-actions-error').text(message).show();
+            } else {
+                $('<div class="sd-field-error"></div>').text(message).insertAfter(rowOf($target));
+            }
+        }
+        const scope = $('#node-input-scope').val();
+        const ref = { group: '#node-input-group', page: '#node-input-page', all: '#node-input-ui' }[scope];
+        if (!ref) report($('#node-input-scope'), t('err.invalid'));
+        else if (!$(ref).val() || $(ref).val() === '_ADD_') report($(ref), t('err.selectRef', { what: t('ref.' + scope) }));
+        const config = collect(report);
+        if (!count) {
+            const runtime = config.actions.map(function (action) {
+                const converted = Object.assign({}, action, { payload: parsePayload(action.payloadType, action.payload) });
                 delete converted.payloadType;
                 return converted;
             });
-            const envelope = { actions: runtimeActions, button: cfg.button, menu: cfg.menu, theme: cfg.theme };
-            const serialized = JSON.stringify(envelope);
-            if (new TextEncoder().encode(serialized).length > loadedSchema.limits.jsonBytes) throw new Error(t('err.configSize'));
-            $('#sd-validation-error').hide().text('');
-            $('#node-input-actions-list').editableList('items').each(function () { $(this).find('.sd-action-error').text(''); });
-            $ok.prop('disabled', false);
-            return true;
-        } catch (error) {
-            $('#sd-validation-error').text(error.message).show();
-            $ok.prop('disabled', true);
-            return false;
+            if (bytes(JSON.stringify({ actions: runtime, button: config.button, menu: config.menu, theme: config.theme })) > schema.limits.jsonBytes) {
+                report($('#node-input-actions-list'), t('err.configSize'));
+            }
         }
+        $('#sd-tab-bar button').each(function () { $(this).toggleClass('sd-has-error', panes.has($(this).attr('data-pane'))); });
+        if (count) {
+            const names = Array.from(panes).map(function (pane) { return t('tab.' + pane); });
+            showBanner(names.length ? t('err.summaryTabs', { tabs: names.join(', ') }) : t('err.summary'), true);
+        } else $('#sd-banner').hide();
+        $ok.prop('disabled', count > 0);
+        renderPreview(false);
+        return count === 0;
     }
     function saveEditor(node) {
-        if (!validateEditor()) return;
-        const config = collectConfig();
+        if (!schema || !validateEditor()) return;
+        const config = collect(function () {});
         node.actions = config.actions;
-        for (const section of sections) node[section] = config[section];
+        for (const section of SECTIONS) node[section] = Object.assign({}, dropPreserved ? {} : preserved[section], config[section]);
         node.scope = $('#node-input-scope').val();
         // Let Node-RED save config-node references and maintain their users lists.
         if (node.scope !== 'group') $('#node-input-group').val('');
         if (node.scope !== 'page') $('#node-input-page').val('');
         if (node.scope !== 'all') $('#node-input-ui').val('');
-        node.order = Number($('#node-input-order').val());
-        node.width = Number($('#node-input-width').val());
-        node.height = Number($('#node-input-height').val());
+        node.width = Number($('#node-input-width').val()) || 0;
+        node.height = Number($('#node-input-height').val()) || 0;
+    }
+
+    // ---- events --------------------------------------------------------------------------------------------
+    function bindEvents() {
+        const $editor = $('#sd-editor').off('.speedDial');
+        $editor.on('input.speedDial change.speedDial', '[data-section]', function () {
+            const $el = $(this);
+            if ($el.hasClass('sd-color-text')) syncColor($el);
+            if ($el.attr('type') === 'number') updateReset($el);
+            updateDependent();
+            validateEditor();
+        });
+        $editor.on('change.speedDial', '#node-input-scope, #node-input-group, #node-input-page, #node-input-ui', function () { updateDependent(); validateEditor(); });
+        $editor.on('click.speedDial', '.sd-swatch[data-color]', function () {
+            $(this).closest('.sd-color').find('.sd-color-text').val($(this).attr('data-color')).trigger('input');
+        });
+        // The browser's colour dialog reports while dragging, so the preview follows live.
+        $editor.on('input.speedDial', '.sd-color-picker', function () {
+            $(this).closest('.sd-color').find('.sd-color-text').val(this.value).trigger('input');
+        });
+        $editor.on('input.speedDial change.speedDial', '.sd-color-text', function () { syncColor($(this)); });
+        $editor.on('click.speedDial', '.sd-reset', function () {
+            const $input = $(this).siblings('input[type=number]').first();
+            $input.val($input.attr('data-default')).trigger('input').trigger('focus');
+        });
+        $editor.on('click.speedDial', '#sd-position-grid .sd-pos', function () { control('button', 'position').val($(this).attr('data-value')).trigger('change'); showMenuInPreview(); });
+        $editor.on('click.speedDial', '#sd-style-cards .sd-style', function () { applyStyle($(this).attr('data-value')); showMenuInPreview(); });
+        $editor.on('click.speedDial', '#sd-direction-buttons .sd-direction', function () { control('menu', 'direction').val($(this).attr('data-value')).trigger('change'); showMenuInPreview(); });
+        $editor.on('click.speedDial', '.sd-size-preset', function () { control('button', 'size').val(SIZE_PRESETS[$(this).attr('data-size')]).trigger('input'); });
+        $editor.on('input.speedDial', '#sd-offset', function () {
+            updateReset($(this));
+            control('button', 'offsetX').val(this.value);
+            control('button', 'offsetY').val(this.value).trigger('input');
+        });
+        $editor.on('change.speedDial', '#sd-offset-separate', function () {
+            if (!this.checked) {
+                const value = control('button', 'offsetX').val();
+                $('#sd-offset').val(value);
+                updateReset($('#sd-offset'));
+                control('button', 'offsetY').val(value);
+            }
+            updateDependent();
+            validateEditor();
+        });
+        $editor.on('click.speedDial', '#sd-preserved-drop', function () { dropPreserved = true; showPreserved(); });
+        $editor.on('click.speedDial', '#sd-tab-bar button', function () {
+            const pane = $(this).attr('data-pane');
+            $('#sd-tab-bar button').removeClass('active').attr('aria-selected', 'false');
+            $(this).addClass('active').attr('aria-selected', 'true');
+            $('#sd-editor .sd-tab-pane').attr('hidden', true);
+            $('#sd-pane-' + pane).removeAttr('hidden');
+            $('#sd-editor .sd-icon-panel').prop('hidden', true);
+            if (pane === 'look') renderPreview(false);
+        });
+        bindPreviewEvents($editor);
+        // "toggle" does not bubble, so it is bound on the element itself.
+        $('#sd-preview-details').off('.speedDial').on('toggle.speedDial', function () {
+            previewOpen = false;
+            previewMessage = '';
+            if (this.open) renderPreview(false);
+        });
+        $editor.on('click.speedDial', '#sd-collapse-all', function () { $('#node-input-actions-list .sd-action').each(function () { setCollapsed($(this), true); }); });
+        $editor.on('click.speedDial', '#sd-expand-all', function () { $('#node-input-actions-list .sd-action').each(function () { setCollapsed($(this), false); }); });
     }
 }());
 </script>
 
 <style>
-    #sd-editor { max-height: 75vh; overflow-y: auto; }
-    #sd-editor .sd-tabs { display: flex; gap: 4px; border-bottom: 1px solid #ccc; margin-bottom: 12px; }
-    #sd-editor .sd-tabs button { border: 0; background: transparent; padding: 8px 12px; cursor: pointer; }
-    #sd-editor .sd-tabs button.active { border-bottom: 2px solid #0094ce; font-weight: bold; }
+    #sd-editor .sd-banner { padding: 8px 10px; margin: 0 0 10px; border-left: 3px solid #c90; background: var(--red-ui-secondary-background, #f3f3f3); white-space: normal; }
+    #sd-editor .sd-banner.sd-banner-error { border-left-color: var(--red-ui-text-color-error, #d6615f); color: var(--red-ui-text-color-error, #a00); }
+    #sd-editor .form-row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
+    #sd-editor .form-row > label:first-child { width: 140px; flex: 0 0 140px; margin: 0; }
+    #sd-editor .form-row > input:not([type=checkbox]), #sd-editor .form-row > select { flex: 1; min-width: 0; width: auto; }
+    #sd-editor .form-row .sd-control { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap; }
+    #sd-editor .form-row .sd-control > input:not([type=checkbox]):not([type=color]), #sd-editor .form-row .sd-control > select { flex: 1; min-width: 0; width: auto; }
+    #sd-editor .form-row .sd-control > input[type=number] { flex: 0 0 90px; }
+    #sd-editor .sd-hint { color: var(--red-ui-secondary-text-color, #777); font-size: 0.9em; line-height: 1.4; margin: 3px 0 0; white-space: normal; }
+    #sd-editor .form-row + .sd-hint-row, #sd-editor .sd-hint-row { margin: -6px 0 10px 150px; }
+    #sd-editor .sd-field-error { color: var(--red-ui-text-color-error, #a00); margin: -6px 0 10px 150px; white-space: normal; }
+    #sd-editor .sd-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--red-ui-secondary-border-color, #ccc); margin: 16px 0 12px; }
+    #sd-editor .sd-tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; color: inherit; padding: 8px 14px; cursor: pointer; }
+    #sd-editor .sd-tabs button.active { border-bottom-color: var(--red-ui-form-input-border-selected-color, #0094ce); font-weight: bold; }
+    #sd-editor .sd-tabs button.sd-has-error::after { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red-ui-text-color-error, #d6615f); margin-left: 6px; vertical-align: middle; }
     #sd-editor .sd-tab-pane[hidden] { display: none; }
-    #sd-editor input.sd-color-picker[type=color] { width: 36px; height: 28px; padding: 0; flex: 0 0 auto; cursor: pointer; }
-    #sd-editor .sd-color-field { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-    #sd-editor .sd-color-field label { flex: 0 0 100%; }
-    #sd-editor .sd-color-field input[type=text] { flex: 1 1 60%; width: auto; min-width: 0; }
-    #sd-editor .sd-reset { flex: 0 0 auto; cursor: pointer; border: 1px solid #aaa; background: transparent; border-radius: 4px; height: 28px; width: 28px; padding: 0; }
-    #sd-editor .sd-action-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-    #sd-editor .sd-action.sd-collapsed .sd-action-head { margin-bottom: 0; }
-    #sd-editor .sd-action-title { flex: 1; font-weight: bold; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #sd-editor .sd-toggle, #sd-editor .sd-copy { cursor: pointer; border: 1px solid #aaa; background: transparent; border-radius: 4px; height: 26px; min-width: 28px; padding: 0 6px; }
-    #sd-editor .sd-actions-tools { margin-bottom: 8px; }
-    #sd-editor .sd-color-picker.sd-color-empty { opacity: .45; }
-    #sd-editor .sd-color-clear { flex: 0 0 auto; cursor: pointer; border: 1px solid #aaa; background: transparent; border-radius: 4px; height: 28px; }
-    #sd-editor .form-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
-    #sd-editor .form-row > label { width: 150px; flex: 0 0 150px; }
-    #sd-editor .sd-control { flex: 1; display: flex; align-items: center; gap: 6px; }
-    #sd-editor .sd-control input:not([type=checkbox]):not([type=color]), #sd-editor .sd-control select { box-sizing: border-box; width: 100%; min-width: 0; }
-    #sd-editor .sd-action { padding: 12px; margin: 6px 0; border: 1px solid #ccc; border-radius: 4px; }
-    #sd-editor .sd-action-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px 14px; }
-    #sd-editor .sd-action-field, #sd-editor .sd-action-wide { min-width: 0; }
-    #sd-editor .sd-action-field label, #sd-editor .sd-action-wide label { display: block; margin-bottom: 3px; }
-    #sd-editor .sd-action-field input, #sd-editor .sd-action-wide input { box-sizing: border-box; width: 100%; }
-    #sd-editor .sd-action-wide { grid-column: 1 / -1; }
-    #sd-editor .sd-check { display: flex; align-items: center; gap: 5px; }
-    #sd-editor .sd-required { color: #a00; font-size: 0.9em; }
-    #sd-editor .sd-warning { padding: 8px 10px; border-left: 3px solid #c90; background: #fff6d6; margin: 8px 0; }
-    #sd-editor .sd-error { color: #a00; white-space: normal; margin: 8px 0; }
-    #sd-editor .sd-help { line-height: 1.45; }
-    #sd-editor .sd-help code { white-space: nowrap; }
-    @media (max-width: 700px) { #sd-editor .sd-action-grid { grid-template-columns: 1fr; } #sd-editor .sd-action-wide { grid-column: auto; } }
+    #sd-editor h4 { margin: 18px 0 10px; font-size: 1em; border-bottom: 1px solid var(--red-ui-secondary-border-color, #ddd); padding-bottom: 4px; }
+    #sd-editor h4:first-child { margin-top: 0; }
+    #sd-editor .sd-check { display: inline-flex; align-items: center; gap: 6px; width: auto; margin: 0 14px 0 0; cursor: pointer; }
+    #sd-editor .sd-check input { margin: 0; width: auto; }
+    #sd-editor .sd-icon { display: inline-block; line-height: 1; }
+    #sd-editor .sd-glyph { font-family: "sd-primeicons"; font-style: normal; font-weight: normal; -webkit-font-smoothing: antialiased; }
+    #sd-editor .sd-glyph.sd-glyph-mdi { font-family: "sd-mdi"; }
+    #sd-editor .sd-img { width: 1em; height: 1em; background-color: currentColor; -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+    #sd-editor .sd-reset { flex: 0 0 auto; min-width: 30px; padding: 0 6px; }
+    #sd-editor .sd-color { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; flex: 1; min-width: 0; }
+    #sd-editor .sd-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+    #sd-editor .sd-swatch { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; margin: 0; border: 1px solid rgba(128, 128, 128, .45); border-radius: 50%; cursor: pointer; background: transparent; color: inherit; box-sizing: border-box; }
+    #sd-editor .sd-swatch:hover { transform: scale(1.12); }
+    #sd-editor .sd-swatch:focus-visible, #sd-editor .sd-swatch-custom:focus-within { outline: 2px solid var(--red-ui-form-input-border-selected-color, #0094ce); outline-offset: 2px; }
+    #sd-editor .sd-swatch.active { box-shadow: 0 0 0 2px var(--red-ui-primary-background, #fff), 0 0 0 4px var(--red-ui-form-input-border-selected-color, #0094ce); }
+    #sd-editor .sd-swatch-default { width: auto; padding: 0 9px 0 4px; gap: 6px; border-radius: 11px; font-size: 0.9em; white-space: nowrap; }
+    #sd-editor .sd-swatch-default:hover { transform: none; border-color: var(--red-ui-form-input-border-selected-color, #0094ce); }
+    #sd-editor .sd-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(128, 128, 128, .45); box-sizing: border-box; }
+    #sd-editor .sd-swatch-transparent { background: repeating-conic-gradient(#c8c8c8 0 25%, #ffffff 0 50%) 50% / 8px 8px; }
+    #sd-editor .sd-swatch-custom { background: conic-gradient(#ef4444, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444); color: #fff; font-size: 11px; overflow: hidden; }
+    #sd-editor .sd-swatch-custom i { text-shadow: 0 0 2px #0009; }
+    #sd-editor .sd-swatch-custom.sd-has-color i { text-shadow: none; }
+    #sd-editor .sd-swatch-custom input.sd-color-picker[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; padding: 0; border: 0; cursor: pointer; }
+    #sd-editor .sd-color .sd-color-text { flex: 0 0 96px; width: 96px; min-width: 0; font-family: monospace; }
+    /* preview, position grid, style cards, size presets */
+    #sd-editor .sd-preview-details { margin: 0 0 14px; }
+    #sd-editor .sd-preview-details > summary { cursor: pointer; font-weight: bold; margin-bottom: 8px; }
+    #sd-editor .sd-preview { position: relative; overflow: hidden; margin: 0; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 6px; }
+    #sd-editor .sd-preview-hint { margin: 4px 0 14px; min-height: 1.4em; }
+    #sd-editor .sd-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; font-size: 14px; line-height: 1.25; }
+    #sd-editor .sd-p-overlay { position: absolute; inset: 0; background: #0006; opacity: 0; pointer-events: none; transition: opacity var(--sd-p-duration, 150ms); }
+    #sd-editor .sd-stage.sd-p-open .sd-p-overlay { opacity: 1; pointer-events: auto; }
+    #sd-editor .sd-p-root { position: absolute; display: flex; }
+    #sd-editor .sd-p-root.sd-p-invisible { opacity: .35; }
+    #sd-editor .sd-p-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #8884; padding: 10px; margin: 0; font: inherit; line-height: 1.25; cursor: pointer; box-sizing: border-box; max-width: 100%; text-shadow: none; }
+    #sd-editor .sd-p-button:not(:disabled):hover { filter: brightness(0.94); }
+    #sd-editor .sd-p-button:disabled { opacity: .45; cursor: default; }
+    #sd-editor .sd-p-button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+    #sd-editor .sd-p-shadow .sd-p-button { box-shadow: 0 4px 14px #0003; }
+    #sd-editor .sd-p-trigger { overflow: hidden; }
+    #sd-editor .sd-p-action .sd-p-icon { font-size: 20px; }
+    #sd-editor .sd-p-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #sd-editor .sd-p-labelled .sd-p-action { justify-content: flex-start; max-width: 280px; }
+    #sd-editor .sd-p-menu .sd-p-list { gap: 0; padding: 4px; background: var(--sd-p-surface); color: var(--sd-p-text); border: 1px solid #8884; border-radius: var(--sd-p-radius); }
+    #sd-editor .sd-p-menu.sd-p-shadow .sd-p-list { box-shadow: 0 6px 20px #0003; }
+    #sd-editor .sd-p-menu .sd-p-item { transform: none; }
+    #sd-editor .sd-p-menu .sd-p-list .sd-p-action { width: 100% !important; min-height: 40px !important; padding: 8px 12px; border: 0; border-radius: calc(var(--sd-p-radius) * .6) !important; box-shadow: none; }
+    #sd-editor .sd-p-menu .sd-p-list .sd-p-action:not(:disabled):hover { filter: none; background-image: linear-gradient(rgba(128, 128, 128, .14), rgba(128, 128, 128, .14)); }
+    #sd-editor .sd-direction-buttons .red-ui-button { min-width: 34px; }
+    #sd-editor .sd-p-list { position: absolute; display: flex; gap: var(--sd-p-gap, 8px); list-style: none; padding: 3px; margin: 0; width: max-content; overflow: auto; scrollbar-width: thin; }
+    #sd-editor .sd-p-list.sd-p-radial { display: block; inset: 0; width: auto; padding: 0; overflow: visible; pointer-events: none; }
+    #sd-editor .sd-stage:not(.sd-p-open) .sd-p-list { pointer-events: none; }
+    #sd-editor .sd-p-item { list-style: none; flex-shrink: 0; display: flex; margin: 0; padding: 0; opacity: 0; transform: scale(.85); pointer-events: none; transition: opacity var(--sd-p-duration, 150ms), transform var(--sd-p-duration, 150ms); }
+    #sd-editor .sd-p-radial .sd-p-item { position: absolute; }
+    #sd-editor .sd-stage.sd-p-open .sd-p-item { opacity: 1; transform: none; pointer-events: auto; }
+    #sd-editor .sd-position-grid { display: grid; grid-template-columns: repeat(3, 28px); grid-template-rows: repeat(3, 20px); gap: 3px; padding: 4px; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 4px; flex: 0 0 auto; }
+    #sd-editor .sd-pos { display: flex; align-items: center; justify-content: center; border: 0; padding: 0; border-radius: 3px; background: var(--red-ui-secondary-background, #eee); cursor: pointer; }
+    #sd-editor .sd-pos span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--red-ui-secondary-text-color, #888); }
+    #sd-editor .sd-pos:hover span { background: var(--red-ui-secondary-text-color, #888); }
+    #sd-editor .sd-pos.active span { width: 12px; height: 12px; background: var(--red-ui-form-input-border-selected-color, #0094ce); border-color: var(--red-ui-form-input-border-selected-color, #0094ce); }
+    #sd-editor .sd-pos:focus-visible, #sd-editor .sd-style:focus-visible { outline: 2px solid var(--red-ui-form-input-border-selected-color, #0094ce); outline-offset: 1px; }
+    #sd-editor .sd-position-name { color: var(--red-ui-secondary-text-color, #777); }
+    #sd-editor .sd-style-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; flex: 1; }
+    #sd-editor .sd-style { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 4px; background: transparent; color: inherit; cursor: pointer; font-size: 0.9em; line-height: 1.2; }
+    #sd-editor .sd-style svg { width: 56px; height: 40px; color: var(--red-ui-secondary-text-color, #666); }
+    #sd-editor .sd-style svg .a { opacity: .5; }
+    #sd-editor .sd-style svg .o { fill: none; stroke: currentColor; stroke-opacity: .5; }
+    #sd-editor .sd-style svg circle, #sd-editor .sd-style svg rect { fill: currentColor; }
+    #sd-editor .sd-style svg rect.o { fill: none; }
+    #sd-editor .sd-style.active { border-color: var(--red-ui-form-input-border-selected-color, #0094ce); box-shadow: inset 0 0 0 1px var(--red-ui-form-input-border-selected-color, #0094ce); font-weight: bold; }
+    #sd-editor .sd-style.active svg { color: var(--red-ui-form-input-border-selected-color, #0094ce); }
+    #sd-editor .sd-style-cards.input-error, #sd-editor .sd-position-grid.input-error { border: 1px solid var(--red-ui-form-input-border-error-color, #d6615f); border-radius: 4px; }
+    #sd-editor .sd-size-presets .red-ui-button { min-width: 38px; }
+    /* icon picker */
+    #sd-editor .sd-icon-button { display: inline-flex; align-items: center; gap: 8px; min-width: 120px; max-width: 100%; }
+    #sd-editor .sd-icon-button .sd-icon { font-size: 16px; min-width: 16px; }
+    #sd-editor .sd-icon-sets { display: flex; margin-bottom: 8px; }
+    #sd-editor .sd-icon-sets .red-ui-button { flex: 1; }
+    #sd-editor .sd-icon-browse[hidden], #sd-editor .sd-icon-image[hidden] { display: none; }
+    #sd-editor .sd-icon-count { color: var(--red-ui-secondary-text-color, #777); font-size: 0.9em; margin-top: 6px; }
+    #sd-editor .sd-icon-image .sd-hint { margin: 0 0 8px; }
+    #sd-editor .sd-icon-image-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    #sd-editor .sd-icon-image-row .sd-icon-url { flex: 1; min-width: 0; width: auto; }
+    #sd-editor .sd-icon-image-error { color: var(--red-ui-text-color-error, #a00); white-space: normal; }
+    #sd-editor .sd-icon-image-error:not(:empty) { margin-bottom: 8px; }
+    #sd-editor .sd-icon-button .sd-icon-name { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #sd-editor .sd-icon-panel { margin: 0 0 10px; padding: 8px; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 4px; background: var(--red-ui-secondary-background, #fafafa); }
+    #sd-editor .sd-icon-panel[hidden] { display: none; }
+    #sd-editor .sd-icon-search { width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+    #sd-editor .sd-icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 4px; max-height: 190px; overflow-y: auto; }
+    #sd-editor .sd-icon-option { height: 34px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: inherit; cursor: pointer; font-size: 17px; padding: 0; }
+    #sd-editor .sd-icon-option:hover, #sd-editor .sd-icon-option:focus-visible { border-color: var(--red-ui-secondary-border-color, #bbb); }
+    #sd-editor .sd-icon-option.active { border-color: var(--red-ui-form-input-border-selected-color, #0094ce); background: var(--red-ui-tertiary-background, #e8f4fa); }
+    #sd-editor .sd-icon-empty { grid-column: 1 / -1; color: var(--red-ui-secondary-text-color, #777); padding: 6px; }
+    #sd-editor .sd-icon-panel-row { margin-left: 150px; }
+    /* actions */
+    #sd-editor .sd-actions-tools { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 6px; }
+    #sd-editor .sd-empty { color: var(--red-ui-secondary-text-color, #777); margin: 4px 0 10px; }
+    #sd-editor .sd-action { padding: 4px 2px; }
+    #sd-editor .sd-action-head { display: flex; align-items: center; gap: 8px; }
+    #sd-editor .sd-action-glyph { font-size: 16px; width: 18px; text-align: center; }
+    #sd-editor .sd-action-title { flex: 1; min-width: 0; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #sd-editor .sd-action-label { font-weight: bold; }
+    #sd-editor .sd-action-id { color: var(--red-ui-secondary-text-color, #888); font-size: 0.9em; }
+    #sd-editor .sd-toggle { border: 0; background: transparent; color: inherit; cursor: pointer; width: 22px; padding: 0; font-size: 16px; }
+    #sd-editor .sd-action-error { color: var(--red-ui-text-color-error, #a00); white-space: normal; }
+    #sd-editor .sd-action-error:not(:empty) { margin: 4px 0 0 30px; }
+    #sd-editor .sd-action.sd-has-error .sd-action-label { color: var(--red-ui-text-color-error, #a00); }
+    #sd-editor .sd-action-body { margin: 8px 0 4px 30px; }
+    #sd-editor .sd-action-main { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
+    #sd-editor .sd-field { min-width: 0; margin-bottom: 8px; }
+    #sd-editor .sd-field > label { display: block; width: auto; margin-bottom: 3px; }
+    #sd-editor .sd-field > input[type=text] { width: 100%; box-sizing: border-box; }
+    #sd-editor .sd-field .red-ui-typedInput-container { width: 100% !important; }
+    #sd-editor .sd-more > summary { cursor: pointer; color: var(--red-ui-secondary-text-color, #666); margin: 2px 0 8px; }
+    #sd-editor .sd-more.sd-has-error > summary { color: var(--red-ui-text-color-error, #a00); }
+    #sd-editor .sd-action-grid { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 0 14px; }
+    #sd-editor .sd-action-grid .sd-wide { grid-column: 1 / -1; }
+    #sd-editor .sd-action-grid .sd-check { margin-bottom: 8px; }
+    #sd-editor .sd-preserved { display: none; padding: 8px 10px; border-left: 3px solid #c90; background: var(--red-ui-secondary-background, #f3f3f3); white-space: normal; }
+    #sd-editor .sd-preserved code { word-break: break-all; }
+    @media (max-width: 640px) {
+        #sd-editor .form-row { flex-wrap: wrap; }
+        #sd-editor .form-row > label:first-child { width: 100%; flex-basis: 100%; }
+        #sd-editor .sd-field-error, #sd-editor .sd-hint-row, #sd-editor .sd-icon-panel-row { margin-left: 0; }
+        #sd-editor .sd-action-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
 <script type="text/html" data-template-name="ui-speed-dial">
     <div id="sd-editor" class="sd-editor">
-        <div id="sd-schema-warning" class="sd-warning" role="status"></div>
-        <div id="sd-validation-error" class="sd-error" role="alert" style="display:none"></div>
-        <div class="form-row"><label for="node-input-name" data-sd-i18n="label.name"></label><input type="text" id="node-input-name"></div>
-        <div class="form-row"><label for="node-input-scope" data-sd-i18n="label.scope"></label><select id="node-input-scope"><option value="group" data-sd-i18n="scope.group"></option><option value="page" data-sd-i18n="scope.page"></option><option value="all" data-sd-i18n="scope.all"></option></select></div>
-        <div id="sd-ref-group" class="form-row"><label for="node-input-group" data-sd-i18n="label.group"></label><input type="text" id="node-input-group"></div>
-        <div id="sd-ref-page" class="form-row"><label for="node-input-page" data-sd-i18n="label.page"></label><input type="text" id="node-input-page"></div>
-        <div id="sd-ref-ui" class="form-row"><label for="node-input-ui" data-sd-i18n="label.ui"></label><input type="text" id="node-input-ui"></div>
-        <div class="form-row sd-group-size"><label for="node-input-order" data-sd-i18n="label.order"></label><input type="number" id="node-input-order" min="0" data-default="0"></div>
-        <div class="form-row sd-group-size"><label for="node-input-width" data-sd-i18n="label.width"></label><input type="number" id="node-input-width" min="1" data-default="3"></div>
-        <div class="form-row sd-group-size"><label for="node-input-height" data-sd-i18n="label.height"></label><input type="number" id="node-input-height" min="1" data-default="4"></div>
+        <div id="sd-banner" class="sd-banner" role="status"></div>
+        <div class="form-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> <span data-sd-i18n="label.name"></span></label>
+            <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+        </div>
+        <div class="form-row">
+            <label for="node-input-scope"><i class="fa fa-desktop"></i> <span data-sd-i18n="label.scope"></span></label>
+            <select id="node-input-scope">
+                <option value="group" data-sd-i18n="scope.group"></option>
+                <option value="page" data-sd-i18n="scope.page"></option>
+                <option value="all" data-sd-i18n="scope.all"></option>
+            </select>
+        </div>
+        <div class="sd-hint sd-hint-row" id="sd-scope-hint"></div>
+        <div id="sd-ref-group" class="form-row"><label for="node-input-group"><i class="fa fa-table"></i> <span data-sd-i18n="label.group"></span></label><input type="text" id="node-input-group"></div>
+        <div class="form-row sd-size-sizer"><label><i class="fa fa-object-group"></i> <span data-sd-i18n="label.size"></span></label><button type="button" class="editor-button" id="node-input-size"></button></div>
+        <div class="form-row sd-size-numeric"><label for="node-input-width"><i class="fa fa-arrows-h"></i> <span data-sd-i18n="label.width"></span></label><input type="hidden" id="node-input-width"></div>
+        <div class="form-row sd-size-numeric"><label for="node-input-height"><i class="fa fa-arrows-v"></i> <span data-sd-i18n="label.height"></span></label><input type="hidden" id="node-input-height"></div>
+        <div id="sd-ref-page" class="form-row"><label for="node-input-page"><i class="fa fa-file-o"></i> <span data-sd-i18n="label.page"></span></label><input type="text" id="node-input-page"></div>
+        <div id="sd-ref-ui" class="form-row"><label for="node-input-ui"><i class="fa fa-th-large"></i> <span data-sd-i18n="label.ui"></span></label><input type="text" id="node-input-ui"></div>
+
         <div id="sd-tab-bar" class="sd-tabs" role="tablist">
-            <button type="button" class="active" role="tab" aria-selected="true" data-pane="general" data-sd-i18n="tab.general"></button>
-            <button type="button" role="tab" aria-selected="false" data-pane="button" data-sd-i18n="tab.button"></button>
-            <button type="button" role="tab" aria-selected="false" data-pane="menu" data-sd-i18n="tab.menu"></button>
-            <button type="button" role="tab" aria-selected="false" data-pane="actions" data-sd-i18n="tab.actions"></button>
-            <button type="button" role="tab" aria-selected="false" data-pane="theme" data-sd-i18n="tab.theme"></button>
+            <button type="button" class="active" role="tab" aria-selected="true" data-pane="actions" data-sd-i18n="tab.actions"></button>
+            <button type="button" role="tab" aria-selected="false" data-pane="look" data-sd-i18n="tab.look"></button>
+            <button type="button" role="tab" aria-selected="false" data-pane="advanced" data-sd-i18n="tab.advanced"></button>
         </div>
-        <div id="sd-pane-general" class="sd-tab-pane active"><p data-sd-i18n="general.intro"></p><details class="sd-help"><summary data-sd-i18n="fieldHelp"></summary><div data-sd-i18n="hint.general"></div></details></div>
-        <div id="sd-pane-button" class="sd-tab-pane" hidden><div id="sd-fields-button"></div><details class="sd-help"><summary data-sd-i18n="fieldHelp"></summary><div data-sd-i18n="hint.button"></div></details></div>
-        <div id="sd-pane-menu" class="sd-tab-pane" hidden><div id="sd-fields-menu"></div><details class="sd-help"><summary data-sd-i18n="fieldHelp"></summary><div data-sd-i18n="hint.menu"></div></details></div>
-        <div id="sd-pane-actions" class="sd-tab-pane" hidden>
-            <div class="sd-actions-tools"><button type="button" id="sd-collapse-all" class="red-ui-button red-ui-button-small" data-sd-i18n="actions.collapseAll"></button> <button type="button" id="sd-expand-all" class="red-ui-button red-ui-button-small" data-sd-i18n="actions.expandAll"></button></div>
+
+        <div id="sd-pane-actions" class="sd-tab-pane" data-pane="actions">
+            <div class="sd-actions-tools">
+                <button type="button" id="sd-collapse-all" class="red-ui-button red-ui-button-small" data-sd-i18n="actions.collapseAll"></button>
+                <button type="button" id="sd-expand-all" class="red-ui-button red-ui-button-small" data-sd-i18n="actions.expandAll"></button>
+            </div>
+            <p id="sd-actions-empty" class="sd-empty" data-sd-i18n="actions.empty"></p>
+            <div id="sd-actions-error" class="sd-field-error" style="display:none; margin-left:0"></div>
             <ol id="node-input-actions-list"></ol>
-            <p data-sd-i18n="actions.note"></p><details class="sd-help"><summary data-sd-i18n="fieldHelp"></summary><div data-sd-i18n="hint.actions"></div></details>
+            <p class="sd-hint" style="margin-top:10px" data-sd-i18n="actions.messagesHint"></p>
         </div>
-        <div id="sd-pane-theme" class="sd-tab-pane" hidden><div id="sd-fields-theme"></div><details class="sd-help"><summary data-sd-i18n="fieldHelp"></summary><div data-sd-i18n="hint.theme"></div></details></div>
-        <div class="sd-help">
-            <details><summary data-sd-i18n="inputHelp.summary"></summary>
-                <p data-sd-i18n="inputHelp.1"></p>
-                <p data-sd-i18n="inputHelp.2"></p>
-                <p data-sd-i18n="inputHelp.3"></p>
-                <p data-sd-i18n="inputHelp.4"></p>
+
+        <div id="sd-pane-look" class="sd-tab-pane" data-pane="look" hidden>
+            <details id="sd-preview-details" class="sd-preview-details">
+                <summary data-sd-i18n="preview.title"></summary>
+                <div id="sd-preview" class="sd-preview"></div>
+                <div id="sd-preview-hint" class="sd-hint sd-preview-hint" aria-live="polite"></div>
             </details>
+            <input type="hidden" id="sd-button-position" data-section="button" data-key="position">
+            <input type="hidden" id="sd-menu-mode" data-section="menu" data-key="mode">
+            <input type="hidden" id="sd-menu-shape" data-section="menu" data-key="shape">
+            <input type="hidden" id="sd-menu-showLabels" data-section="menu" data-key="showLabels">
+            <div class="form-row">
+                <label data-sd-i18n="field.position"></label>
+                <div class="sd-control"><div id="sd-position-grid" class="sd-position-grid" role="radiogroup"></div><span id="sd-position-name" class="sd-position-name"></span></div>
+            </div>
+            <div class="sd-hint sd-hint-row" id="sd-position-hint"></div>
+            <div class="form-row">
+                <label data-sd-i18n="field.style"></label>
+                <div id="sd-style-cards" class="sd-style-cards" role="radiogroup"></div>
+            </div>
+            <div class="form-row">
+                <label data-sd-i18n="field.direction"></label>
+                <div class="sd-control"><span id="sd-direction-buttons" class="button-group sd-direction-buttons" role="radiogroup"></span><select id="sd-menu-direction" data-section="menu" data-key="direction" style="display:none"></select></div>
+            </div>
+            <div class="sd-hint sd-hint-row" id="sd-direction-hint" data-sd-i18n="hint.direction"></div>
+            <div class="form-row">
+                <label data-sd-i18n="field.icon"></label>
+                <div class="sd-control" id="sd-button-icon-slot"><input type="hidden" id="sd-button-icon" data-section="button" data-key="icon"></div>
+            </div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.icon"></div>
+            <div id="sd-button-icon-panel" class="sd-icon-panel-row"></div>
+            <div class="form-row">
+                <label data-sd-i18n="field.closeIcon"></label>
+                <div class="sd-control" id="sd-button-closeIcon-slot"><input type="hidden" id="sd-button-closeIcon" data-section="button" data-key="closeIcon"></div>
+            </div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.closeIcon"></div>
+            <div id="sd-button-closeIcon-panel" class="sd-icon-panel-row"></div>
+            <div class="form-row">
+                <label for="sd-button-background" data-sd-i18n="field.background"></label>
+                <div class="sd-control"><span class="sd-color" data-kind="dashboard"><input type="text" id="sd-button-background" class="sd-color-text" data-section="button" data-key="background"></span></div>
+            </div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.background"></div>
+            <div class="form-row">
+                <label data-sd-i18n="field.size"></label>
+                <span id="sd-size-presets" class="button-group sd-size-presets">
+                    <button type="button" class="red-ui-button toggle sd-size-preset" data-size="s" data-sd-i18n-title="size.s">S</button><button type="button" class="red-ui-button toggle sd-size-preset" data-size="m" data-sd-i18n-title="size.m">M</button><button type="button" class="red-ui-button toggle sd-size-preset" data-size="l" data-sd-i18n-title="size.l">L</button>
+                </span>
+            </div>
+        </div>
+
+        <div id="sd-pane-advanced" class="sd-tab-pane" data-pane="advanced" hidden>
+            <h4 data-sd-i18n="section.button"></h4>
+            <div class="form-row"><label for="sd-button-label" data-sd-i18n="field.label"></label><input type="text" id="sd-button-label" data-section="button" data-key="label" maxlength="160"></div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.label"></div>
+            <div class="form-row"><label for="sd-button-tooltip" data-sd-i18n="field.tooltip"></label><input type="text" id="sd-button-tooltip" data-section="button" data-key="tooltip" maxlength="240"></div>
+            <div class="form-row">
+                <label for="sd-button-color" data-sd-i18n="field.iconColor"></label>
+                <div class="sd-control"><span class="sd-color" data-kind="auto"><input type="text" id="sd-button-color" class="sd-color-text" data-section="button" data-key="color"></span></div>
+            </div>
+            <div class="form-row"><label for="sd-button-size" data-sd-i18n="field.sizePx"></label><div class="sd-control"><input type="number" id="sd-button-size" data-section="button" data-key="size"></div></div>
+            <div class="form-row"><label for="sd-button-radius" data-sd-i18n="field.radius"></label><div class="sd-control"><input type="number" id="sd-button-radius" data-section="button" data-key="radius"></div></div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.radius"></div>
+            <div class="form-row" id="sd-offset-single"><label for="sd-offset" data-sd-i18n="field.offset"></label><div class="sd-control"><input type="number" id="sd-offset"></div></div>
+            <div class="form-row" id="sd-offset-separate-row"><label></label><label class="sd-check"><input type="checkbox" id="sd-offset-separate"> <span data-sd-i18n="field.offsetSeparate"></span></label></div>
+            <div class="form-row"><label for="sd-button-offsetX" data-sd-i18n="field.offsetX"></label><div class="sd-control"><input type="number" id="sd-button-offsetX" data-section="button" data-key="offsetX"></div></div>
+            <div class="form-row"><label for="sd-button-offsetY" data-sd-i18n="field.offsetY"></label><div class="sd-control"><input type="number" id="sd-button-offsetY" data-section="button" data-key="offsetY"></div></div>
+            <div class="form-row">
+                <label></label>
+                <label class="sd-check"><input type="checkbox" id="sd-button-visible" data-section="button" data-key="visible"> <span data-sd-i18n="field.visible"></span></label>
+                <label class="sd-check"><input type="checkbox" id="sd-button-enabled" data-section="button" data-key="enabled"> <span data-sd-i18n="field.enabled"></span></label>
+            </div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.visible"></div>
+
+            <h4 data-sd-i18n="section.menu"></h4>
+            <div class="form-row"><label for="sd-menu-radius" data-sd-i18n="field.arcRadius"></label><div class="sd-control"><input type="number" id="sd-menu-radius" data-section="menu" data-key="radius"><span class="sd-hint" data-sd-i18n="hint.arcRadius"></span></div></div>
+            <div class="form-row"><label for="sd-menu-gap" data-sd-i18n="field.gap"></label><div class="sd-control"><input type="number" id="sd-menu-gap" data-section="menu" data-key="gap"></div></div>
+            <div class="form-row"><label for="sd-menu-actionSize" data-sd-i18n="field.actionSize"></label><div class="sd-control"><input type="number" id="sd-menu-actionSize" data-section="menu" data-key="actionSize"></div></div>
+            <div class="form-row"><label for="sd-menu-duration" data-sd-i18n="field.duration"></label><div class="sd-control"><input type="number" id="sd-menu-duration" data-section="menu" data-key="duration"></div></div>
+            <div class="form-row"><label></label><label class="sd-check"><input type="checkbox" id="sd-menu-closeOnSelect" data-section="menu" data-key="closeOnSelect"> <span data-sd-i18n="field.closeOnSelect"></span></label></div>
+            <div class="form-row"><label></label><label class="sd-check"><input type="checkbox" id="sd-menu-overlay" data-section="menu" data-key="overlay"> <span data-sd-i18n="field.overlay"></span></label></div>
+
+            <h4 data-sd-i18n="section.look"></h4>
+            <div class="form-row"><label for="sd-theme-radius" data-sd-i18n="field.actionRadius"></label><div class="sd-control"><input type="number" id="sd-theme-radius" data-section="theme" data-key="radius"></div></div>
+            <div class="form-row"><label></label><label class="sd-check"><input type="checkbox" id="sd-theme-shadow" data-section="theme" data-key="shadow"> <span data-sd-i18n="field.shadow"></span></label></div>
+            <div class="form-row"><label for="sd-theme-zIndex" data-sd-i18n="field.zIndex"></label><div class="sd-control"><input type="number" id="sd-theme-zIndex" data-section="theme" data-key="zIndex"></div></div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.zIndex"></div>
+            <div id="sd-preserved" class="sd-preserved">
+                <span data-sd-i18n="preserved.text"></span> <code class="sd-preserved-list"></code>
+                <div style="margin-top:6px"><button type="button" id="sd-preserved-drop" class="red-ui-button red-ui-button-small" data-sd-i18n="preserved.drop"></button></div>
+            </div>
         </div>
     </div>
 </script>

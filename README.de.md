@@ -9,7 +9,8 @@ Ein schwebender Aktionsbutton für [FlowFuse Dashboard 2.0](https://dashboard.fl
 - Schwebender Button in einer Ecke, an einem Rand oder in der Bildschirmmitte – oder innerhalb einer Dashboard-Gruppe
 - Aktionen als Reihe, als Voll-, Halb- oder Viertelkreis oder als beschriftetes Menü
 - Jede Aktion sendet ihren eigenen Payload (Text, Zahl, true/false, JSON oder `null`) und optional ein Topic
-- Icons aus [PrimeIcons](https://primevue.org/icons/), eigene Farben, Größen und helles/dunkles Design
+- Übernimmt automatisch die Farben des Dashboard-Themes – oder eigene Farben und Größen
+- Icons aus [PrimeIcons](https://primevue.org/icons/), [Material Design Icons](https://pictogrammers.com/library/mdi/) (wie bei den anderen Dashboard-Widgets) oder eigene Bilder (Upload oder URL)
 - Aktionen und Aussehen lassen sich zur Laufzeit per Nachricht ändern
 - Funktioniert auf Smartphone und Tablet und lässt sich mit der Tastatur bedienen
 - Editor auf Deutsch und Englisch
@@ -50,13 +51,19 @@ Ein Klick auf eine Aktion sendet:
 
 ## Einstellungen
 
+Oben wird festgelegt, wo der Button erscheint: in einer Gruppe (Größe wie bei anderen Widgets über das Raster), schwebend auf einer Seite oder auf allen Seiten.
+
 | Tab | Was eingestellt wird |
 |---|---|
-| Allgemein | Seite, alle Seiten oder Gruppe |
-| Schaltfläche | Icon, Beschriftung, Farben, Größe, Position auf dem Bildschirm |
-| Menü | Reihe, Kreis oder beschriftete Liste, Öffnungsrichtung, Animation, Overlay |
-| Aktionen | Die Liste der Aktionen – einklappen, sortieren und duplizieren |
-| Design | Hell, dunkel oder automatisch, Farben, Eckenrundung |
+| Aktionen | Die Liste der Aktionen – Icon, Beschriftung und Payload; ID, Topic, Farben und mehr unter *Weitere Optionen*. IDs werden automatisch aus der Beschriftung erzeugt |
+| Aussehen | Aufklappbare, klickbare Live-Vorschau, die das Menü mit den aktuellen Einstellungen öffnet; Position (Klick ins 3×3-Raster), Stil (Reihe, Reihe mit Text, Menüliste, Halb-/Viertel-/Vollkreis), Öffnungsrichtung (Pfeile), Icon und Icon beim Öffnen (Auswahl mit Suche), Farbe (Farbfelder inkl. transparent) und Größe (S/M/L) |
+| Erweitert | Feineinstellungen: Beschriftung und Tooltip des Buttons, Größen in px, Abstände, Animation, Overlay, Schatten, Z-Index |
+
+Ohne eigene Farben verwendet der Speed Dial die Primär- und Flächenfarben des Dashboard-Themes.
+
+### Eigene Icons
+
+Im Icon-Picker kann man im Reiter **Eigenes Bild** eine SVG/PNG/WebP/GIF/JPG-Datei hochladen (wird im Flow gespeichert, bis 16 KB) oder per Adresse einbinden – `https://…` oder ein Pfad wie `/icons/lampe.svg` aus dem Ordner, der in der `settings.js` von Node-RED als `httpStatic` eingetragen ist. Bilder werden wie die Schrift-Icons in der Icon-Farbe eingefärbt; am besten eignen sich einfarbige Symbole mit transparentem Hintergrund (idealerweise SVG).
 
 Jedes Feld ist in der Hilfe der Node erklärt (das Buch-Symbol in der Node-RED-Seitenleiste).
 
@@ -87,6 +94,8 @@ msg.command = "reset";
 ```
 
 Ungültige Nachrichten werden komplett ignoriert und erzeugen eine Warnung in der Debug-Seitenleiste.
+
+Alle Nachrichtenarten mit Beispielen, sämtliche Felder mit Standardwerten und die häufigsten Fehler stehen in der Hilfe der Node (Buch-Symbol in der Node-RED-Seitenleiste) im Abschnitt **Eingang**.
 
 Um das Menü **nur für einen Browser** zu ändern, `msg._client` aus einem vorherigen Klick dieses Browsers mitsenden und die Node in den Dashboard-Einstellungen unter *Client Data → Accept Client Data* freigeben.
 

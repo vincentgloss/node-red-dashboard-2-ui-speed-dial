@@ -1,131 +1,232 @@
 {
-  "loading": "Loading speed dial schema…",
+  "loading": "Loading speed dial…",
   "label": {
     "name": "Name",
-    "scope": "Scope",
+    "scope": "Show",
     "group": "Group",
     "page": "Page",
-    "ui": "UI base",
-    "order": "Order",
+    "ui": "Dashboard",
+    "size": "Size",
     "width": "Width",
     "height": "Height"
   },
   "scope": {
-    "group": "Group",
-    "page": "Page",
-    "all": "All pages"
+    "group": "In a group's layout",
+    "page": "Floating on one page",
+    "all": "Floating on all pages"
   },
-  "tab": {
-    "general": "General",
-    "button": "Button",
-    "menu": "Menu",
-    "actions": "Actions",
-    "theme": "Theme"
-  },
-  "fieldHelp": "Field help",
-  "general": {
-    "intro": "Placement and dimensions are configured above. Group scope uses the selected group; page and all pages use the viewport."
-  },
-  "actions": {
-    "note": "Actions are sortable. IDs stay stable when actions move and can be used by patch and remove messages.",
-    "collapseAll": "Collapse all",
-    "expandAll": "Expand all",
-    "add": "Add action",
-    "collapse": "Collapse action",
-    "expand": "Expand action",
-    "duplicate": "Duplicate action",
-    "noLabel": "(no label)",
-    "hidden": " (hidden)",
-    "disabled": " (disabled)"
-  },
-  "required": "required",
-  "reset": {
-    "title": "Reset to default",
-    "aria": "Reset to default value {{value}}"
-  },
-  "color": {
-    "pick": "Pick a color",
-    "clear": "Clear color",
-    "clearTitle": "Clear (use default)"
-  },
-  "field": {
-    "icon": "Icon",
-    "label": "Label",
-    "tooltip": "Tooltip",
-    "background": "Background",
-    "color": "Color",
-    "size": "Size",
-    "radius": "Radius",
-    "visible": "Visible",
-    "enabled": "Enabled",
-    "position": "Position",
-    "offsetX": "Offset X",
-    "offsetY": "Offset Y",
-    "direction": "Direction",
-    "mode": "Mode",
-    "shape": "Shape",
-    "gap": "Gap",
-    "duration": "Duration",
-    "closeOnSelect": "Close on select",
-    "overlay": "Overlay",
-    "showLabels": "Show labels",
-    "actionSize": "Action size",
-    "shadow": "Shadow",
-    "zIndex": "Z index",
-    "id": "Id",
-    "topic": "Topic",
-    "payload": "Payload"
-  },
-  "hint": {
-    "general": "<ul><li><b>Scope</b>: Group = inside a dashboard group, Page = floating on one page, All pages = floating everywhere.</li><li><b>Order / Width / Height</b>: grid placement, only for Group.</li></ul>",
-    "button": "<ul><li><b>Icon</b>: PrimeIcons name with <code>pi-</code> prefix, e.g. <code>pi-plus</code> (<a href=\"https://primevue.org/icons/\" target=\"_blank\" rel=\"noopener\">list</a>).</li><li><b>Background / Color</b>: hex only (<code>#rgb</code>, <code>#rrggbb</code>, <code>#rrggbbaa</code>), pick with the color chooser or type; no color names.</li><li><b>Label / Tooltip</b>: plain text, no HTML.</li><li><b>Size</b> 11-96 px, <b>Radius</b> 0-48 px, <b>Offsets</b> 0-500 px.</li></ul>",
-    "menu": "<ul><li><b>Mode</b>: speed-dial = icon buttons, menu = labelled list (always linear).</li><li><b>Shape</b>: linear, circle, semi-circle, quarter-circle. <b>Direction</b>: offered according to shape and button position; linear rows adjust automatically near screen edges.</li><li><b>Radius</b> 0-500 px (0 = automatic), circle shapes only.</li><li><b>Gap</b> 0-48 px, <b>Duration</b> 0-1000 ms, <b>Action size</b> 44-80 px.</li></ul>",
-    "actions": "<ul><li><b>Id</b>: unique and stable, letters/digits/<code>_ . : -</code>, max. 64 characters; sent as <code>msg.action</code>.</li><li><b>Icon</b>: <code>pi-…</code> name (<a href=\"https://primevue.org/icons/\" target=\"_blank\" rel=\"noopener\">list</a>). <b>Colors</b>: hex only.</li><li><b>Payload</b>: choose string, number, boolean or JSON (objects, arrays, <code>null</code>).</li><li><b>Topic</b>: optional <code>msg.topic</code>. Hidden or disabled actions send nothing.</li></ul>",
-    "theme": "<ul><li><b>Background / Color</b>: hex only (<code>#rgb</code>, <code>#rrggbb</code>, <code>#rrggbbaa</code>); empty uses the mode default.</li><li><b>Radius</b> 0-40 px, <b>Z index</b> 1-10000.</li></ul>"
-  },
-  "inputHelp": {
-    "summary": "Input message help",
-    "1": "Send a complete action array as <code>msg.payload</code> to replace all actions. An object can update <code>actions</code>, <code>button</code>, <code>menu</code>, and/or <code>theme</code>; supplied button, menu, and theme fields are merged into their current section.",
-    "2": "<code>msg.command = \"patch\"</code> applies partial action objects in <code>msg.payload</code> by stable ID. <code>remove</code> removes IDs listed in the payload array. <code>reset</code> restores the editor configuration. Unknown and duplicate IDs are rejected. Typed editor payloads are converted to native string, number, boolean, or JSON values; JSON <code>null</code> is valid, while an absent required payload is invalid.",
-    "3": "For per-client changes, target active sockets with <code>msg._client.socketId</code> and/or <code>msg._client.clientId</code>. Enable this node under Dashboard Client Data / Accept Client Data first. Client IDs match connected sockets only. A shared update clears client overrides; disconnecting a client discards its override.",
-    "4": "Reduced motion is automatic. The menu closes on Escape and outside click. These behaviors are always enabled."
+  "scopeHint": {
+    "group": "The button gets a fixed place in the group, like other widgets.",
+    "page": "The button floats above the selected page.",
+    "all": "The button floats above every page of the dashboard."
   },
   "ref": {
-    "group": "group",
-    "page": "page",
-    "ui": "UI base"
+    "group": "a group",
+    "page": "a page",
+    "all": "a dashboard"
+  },
+  "tab": {
+    "actions": "Actions",
+    "look": "Appearance",
+    "advanced": "Advanced"
+  },
+  "section": {
+    "button": "Main button",
+    "menu": "Menu",
+    "look": "Display"
+  },
+  "field": {
+    "position": "Position",
+    "style": "Style",
+    "icon": "Icon",
+    "background": "Color",
+    "color": "Icon color",
+    "size": "Size",
+    "label": "Label",
+    "tooltip": "Tooltip",
+    "iconColor": "Icon and text color",
+    "sizePx": "Size (px)",
+    "radius": "Corner radius (px)",
+    "offset": "Edge distance (px)",
+    "offsetX": "Side distance (px)",
+    "offsetY": "Top/bottom distance (px)",
+    "offsetSeparate": "Set side and top/bottom distance separately",
+    "visible": "Visible",
+    "enabled": "Enabled",
+    "direction": "Opening direction",
+    "arcRadius": "Circle radius (px)",
+    "gap": "Gap between actions (px)",
+    "actionSize": "Action size (px)",
+    "duration": "Animation duration (ms)",
+    "closeOnSelect": "Close the menu after a selection",
+    "overlay": "Dim the page while the menu is open",
+    "actionRadius": "Action corner radius (px)",
+    "shadow": "Shadow",
+    "zIndex": "Z-index",
+    "payload": "Payload",
+    "id": "ID",
+    "topic": "Topic",
+    "actionBackground": "Color",
+    "closeIcon": "Icon when open"
+  },
+  "hint": {
+    "positionGroup": "Relative to the widget's area in the group.",
+    "positionPage": "Relative to the browser window.",
+    "background": "“Dashboard” uses the primary color of the Dashboard theme. The icon color adapts automatically.",
+    "label": "Optional text next to the icon.",
+    "radius": "48 = round, 0 = square.",
+    "visible": "Both can also be changed at runtime with a message.",
+    "arcRadius": "0 = automatic",
+    "zIndex": "Increase it if other elements cover the button.",
+    "payload": "Sent as msg.payload when clicked.",
+    "id": "Sent as msg.action and used by messages (patch/remove). New actions derive it from the label.",
+    "icon": "From PrimeIcons, Material Design Icons (as in the other Dashboard widgets) or your own image – upload it or link it in the “Own image” tab.",
+    "closeIcon": "Replaces the icon while the menu is open. “Keep icon” leaves the normal icon in place.",
+    "direction": "“Automatic” opens away from the nearest screen edge. Only directions that fit the style and position are offered."
+  },
+  "position": {
+    "top-left": "top left",
+    "top-center": "top center",
+    "top-right": "top right",
+    "center-left": "center left",
+    "center": "center",
+    "center-right": "center right",
+    "bottom-left": "bottom left",
+    "bottom-center": "bottom center",
+    "bottom-right": "bottom right"
+  },
+  "style": {
+    "row": {
+      "label": "Row",
+      "hint": "Round icon buttons in a row"
+    },
+    "row-labels": {
+      "label": "Row with text",
+      "hint": "Separate buttons with icon and label, side by side or stacked"
+    },
+    "list": {
+      "label": "Menu list",
+      "hint": "One panel with labelled rows, like a menu"
+    },
+    "semi-circle": {
+      "label": "Half circle",
+      "hint": "Icon buttons on a half circle around the button"
+    },
+    "quarter-circle": {
+      "label": "Quarter circle",
+      "hint": "Icon buttons on a quarter circle – fits a corner well"
+    },
+    "circle": {
+      "label": "Circle",
+      "hint": "Icon buttons on a full circle – needs room all around"
+    }
+  },
+  "direction": {
+    "auto": "Automatic",
+    "up": "up",
+    "down": "down",
+    "left": "left",
+    "right": "right",
+    "up-left": "up left",
+    "up-right": "up right",
+    "down-left": "down left",
+    "down-right": "down right"
+  },
+  "size": {
+    "s": "Small (40 px)",
+    "m": "Medium (56 px)",
+    "l": "Large (72 px)"
+  },
+  "color": {
+    "dashboard": "Dashboard",
+    "auto": "Automatic",
+    "default": "Default",
+    "dashboardHint": "Primary color of the Dashboard theme",
+    "autoHint": "Light or dark to match the background color",
+    "defaultHint": "Color from the Dashboard theme",
+    "custom": "Pick your own color …",
+    "hex": "Color value (hex)",
+    "hexHint": "Color as hex, e.g. #2563eb – with 8 digits also transparent, e.g. #2563eb80",
+    "transparent": "Transparent"
+  },
+  "icon": {
+    "search": "Search icons (e.g. lamp, home, power) …",
+    "none": "no icon",
+    "noMatch": "No matching icon.",
+    "imageTab": "Own image",
+    "imageIntro": "Your own symbols as SVG, PNG, WebP, GIF or JPG – upload them or link them by address.",
+    "upload": "Upload image …",
+    "url": "Image address",
+    "urlPlaceholder": "/icons/lamp.svg or https://…",
+    "apply": "Apply",
+    "imageTips": "Like the other icons the image is tinted in the icon color – single-color symbols with a transparent background (SVG) work best. Uploaded images are stored in the flow (max. {{kb}} KB). An address like /icons/lamp.svg points to the httpStatic folder of Node-RED.",
+    "loading": "Loading icons …",
+    "unavailable": "Material Design Icons are not available (Dashboard package not found).",
+    "more": "Showing {{shown}} of {{total}} – type to narrow the search.",
+    "ownImage": "own image",
+    "errType": "Please choose an SVG, PNG, WebP, GIF or JPG file.",
+    "errSize": "The image has {{size}} KB, at most {{kb}} KB are allowed. Tip: use SVG or save the image smaller.",
+    "errRead": "The file could not be read.",
+    "errUrl": "Please enter an address starting with /, http:// or https:// (no spaces or quotes).",
+    "keep": "Keep icon"
+  },
+  "reset": {
+    "title": "Reset to default ({{value}})"
+  },
+  "actions": {
+    "add": "Add action",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "empty": "No actions yet. Use “Add action” to create the first one.",
+    "newLabel": "Action {{n}}",
+    "more": "More options",
+    "noLabel": "(no label)",
+    "hidden": " · hidden",
+    "disabled": " · disabled",
+    "expand": "Expand action",
+    "collapse": "Collapse action",
+    "messagesHint": "Actions and appearance can also be changed at runtime by message – replace, change single ones, remove, reset, even for one browser only. Examples and all fields are in the node help (book icon in the sidebar) under <b>Input</b>."
+  },
+  "preserved": {
+    "text": "This node has design values that are no longer shown here (from an earlier version or an example flow):",
+    "drop": "Remove them and use the Dashboard theme"
   },
   "err": {
+    "unavailable": "The editor could not be loaded: {{message}}",
+    "schemaIncomplete": "Incomplete data from the server.",
     "http": "HTTP {{status}}",
-    "network": "Network error",
-    "schemaIncomplete": "The server returned an incomplete schema.",
-    "schemaLoad": "Could not load ui-speed-dial/schema ({{message}}). Reload the editor after restoring access to the Dashboard.",
-    "unavailable": "Speed dial editor unavailable: {{message}}",
-    "required": "{{label}} is required.",
-    "needId": "Every action needs an ID.",
-    "maxActions": "A maximum of {{max}} actions is allowed.",
-    "dupId": "Duplicate action ID: {{id}}",
-    "payloadSize": "{{label}} exceeds the maximum JSON size.",
-    "bool": "{{label}} must be true or false.",
-    "number": "{{label}} must be a valid number.",
-    "json": "{{label}} must be valid JSON.",
-    "finite": "{{label}} must be a finite number.",
-    "depth": "{{label}} exceeds the maximum JSON depth.",
-    "finiteNumbers": "{{label}} must contain finite numbers.",
-    "notJson": "{{label}} is not valid JSON.",
-    "text": "{{label}} must be text.",
-    "maxChars": "{{label}} exceeds {{max}} characters.",
-    "min": "{{label}} must be at least {{min}}.",
-    "max": "{{label}} must be at most {{max}}.",
-    "onoff": "{{label}} must be on or off.",
-    "oneOf": "{{label}} must be one of: {{values}}.",
-    "icon": "{{label}} must be empty or a PrimeIcon name such as pi-plus.",
-    "color": "{{label}} must be empty or a 3, 6, or 8 digit hex color.",
-    "idFormat": "{{label}} must start with a letter or number and contain at most 64 letters, numbers, _, ., :, or -.",
-    "unsupported": "Unsupported schema type: {{type}}",
-    "scope": "Choose a valid scope.",
-    "selectRef": "Select a Dashboard {{what}} for this scope.",
-    "directionShape": "menu.direction {{direction}} is not valid for shape {{shape}}.",
-    "configSize": "Configuration exceeds the maximum JSON size."
+    "network": "network error",
+    "summary": "Please check the highlighted fields.",
+    "summaryTabs": "Please check the highlighted fields (tab: {{tabs}}).",
+    "selectRef": "Please select {{what}}.",
+    "required": "Please fill in.",
+    "number": "Please enter a number.",
+    "range": "Allowed values are {{min}} to {{max}}.",
+    "invalid": "Invalid value.",
+    "icon": "Unknown icon or invalid image address – please pick it again in the icon field.",
+    "color": "Please pick a color or enter a hex value like #2563eb.",
+    "idFormat": "Only letters, digits and _ . : - are allowed, starting with a letter or digit, at most 64 characters.",
+    "maxChars": "At most {{max}} characters.",
+    "dupId": "Another action already uses this ID.",
+    "bool": "Please choose true or false.",
+    "json": "Not valid JSON, e.g. {\"on\": true}.",
+    "payloadNumber": "Not a valid number.",
+    "depth": "The JSON is nested too deeply.",
+    "tooLarge": "The content is too large.",
+    "maxActions": "At most {{max}} actions are possible.",
+    "configSize": "The configuration is too large overall. Please shrink actions or payloads."
+  },
+  "preview": {
+    "example": "Action {{n}}",
+    "button": "Speed dial",
+    "hint": "Preview – click the button to try it.",
+    "hintOpen": "Click an action, or next to the menu to close it.",
+    "disabled": "The button is disabled (Advanced tab), so it does not open.",
+    "invisible": "The button is hidden (Advanced tab) and does not appear in the dashboard.",
+    "examples": "Example actions are shown until you add your own in the Actions tab.",
+    "noVisible": "All actions are hidden.",
+    "sent": "A click on “{{label}}” sends msg.action = \"{{id}}\" with the action's payload.",
+    "sentExample": "“{{label}}” is only an example and sends nothing.",
+    "title": "Preview"
   }
 }
