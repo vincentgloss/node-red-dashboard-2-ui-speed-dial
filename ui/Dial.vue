@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="cfg.button.visible && anchorVisible" ref="root" class="ff-speed-dial"
+    <div v-if="cfg.button.visible && anchorVisible && bridge.pageVisible && !bridge.headerPending" ref="root" class="ff-speed-dial"
       :class="{ 'ff-speed-dial-open': opened, 'ff-speed-dial-labelled': labels, 'ff-speed-dial-shadow': cfg.theme.shadow, 'ff-speed-dial-radial': radial }"
       :data-widget="widgetId" :data-direction="direction" :data-shape="primeType" :data-mode="cfg.menu.mode" :style="rootStyle" @keydown.capture="keydown">
       <div v-if="opened && cfg.menu.overlay" class="ff-speed-dial-overlay" aria-hidden="true" @pointerdown="close(true)" />
@@ -50,11 +50,15 @@ export default {
   data: () => ({ centerPosition: {}, opened: false, direction: 'up', listStyle: {}, groupPosition: {}, anchorVisible: true, reduced: false }),
   computed: {
     cfg () { return this.bridge.config },
+    // Group and header buttons follow an element of the page; floating ones are placed in the viewport.
+    anchored () { return this.bridge.scope === 'group' || !!this.bridge.headerAnchor },
     // An empty close icon keeps the normal icon while the menu is open.
     triggerIcon () { return this.opened && this.cfg.button.closeIcon ? this.cfg.button.closeIcon : this.cfg.button.icon },
     model () { return this.cfg.actions.filter(a => a.visible).map(a => ({ ...a, disabled: !a.enabled })) },
     // Horizontal (left|center|right) and vertical (top|center|bottom) anchor of the configured position.
     axes () {
+      // Header buttons sit on the right of the app bar (or float top right without one).
+      if (this.bridge.placement === 'header') return { h: 'right', v: 'top' }
       const p = this.cfg.button.position
       if (p === 'center') return { h: 'center', v: 'center' }
       const [first, second] = p.split('-')
@@ -100,7 +104,7 @@ export default {
         '--sd-background': this.cfg.theme.background || this.palette.background,
         '--sd-color': this.cfg.theme.color || contrastColor(this.cfg.theme.background) || this.palette.color, zIndex: this.cfg.theme.zIndex
       }
-      if (this.bridge.scope === 'group') return { ...style, ...this.groupPosition }
+      if (this.anchored) return { ...style, ...this.groupPosition }
       const { h, v } = this.axes
       // Centred axes are placed from the measured button size (no transform, so the fixed overlay stays viewport-sized).
       if (v === 'center') Object.assign(style, { top: this.centerPosition.top })
@@ -124,7 +128,12 @@ export default {
   },
   watch: {
     'bridge.config': { deep: true, handler () { this.close(false); this.direction = this.baseDirection(); this.$nextTick(this.resize) } },
-    groupMinHeight: { immediate: true, handler (value) { if (this.bridge.scope === 'group') this.anchorElement.style.minHeight = value + 'px' } }
+    groupMinHeight: { immediate: true, handler (value) { if (this.bridge.scope === 'group') this.anchorElement.style.minHeight = value + 'px' } },
+    'bridge.headerAnchor' (slot) {
+      // The app bar moves the placeholder when titles or other header content change.
+      if (slot) this.resizeObserver?.observe(slot.parentElement || slot)
+      this.$nextTick(this.resize)
+    }
   },
   mounted () {
     this.direction = this.baseDirection()
@@ -219,7 +228,17 @@ export default {
       if (this.cfg.menu.closeOnSelect) this.close(true)
     },
     resize () {
-      if (this.bridge.scope === 'group') {
+      const slot = this.bridge.headerAnchor
+      if (slot) {
+        const buttonRect = this.$refs.trigger?.getBoundingClientRect()
+        const width = buttonRect?.width || this.cfg.button.size
+        const height = buttonRect?.height || this.cfg.button.size
+        // The placeholder reserves exactly the button's room in the header.
+        if (slot.style.width !== width + 'px' || slot.style.height !== height + 'px') Object.assign(slot.style, { width: width + 'px', height: height + 'px' })
+        const r = slot.getBoundingClientRect()
+        this.anchorVisible = slot.isConnected
+        this.groupPosition = { left: Math.max(0, Math.min(r.left, window.innerWidth - width)) + 'px', top: Math.max(0, r.top) + 'px' }
+      } else if (this.bridge.scope === 'group') {
         const r = this.anchorElement.getBoundingClientRect()
         const b = this.cfg.button
         this.anchorVisible = r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth

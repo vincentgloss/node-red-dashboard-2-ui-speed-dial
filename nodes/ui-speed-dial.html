@@ -29,6 +29,7 @@
     const DASHBOARD_PRIMARY = '#0d74ce';
     // Inline colour swatches; anything else comes from "custom" (the browser's colour dialog) or the hex field.
     const PREVIEW_HEIGHT = 340;
+    const PREVIEW_HEADER = 48;
     const PREVIEW_MIN_WIDTH = 420;
     const PREVIEW_EXAMPLE_ICONS = ['pi-home', 'pi-lightbulb', 'pi-bell', 'pi-cog', 'pi-star'];
     // Fully transparent, as an 8-digit hex value the runtime already accepts.
@@ -55,6 +56,8 @@
     let preserved = {};
     let dropPreserved = false;
     let previewOpen = false;
+    // Page ids chosen for "selected pages"; survives switching the dashboard while the dialog is open.
+    let pageSelection = new Set();
     let previewMessage = '';
 
     // Same palette section as the Dashboard 2 widgets (localized by the dashboard itself).
@@ -68,9 +71,13 @@
         defaults: {
             name: { value: '' },
             scope: { value: 'page' },
+            // Where the button is shown: in a group, floating over the page or in the Dashboard header.
+            placement: { value: 'float' },
+            // Page ids for scope "pages" (selected pages of one dashboard).
+            pages: { value: [], validate: function (v) { return this.scope !== 'pages' || (Array.isArray(v) && v.length > 0); } },
             group: { value: '', type: 'ui-group', validate: function (v) { return this.scope !== 'group' || !!v; } },
             page: { value: '', type: 'ui-page', validate: function (v) { return this.scope !== 'page' || !!v; } },
-            ui: { value: '', type: 'ui-base', validate: function (v) { return this.scope !== 'all' || !!v; } },
+            ui: { value: '', type: 'ui-base', validate: function (v) { return (this.scope !== 'all' && this.scope !== 'pages') || !!v; } },
             order: { value: 0 },
             width: { value: 0 },
             height: { value: 0 },
@@ -171,13 +178,14 @@
     }
     // Colours of the Dashboard theme that the selected group / page / UI uses (defaults of Dashboard 2 otherwise).
     function dashboardTheme() {
-        const result = { primary: DASHBOARD_PRIMARY, surface: '#ffffff', page: '#f9f9fb' };
+        const result = { primary: DASHBOARD_PRIMARY, surface: '#ffffff', page: '#f9f9fb', header: '#fcfcfd', title: '' };
         try {
             const scope = $('#node-input-scope').val();
             let page = null;
             if (scope === 'group') { const group = RED.nodes.node($('#node-input-group').val()); page = group && RED.nodes.node(group.page); }
             else if (scope === 'page') page = RED.nodes.node($('#node-input-page').val());
-            else {
+            else if (scope === 'pages' && selectedPages().length) page = RED.nodes.node(selectedPages()[0]);
+            if (!page && scope !== 'group' && scope !== 'page') {
                 const ui = $('#node-input-ui').val();
                 RED.nodes.eachConfig(function (n) { if (!page && n.type === 'ui-page' && n.ui === ui) page = n; });
             }
@@ -186,6 +194,9 @@
             if (hexForPicker(colors.primary)) result.primary = colors.primary;
             if (hexForPicker(colors.groupBg)) result.surface = colors.groupBg;
             if (hexForPicker(colors.bgPage)) result.page = colors.bgPage;
+            // ui-theme "surface" is the header and navigation colour of the Dashboard.
+            if (hexForPicker(colors.surface)) result.header = colors.surface;
+            result.title = (page && (page.name || page.path)) || '';
         } catch (error) { /* keep the defaults */ }
         return result;
     }
@@ -222,6 +233,7 @@
         applyI18n();
         ensureIconFont();
         setupSizer(node);
+        setupPlacement(node);
         $('#node-dialog-ok').prop('disabled', true);
         showBanner(t('loading'), false);
         loadSchema(function (loaded) {
@@ -266,6 +278,44 @@
         $('#sd-banner').text(text).toggleClass('sd-banner-error', !!error).show();
     }
     // The size grid of the Dashboard widgets; numeric fields in subflows, as the built-in widgets do.
+    function setupPlacement(node) {
+        $('#node-input-placement').val(node.scope === 'group' ? 'group' : node.placement === 'header' ? 'header' : 'float');
+        $('#sd-page-mode').val(node.scope === 'pages' ? 'pages' : node.scope === 'all' ? 'all' : 'page');
+        pageSelection = new Set(Array.isArray(node.pages) ? node.pages : []);
+        $('#sd-page-list').data('missing', 0);
+        syncScope();
+        buildPageList();
+    }
+    function placementValue() { return $('#node-input-placement').val() || 'float'; }
+    function syncScope() {
+        const scope = placementValue() === 'group' ? 'group' : $('#sd-page-mode').val() || 'page';
+        $('#node-input-scope').val(scope);
+        return scope;
+    }
+    function dashboardPages(ui) {
+        const pages = [];
+        RED.nodes.eachConfig(function (n) { if (n.type === 'ui-page' && n.ui === ui) pages.push(n); });
+        return pages.sort(function (a, b) { return (Number(a.order) || 0) - (Number(b.order) || 0); });
+    }
+    function buildPageList() {
+        const $list = $('#sd-page-list').empty();
+        const pages = dashboardPages($('#node-input-ui').val());
+        if (!pages.length) { $('<div class="sd-hint"></div>').text(t('pages.none')).appendTo($list); return; }
+        pages.forEach(function (page) {
+            const $option = $('<label class="sd-check sd-page-option"><input type="checkbox"> <span class="sd-page-name"></span> <span class="sd-page-path"></span></label>').appendTo($list);
+            $option.find('input').attr('data-page', page.id).prop('checked', pageSelection.has(page.id));
+            $option.find('.sd-page-name').text(page.name || page.path || page.id);
+            $option.find('.sd-page-path').text(page.path || '');
+        });
+        // Stored ids of pages that were deleted meanwhile are dropped on save.
+        const known = new Set();
+        RED.nodes.eachConfig(function (n) { if (n.type === 'ui-page') known.add(n.id); });
+        const missing = Array.from(pageSelection).filter(function (id) { return !known.has(id); }).length;
+        if (missing) $('<div class="sd-hint"></div>').text(t('pages.missing', { count: missing })).appendTo($list);
+    }
+    function selectedPages() {
+        return $('#sd-page-list input[data-page]').filter(':checked').map(function () { return $(this).attr('data-page'); }).get();
+    }
     function setupSizer(node) {
         const inSubflow = !!(RED.nodes.subflow && RED.nodes.subflow(node.z));
         const sizer = !inSubflow && typeof $.fn.elementSizer === 'function';
@@ -360,17 +410,26 @@
     // Shows only what applies to the current choices and keeps the visual pickers in sync.
     function updateDependent() {
         if (!schema) return;
-        const scope = $('#node-input-scope').val() || 'page';
+        const scope = syncScope();
+        const placement = placementValue();
+        const header = placement === 'header';
         const sizer = $('#sd-editor').data('sizer');
         $('#sd-ref-group').toggle(scope === 'group');
+        $('#sd-pages-row').toggle(scope !== 'group');
         $('#sd-ref-page').toggle(scope === 'page');
-        $('#sd-ref-ui').toggle(scope === 'all');
+        $('#sd-ref-ui').toggle(scope === 'all' || scope === 'pages');
+        $('#sd-pages-pick').toggle(scope === 'pages');
         $('.sd-size-sizer').toggle(scope === 'group' && sizer);
         $('.sd-size-numeric').toggle(scope === 'group' && !sizer);
-        $('#sd-scope-hint').text(t('scopeHint.' + scope));
+        $('#sd-scope-hint').text(t('scopeHint.' + placement));
         $('#sd-position-hint').text(t(scope === 'group' ? 'hint.positionGroup' : 'hint.positionPage'));
+        // In the header the place is given (right side of the app bar); position and edge distance do not apply.
+        rowOf($('#sd-position-grid')).toggle(!header);
+        $('#sd-position-hint').toggle(!header);
+        const headerReady = Number(control('button', 'size').val()) === SIZE_PRESETS.s && String(control('button', 'background').val()).toLowerCase() === COLOR_TRANSPARENT;
+        $('#sd-header-tip').toggle(header && !headerReady);
 
-        const position = control('button', 'position').val() || '';
+        const position = header ? 'top-right' : control('button', 'position').val() || '';
         $('#sd-position-grid .sd-pos').each(function () {
             const on = $(this).attr('data-value') === position;
             $(this).toggleClass('active', on).attr('aria-checked', String(on));
@@ -413,8 +472,9 @@
         $('#sd-offset-single label').text(t(centeredX ? 'field.offsetY' : centeredY ? 'field.offsetX' : 'field.offset'));
         if (!split && document.activeElement !== $('#sd-offset')[0]) $('#sd-offset').val(control('button', centeredX ? 'offsetY' : 'offsetX').val());
         $('#sd-offset-separate-row').toggle(!centeredX && !centeredY);
-        rowOf(control('button', 'offsetX')).toggle(split);
-        rowOf(control('button', 'offsetY')).toggle(split);
+        rowOf(control('button', 'offsetX')).toggle(split && !header);
+        rowOf(control('button', 'offsetY')).toggle(split && !header);
+        if (header) { $('#sd-offset-single').hide(); $('#sd-offset-separate-row').hide(); }
         control('button', 'offsetX').data('target', split ? null : $('#sd-offset'));
         control('button', 'offsetY').data('target', split ? null : $('#sd-offset'));
 
@@ -834,6 +894,11 @@
         const open = previewOpen && b.enabled;
         const $stage = $('<div class="sd-stage" role="presentation"></div>').css({ width: W + 'px', height: H + 'px', transform: 'scale(' + scale + ')', background: theme.page, color: contrastColor(theme.page) });
         $box.empty().css('height', Math.round(H * scale) + 'px').append($stage);
+        const header = placementValue() === 'header';
+        if (header) {
+            $('<div class="sd-p-header"></div>').css({ background: theme.header, color: contrastColor(theme.header) || '#0f172a', height: PREVIEW_HEADER + 'px' })
+                .append($('<span class="sd-p-header-title"></span>').text(theme.title || 'Dashboard')).appendTo($stage);
+        }
         if (m.overlay) $('<div class="sd-p-overlay"></div>').appendTo($stage);
 
         const palette = cfg.theme.mode === 'dark' ? { background: '#1e293b', color: '#f8fafc' }
@@ -872,7 +937,7 @@
         });
 
         // Button position: offsets from the edges, centred axes in the middle, always inside the page.
-        const axes = previewAxes(b.position);
+        const axes = header ? { h: 'right', v: 'top' } : previewAxes(b.position);
         const tw = $trigger[0].offsetWidth || b.size;
         const th = $trigger[0].offsetHeight || b.size;
         const along = function (axis, offset, extent, size) {
@@ -881,7 +946,10 @@
             if (axis === 'right' || axis === 'bottom') return extent - size - inset;
             return Math.max(8, (extent - size) / 2);
         };
-        const rect = { x: along(axes.h, b.offsetX, W, tw), y: along(axes.v, b.offsetY, H, th), w: tw, h: th };
+        // In the header the button sits at the right end of the bar, vertically centred.
+        const rect = header
+            ? { x: W - 12 - tw, y: Math.max(4, (PREVIEW_HEADER - th) / 2), w: tw, h: th }
+            : { x: along(axes.h, b.offsetX, W, tw), y: along(axes.v, b.offsetY, H, th), w: tw, h: th };
         $root.css({ left: rect.x + 'px', top: rect.y + 'px' });
         const direction = previewDirection(m, shape, type, axes);
         const n = cfg.items.length;
@@ -1096,10 +1164,11 @@
                 $('<div class="sd-field-error"></div>').text(message).insertAfter(rowOf($target));
             }
         }
-        const scope = $('#node-input-scope').val();
-        const ref = { group: '#node-input-group', page: '#node-input-page', all: '#node-input-ui' }[scope];
-        if (!ref) report($('#node-input-scope'), t('err.invalid'));
+        const scope = syncScope();
+        const ref = { group: '#node-input-group', page: '#node-input-page', pages: '#node-input-ui', all: '#node-input-ui' }[scope];
+        if (!ref) report($('#node-input-placement'), t('err.invalid'));
         else if (!$(ref).val() || $(ref).val() === '_ADD_') report($(ref), t('err.selectRef', { what: t('ref.' + scope) }));
+        else if (scope === 'pages' && !selectedPages().length) report($('#sd-page-list'), t('err.selectPages'));
         const config = collect(report);
         if (!count) {
             const runtime = config.actions.map(function (action) {
@@ -1125,11 +1194,13 @@
         const config = collect(function () {});
         node.actions = config.actions;
         for (const section of SECTIONS) node[section] = Object.assign({}, dropPreserved ? {} : preserved[section], config[section]);
-        node.scope = $('#node-input-scope').val();
+        node.scope = syncScope();
+        node.placement = placementValue();
+        node.pages = node.scope === 'pages' ? selectedPages() : [];
         // Let Node-RED save config-node references and maintain their users lists.
         if (node.scope !== 'group') $('#node-input-group').val('');
         if (node.scope !== 'page') $('#node-input-page').val('');
-        if (node.scope !== 'all') $('#node-input-ui').val('');
+        if (node.scope !== 'all' && node.scope !== 'pages') $('#node-input-ui').val('');
         node.width = Number($('#node-input-width').val()) || 0;
         node.height = Number($('#node-input-height').val()) || 0;
     }
@@ -1144,7 +1215,21 @@
             updateDependent();
             validateEditor();
         });
-        $editor.on('change.speedDial', '#node-input-scope, #node-input-group, #node-input-page, #node-input-ui', function () { updateDependent(); validateEditor(); });
+        $editor.on('change.speedDial', '#node-input-placement, #sd-page-mode, #node-input-group, #node-input-page, #node-input-ui', function () {
+            if (this.id === 'node-input-ui') buildPageList();
+            updateDependent();
+            validateEditor();
+        });
+        $editor.on('change.speedDial', '#sd-page-list input[data-page]', function () {
+            if (this.checked) pageSelection.add($(this).attr('data-page'));
+            else pageSelection.delete($(this).attr('data-page'));
+            validateEditor();
+        });
+        // Header tip: a small transparent button fits the app bar like its other icons.
+        $editor.on('click.speedDial', '#sd-header-apply', function () {
+            control('button', 'size').val(SIZE_PRESETS.s);
+            control('button', 'background').val(COLOR_TRANSPARENT).trigger('input');
+        });
         $editor.on('click.speedDial', '.sd-swatch[data-color]', function () {
             $(this).closest('.sd-color').find('.sd-color-text').val($(this).attr('data-color')).trigger('input');
         });
@@ -1249,6 +1334,11 @@
     #sd-editor .sd-p-overlay { position: absolute; inset: 0; background: #0006; opacity: 0; pointer-events: none; transition: opacity var(--sd-p-duration, 150ms); }
     #sd-editor .sd-stage.sd-p-open .sd-p-overlay { opacity: 1; pointer-events: auto; }
     #sd-editor .sd-p-root { position: absolute; display: flex; }
+    #sd-editor .sd-p-header { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; padding: 0 16px; box-shadow: 0 1px 3px #0002; font-size: 16px; font-weight: 500; }
+    #sd-editor .sd-page-list { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; max-height: 180px; overflow-y: auto; padding: 6px 8px; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 4px; }
+    #sd-editor .sd-page-list.input-error { border-color: var(--red-ui-form-input-border-error-color, #d6615f); }
+    #sd-editor .sd-page-option { margin: 0; }
+    #sd-editor .sd-page-path { color: var(--red-ui-secondary-text-color, #888); font-size: 0.9em; }
     #sd-editor .sd-p-root.sd-p-invisible { opacity: .35; }
     #sd-editor .sd-p-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #8884; padding: 10px; margin: 0; font: inherit; line-height: 1.25; cursor: pointer; box-sizing: border-box; max-width: 100%; text-shadow: none; }
     #sd-editor .sd-p-button:not(:disabled):hover { filter: brightness(0.94); }
@@ -1353,20 +1443,31 @@
             <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
         </div>
         <div class="form-row">
-            <label for="node-input-scope"><i class="fa fa-desktop"></i> <span data-sd-i18n="label.scope"></span></label>
-            <select id="node-input-scope">
-                <option value="group" data-sd-i18n="scope.group"></option>
-                <option value="page" data-sd-i18n="scope.page"></option>
-                <option value="all" data-sd-i18n="scope.all"></option>
+            <label for="node-input-placement"><i class="fa fa-desktop"></i> <span data-sd-i18n="label.scope"></span></label>
+            <select id="node-input-placement">
+                <option value="group" data-sd-i18n="placement.group"></option>
+                <option value="float" data-sd-i18n="placement.float"></option>
+                <option value="header" data-sd-i18n="placement.header"></option>
             </select>
         </div>
         <div class="sd-hint sd-hint-row" id="sd-scope-hint"></div>
+        <div class="sd-hint sd-hint-row" id="sd-header-tip"><span data-sd-i18n="header.tip"></span> <button type="button" id="sd-header-apply" class="red-ui-button red-ui-button-small" data-sd-i18n="header.apply"></button></div>
+        <input type="hidden" id="node-input-scope">
         <div id="sd-ref-group" class="form-row"><label for="node-input-group"><i class="fa fa-table"></i> <span data-sd-i18n="label.group"></span></label><input type="text" id="node-input-group"></div>
         <div class="form-row sd-size-sizer"><label><i class="fa fa-object-group"></i> <span data-sd-i18n="label.size"></span></label><button type="button" class="editor-button" id="node-input-size"></button></div>
         <div class="form-row sd-size-numeric"><label for="node-input-width"><i class="fa fa-arrows-h"></i> <span data-sd-i18n="label.width"></span></label><input type="hidden" id="node-input-width"></div>
         <div class="form-row sd-size-numeric"><label for="node-input-height"><i class="fa fa-arrows-v"></i> <span data-sd-i18n="label.height"></span></label><input type="hidden" id="node-input-height"></div>
+        <div id="sd-pages-row" class="form-row">
+            <label for="sd-page-mode"><i class="fa fa-files-o"></i> <span data-sd-i18n="label.pages"></span></label>
+            <select id="sd-page-mode">
+                <option value="page" data-sd-i18n="pageMode.page"></option>
+                <option value="pages" data-sd-i18n="pageMode.pages"></option>
+                <option value="all" data-sd-i18n="pageMode.all"></option>
+            </select>
+        </div>
         <div id="sd-ref-page" class="form-row"><label for="node-input-page"><i class="fa fa-file-o"></i> <span data-sd-i18n="label.page"></span></label><input type="text" id="node-input-page"></div>
         <div id="sd-ref-ui" class="form-row"><label for="node-input-ui"><i class="fa fa-th-large"></i> <span data-sd-i18n="label.ui"></span></label><input type="text" id="node-input-ui"></div>
+        <div id="sd-pages-pick" class="form-row"><label data-sd-i18n="label.pagePick"></label><div id="sd-page-list" class="sd-page-list"></div></div>
 
         <div id="sd-tab-bar" class="sd-tabs" role="tablist">
             <button type="button" class="active" role="tab" aria-selected="true" data-pane="actions" data-sd-i18n="tab.actions"></button>

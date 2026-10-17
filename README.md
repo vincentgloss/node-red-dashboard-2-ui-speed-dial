@@ -6,7 +6,7 @@ A floating action button for [FlowFuse Dashboard 2.0](https://dashboard.flowfuse
 
 ## Features
 
-- Floating button in any corner, at an edge or in the center of the screen – or inside a dashboard group
+- Floating button in any corner, at an edge or in the center of the screen – inside a dashboard group or in the Dashboard header; on one, selected or all pages
 - Actions as a row, a full, half or quarter circle, or as a labelled menu
 - Each action sends its own payload (text, number, true/false, JSON or `null`) and an optional topic
 - Follows the colors of your Dashboard theme automatically – or use your own colors and sizes
@@ -33,7 +33,7 @@ npm install node-red-dashboard-2-ui-speed-dial
 ## Getting started
 
 1. Drag **speed dial** from the *Dashboard 2* section of the palette into your flow.
-2. Choose where it appears: on one page, on all pages or inside a group.
+2. Choose where it appears: in a group, floating over the page or in the header – and on which pages (one, selected or all).
 3. Add your actions on the **Actions** tab. Give each one a label, an icon and a payload.
 4. Connect the output to the rest of your flow and deploy.
 
@@ -51,7 +51,7 @@ Clicking an action sends:
 
 ## Settings
 
-At the top you choose where the button appears: in a group (size picked on the grid like other widgets), floating on one page or on all pages.
+At the top you choose where the button appears: in a group (size picked on the grid like other widgets), floating over the page or on the right of the Dashboard header – on one page, on selected pages or on all pages.
 
 | Tab | What you set |
 |---|---|

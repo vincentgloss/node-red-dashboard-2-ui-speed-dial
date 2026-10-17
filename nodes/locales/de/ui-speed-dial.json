@@ -8,22 +8,20 @@
     "ui": "Dashboard",
     "size": "Größe",
     "width": "Breite",
-    "height": "Höhe"
-  },
-  "scope": {
-    "group": "Im Layout einer Gruppe",
-    "page": "Schwebend auf einer Seite",
-    "all": "Schwebend auf allen Seiten"
+    "height": "Höhe",
+    "pages": "Auf",
+    "pagePick": "Seiten"
   },
   "scopeHint": {
     "group": "Der Button bekommt einen festen Platz in der Gruppe, wie andere Widgets auch.",
-    "page": "Der Button schwebt über der gewählten Seite.",
-    "all": "Der Button schwebt über jeder Seite des Dashboards."
+    "float": "Der Button schwebt über dem Inhalt der Seite.",
+    "header": "Der Button erscheint rechts in der Kopfzeile des Dashboards. Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt er oben rechts."
   },
   "ref": {
     "group": "eine Gruppe",
     "page": "eine Seite",
-    "all": "ein Dashboard"
+    "all": "ein Dashboard",
+    "pages": "ein Dashboard"
   },
   "tab": {
     "actions": "Aktionen",
@@ -214,7 +212,8 @@
     "depth": "Das JSON ist zu tief verschachtelt.",
     "tooLarge": "Der Inhalt ist zu groß.",
     "maxActions": "Es sind höchstens {{max}} Aktionen möglich.",
-    "configSize": "Die Konfiguration ist insgesamt zu groß. Bitte Aktionen oder Payloads verkleinern."
+    "configSize": "Die Konfiguration ist insgesamt zu groß. Bitte Aktionen oder Payloads verkleinern.",
+    "selectPages": "Bitte mindestens eine Seite auswählen."
   },
   "preview": {
     "example": "Aktion {{n}}",
@@ -228,5 +227,23 @@
     "sent": "Ein Klick auf „{{label}}“ sendet msg.action = \"{{id}}\" mit dem Payload der Aktion.",
     "sentExample": "„{{label}}“ ist nur ein Beispiel und sendet nichts.",
     "title": "Vorschau"
+  },
+  "placement": {
+    "group": "Im Layout einer Gruppe",
+    "float": "Schwebend über der Seite",
+    "header": "In der Kopfzeile"
+  },
+  "pageMode": {
+    "page": "Einer Seite",
+    "pages": "Ausgewählten Seiten",
+    "all": "Allen Seiten"
+  },
+  "pages": {
+    "none": "Dieses Dashboard hat noch keine Seiten.",
+    "missing": "{{count}} gespeicherte Seite(n) gibt es nicht mehr; sie werden beim Speichern entfernt."
+  },
+  "header": {
+    "tip": "Tipp: Klein und transparent passt am besten zu den anderen Symbolen der Kopfzeile.",
+    "apply": "Übernehmen"
   }
 }
