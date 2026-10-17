@@ -8,11 +8,13 @@
         :disabled="!cfg.button.enabled" :hide-on-click-outside="false" :transition-delay="0" :pt="passThrough">
         <template #button="{ toggleCallback }">
           <button ref="trigger" class="ff-speed-dial-button ff-speed-dial-trigger" :class="{ 'ff-speed-dial-transparent': transparent(cfg.button.background) }" type="button" :disabled="!cfg.button.enabled"
-            :aria-label="cfg.button.label || cfg.button.tooltip || 'Actions'" :aria-expanded="opened" aria-haspopup="menu"
+            :aria-label="(cfg.button.label || cfg.button.tooltip || 'Actions') + (badgeText ? ' (' + badgeText + ')' : '')" :aria-expanded="opened" aria-haspopup="menu"
             :aria-controls="menuId" :title="cfg.button.tooltip || undefined" :style="buttonStyle" @click="toggle(toggleCallback, $event)">
             <span v-if="triggerIcon" v-bind="iconProps(triggerIcon)" aria-hidden="true" />
             <span v-if="cfg.button.label" class="ff-speed-dial-label">{{ cfg.button.label }}</span>
           </button>
+          <!-- Next to the button, not inside it: the button clips overflowing content. -->
+          <span v-if="badgeText" class="ff-speed-dial-badge" :style="badgeStyle" aria-hidden="true">{{ badgeText }}</span>
         </template>
         <template #item="{ item }">
           <button class="ff-speed-dial-button ff-speed-dial-action" :class="{ 'ff-speed-dial-transparent': transparent(item.background || cfg.theme.background) }" type="button" role="menuitem" :data-action="item.id"
@@ -47,18 +49,34 @@ const palettes = {
 }
 export default {
   components: { SpeedDial }, props: ['bridge', 'widgetId', 'select', 'anchorElement'],
-  data: () => ({ centerPosition: {}, opened: false, direction: 'up', listStyle: {}, groupPosition: {}, anchorVisible: true, reduced: false }),
+  data: () => ({ centerPosition: {}, opened: false, direction: 'up', listStyle: {}, groupPosition: {}, anchorVisible: true, reduced: false, badgeLeft: false, badgeBelow: false }),
   computed: {
     cfg () { return this.bridge.config },
     // Group and header buttons follow an element of the page; floating ones are placed in the viewport.
     anchored () { return this.bridge.scope === 'group' || !!this.bridge.headerAnchor },
+    // Counter: '' and 0 hide it, numbers above 99 show as 99+, short texts as they are.
+    badgeText () {
+      const value = this.cfg.button.badge
+      if (value === '' || value === null || value === undefined) return ''
+      const number = typeof value === 'number' ? value : /^\s*-?\d+(\.\d+)?\s*$/.test(value) ? Number(value) : null
+      if (number === null) return String(value).trim()
+      return number === 0 ? '' : number > 99 ? '99+' : String(number)
+    },
+    badgeStyle () {
+      const b = this.cfg.button
+      // The ring separates the badge from the button, in the colour of what is behind it.
+      const ring = this.bridge.placement === 'header' ? 'rgb(var(--v-theme-navigation-background, 255, 255, 255))' : 'rgb(var(--v-theme-background, 255, 255, 255))'
+      // The badge sits on the corner that faces away from the screen edges, so it is never cut off.
+      const corner = { top: this.badgeBelow ? 'auto' : '-6px', bottom: this.badgeBelow ? '-6px' : 'auto', left: this.badgeLeft ? '-6px' : 'auto', right: this.badgeLeft ? 'auto' : '-6px' }
+      return { ...corner, background: b.badgeBackground || 'rgb(var(--v-theme-error, 220, 38, 38))', color: b.badgeColor || contrastColor(b.badgeBackground) || '#ffffff', '--sd-badge-ring': ring }
+    },
     // An empty close icon keeps the normal icon while the menu is open.
     triggerIcon () { return this.opened && this.cfg.button.closeIcon ? this.cfg.button.closeIcon : this.cfg.button.icon },
     model () { return this.cfg.actions.filter(a => a.visible).map(a => ({ ...a, disabled: !a.enabled })) },
     // Horizontal (left|center|right) and vertical (top|center|bottom) anchor of the configured position.
     axes () {
-      // Header buttons sit on the right of the app bar (or float top right without one).
-      if (this.bridge.placement === 'header') return { h: 'right', v: 'top' }
+      // Header buttons sit next to the title (left) or on the right of the app bar, and float there without one.
+      if (this.bridge.placement === 'header') return { h: this.bridge.headerSide === 'title' ? 'left' : 'right', v: 'top' }
       const p = this.cfg.button.position
       if (p === 'center') return { h: 'center', v: 'center' }
       const [first, second] = p.split('-')
@@ -257,6 +275,13 @@ export default {
         const height = buttonRect?.height || this.cfg.button.size
         this.centerPosition = { left: Math.max(8, (window.innerWidth - width) / 2) + 'px', top: Math.max(8, (window.innerHeight - height) / 2) + 'px' }
       }
+      this.$nextTick(() => {
+        const r = this.$refs.trigger?.getBoundingClientRect()
+        if (!r) return
+        // Buttons on the right get the badge on their left; no room above moves it below.
+        this.badgeLeft = this.axes.h === 'right' || r.right + 8 > window.innerWidth
+        this.badgeBelow = r.top < 8
+      })
       if (this.opened) this.$nextTick(this.place)
     },
     place () {
@@ -341,6 +366,7 @@ export default {
 /* Menu list: one panel with full-width rows in reading order, instead of separate buttons. */
 .ff-speed-dial[data-mode="menu"] .ff-speed-dial-list { flex-direction:column !important; gap:0; padding:4px; background:var(--sd-background); color:var(--sd-color); border:1px solid #8884; border-radius:var(--sd-radius); }
 .ff-speed-dial[data-mode="menu"].ff-speed-dial-shadow .ff-speed-dial-list { box-shadow:0 6px 20px #0003; }
+.ff-speed-dial .ff-speed-dial-badge { position:absolute; top:-6px; right:-6px; z-index:1; display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px; box-sizing:border-box; border-radius:10px; font-size:11px; font-weight:700; line-height:1; white-space:nowrap; pointer-events:none; box-shadow:0 0 0 2px var(--sd-badge-ring); }
 /* A transparent background means nothing but the icon: no border and no shadow either. */
 .ff-speed-dial .ff-speed-dial-button.ff-speed-dial-transparent { border-color:transparent; box-shadow:none; }
 .ff-speed-dial[data-mode="menu"].ff-speed-dial-panel-transparent .ff-speed-dial-list { border-color:transparent; box-shadow:none; }

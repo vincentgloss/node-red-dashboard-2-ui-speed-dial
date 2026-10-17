@@ -11,6 +11,8 @@ Initial version.
 - Editor in three tabs (Actions, Appearance, Advanced) with a size grid for groups, visual position and style pickers, a searchable icon picker, S/M/L sizes, IDs and payloads derived from the label, and plain-language errors at the field; English and German.
 - Menu list style (`menu.mode: "menu"`) is a single panel with full-width rows in reading order, distinct from separate labelled buttons.
 - New places: in the Dashboard header (`placement: "header"`, right side of the app bar, floats top right if the header is hidden) and on selected pages (`scope: "pages"` with `pages`); the editor asks "Show" and "On which pages" separately.
+- Counter badge on the main button (`button.badge`, number or short text, 99+ above 99, own colors).
+- Header placement next to the page title (`headerSlot: "title"`) besides the right side.
 - Node help with a complete input reference: overview of all message types, copy-ready examples, every field with defaults and ranges, client targeting step by step, common mistakes.
 - Configurable icon while the menu is open (`button.closeIcon`, default `pi-times`; empty keeps the normal icon).
 - Transparent option (`#00000000`) for backgrounds and icon/text colors; a transparent background also drops border and shadow, and the icon then uses the theme primary (button) or text color (actions).
@@ -20,4 +22,5 @@ Initial version.
 - Opening direction `auto` (new default) opens away from the nearest screen edge.
 - Icons from PrimeIcons, Material Design Icons (the Dashboard's own set) or own images (upload as data URL up to 16 KB, or `https://…` / root-relative URL), tinted in the icon color.
 - Editor reads the schema and icon list from the node settings, no extra request needed.
-- Reference flows in `examples/`.
+- Example flows: `speed-dial-showcase` (a small dashboard showing every place, style and feature), `speed-dial-demo` and `speed-dial-input-reference` (one function node per input message, including counter, icons and transparency).
+- READMEs in English and German with illustrations, quick start, full field reference and troubleshooting.

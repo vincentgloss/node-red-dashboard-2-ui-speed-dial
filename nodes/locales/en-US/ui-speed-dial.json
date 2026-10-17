@@ -10,12 +10,13 @@
     "width": "Width",
     "height": "Height",
     "pages": "On",
-    "pagePick": "Pages"
+    "pagePick": "Pages",
+    "headerSlot": "Place"
   },
   "scopeHint": {
     "group": "The button gets a fixed place in the group, like other widgets.",
     "float": "The button floats above the page content.",
-    "header": "The button appears on the right of the Dashboard header. If the header is hidden in the Dashboard settings, it floats at the top right."
+    "header": "The button appears in the Dashboard header – next to the page title or on the right. If the header is hidden in the Dashboard settings, it floats in the matching top corner."
   },
   "ref": {
     "group": "a group",
@@ -65,7 +66,10 @@
     "id": "ID",
     "topic": "Topic",
     "actionBackground": "Color",
-    "closeIcon": "Icon when open"
+    "closeIcon": "Icon when open",
+    "badge": "Counter",
+    "badgeBackground": "Counter color",
+    "badgeColor": "Counter text"
   },
   "hint": {
     "positionGroup": "Relative to the widget's area in the group.",
@@ -80,7 +84,8 @@
     "id": "Sent as msg.action and used by messages (patch/remove). New actions derive it from the label.",
     "icon": "From PrimeIcons, Material Design Icons (as in the other Dashboard widgets) or your own image – upload it or link it in the “Own image” tab.",
     "closeIcon": "Replaces the icon while the menu is open. “Keep icon” leaves the normal icon in place.",
-    "direction": "“Automatic” opens away from the nearest screen edge. Only directions that fit the style and position are offered."
+    "direction": "“Automatic” opens away from the nearest screen edge. Only directions that fit the style and position are offered.",
+    "badge": "A small number or short text at the top right of the button, e.g. 3 or !. Empty or 0 hides it, from 100 on it shows 99+. Usually set by message: msg.payload = { button: { badge: 5 } }."
   },
   "position": {
     "top-left": "top left",
@@ -145,7 +150,9 @@
     "custom": "Pick your own color …",
     "hex": "Color value (hex)",
     "hexHint": "Color as hex, e.g. #2563eb – with 8 digits also transparent, e.g. #2563eb80",
-    "transparent": "Transparent"
+    "transparent": "Transparent",
+    "badge": "Default",
+    "badgeHint": "Error color of the Dashboard theme (red)"
   },
   "icon": {
     "search": "Search icons (e.g. lamp, home, power) …",
@@ -245,5 +252,9 @@
   "header": {
     "tip": "Tip: small and transparent fits the other header icons best.",
     "apply": "Apply"
+  },
+  "headerSlot": {
+    "title": "Next to the title",
+    "actions": "Right"
   }
 }

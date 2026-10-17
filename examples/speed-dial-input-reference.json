@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "Speed dial input reference",
     "disabled": false,
-    "info": "One inject + function node per input possibility of ui-speed-dial.\n\nOpen /dashboard/speed-dial-reference, then trigger the inject nodes.\nTip: run \"Reset\" (section 5) at any time to get back to the editor configuration.\nSections 1-5 cover the input protocol, section 6 client targeting, section 7 invalid messages (they must only produce a warning in the debug sidebar and never change the dial).\n\nClient targeting needs the node to be listed under Dashboard > Client Data > Accept Client Data (already enabled in this flow) and one click on the dial first, so the flow knows your client."
+    "info": "One inject + function node per input possibility of ui-speed-dial.\n\nOpen /dashboard/speed-dial-reference, then trigger the inject nodes.\nTip: run \"Reset\" (section 5) at any time to get back to the editor configuration.\nSections 1-5 cover the input protocol, section 6 client targeting, section 7 invalid messages, section 8 the counter badge, icons, close icon and transparency (they must only produce a warning in the debug sidebar and never change the dial).\n\nClient targeting needs the node to be listed under Dashboard > Client Data > Accept Client Data (already enabled in this flow) and one click on the dial first, so the flow knows your client."
   },
   {
     "id": "sdref0002base",
@@ -3730,7 +3730,7 @@
     "type": "inject",
     "z": "sdref0001tab",
     "g": "sdref0157grp",
-    "name": "invalid: icon without pi- prefix",
+    "name": "invalid: icon name without pi-/mdi- prefix",
     "props": [
       {
         "p": "payload"
@@ -3756,8 +3756,8 @@
     "type": "function",
     "z": "sdref0001tab",
     "g": "sdref0157grp",
-    "name": "invalid: icon without pi- prefix",
-    "func": "msg.payload = { button: { icon: 'plus' } };\n// Expected: warning ('PrimeIcon...'), dial unchanged, no output message.\nreturn msg;\n",
+    "name": "invalid: icon name without pi-/mdi- prefix",
+    "func": "msg.payload = { button: { icon: 'plus' } };   // valid: 'pi-plus', 'mdi-plus', an image URL or a data URL\n// Expected: warning ('icon name (pi-... or mdi-...)'), dial unchanged, no output message.\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -4039,7 +4039,7 @@
     "z": "sdref0001tab",
     "g": "sdref0157grp",
     "name": "invalid: only shape (direction left over)",
-    "func": "// Reset first, then this fails: linear direction \"up\" does not fit quarter-circle.\nmsg.payload = { menu: { shape: 'quarter-circle' } };\n// Expected: warning ('direction...'), dial unchanged, no output message.\nreturn msg;\n",
+    "func": "// Reset first, then this fails: the editor direction \"up\" does not fit quarter-circle.\n// With menu.direction \"auto\" a shape can be sent on its own (see section 8).\nmsg.payload = { menu: { shape: 'quarter-circle' } };\n// Expected: warning ('direction...'), dial unchanged, no output message.\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -4763,7 +4763,8 @@
       "sdref0128lout",
       "sdref0137lout",
       "sdref0142lout",
-      "sdref0159lout"
+      "sdref0159lout",
+      "sdref8002lout"
     ],
     "x": 1010,
     "y": 80,
@@ -4874,6 +4875,636 @@
     "info": "All function nodes are linked to this dial. The dial output (a click) is shown in the debug sidebar.",
     "x": 1190,
     "y": 40,
+    "wires": []
+  },
+  {
+    "id": "sdref8000grp",
+    "type": "group",
+    "z": "sdref0001tab",
+    "name": "8 · Counter badge, icons and transparency",
+    "style": {
+      "label": true
+    },
+    "nodes": [
+      "sdref8001cmt",
+      "sdref8101inj",
+      "sdref8201fn",
+      "sdref8102inj",
+      "sdref8202fn",
+      "sdref8103inj",
+      "sdref8203fn",
+      "sdref8104inj",
+      "sdref8204fn",
+      "sdref8105inj",
+      "sdref8205fn",
+      "sdref8106inj",
+      "sdref8206fn",
+      "sdref8107inj",
+      "sdref8207fn",
+      "sdref8108inj",
+      "sdref8208fn",
+      "sdref8109inj",
+      "sdref8209fn",
+      "sdref8110inj",
+      "sdref8210fn",
+      "sdref8111inj",
+      "sdref8211fn",
+      "sdref8112inj",
+      "sdref8212fn",
+      "sdref8002lout"
+    ],
+    "x": 34,
+    "y": 4968,
+    "w": 860,
+    "h": 612
+  },
+  {
+    "id": "sdref8001cmt",
+    "type": "comment",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "8 · Counter badge, icons and transparency",
+    "info": "",
+    "x": 230,
+    "y": 4998,
+    "wires": []
+  },
+  {
+    "id": "sdref8101inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: 3",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5042,
+    "wires": [
+      [
+        "sdref8201fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8201fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: 3",
+    "func": "msg.payload = { button: { badge: 3 } };   // number or text up to 6 characters\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5042,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8102inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: count up",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5086,
+    "wires": [
+      [
+        "sdref8202fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8202fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: count up",
+    "func": "const n = (context.get('n') || 0) + 1;\ncontext.set('n', n);\nmsg.payload = { button: { badge: n } };   // above 99 it shows 99+\nnode.status({ text: String(n) });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5086,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8103inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: 150 (shows 99+)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5130,
+    "wires": [
+      [
+        "sdref8203fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8203fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: 150 (shows 99+)",
+    "func": "msg.payload = { button: { badge: 150 } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5130,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8104inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: text \"!\"",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5174,
+    "wires": [
+      [
+        "sdref8204fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8204fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: text \"!\"",
+    "func": "msg.payload = { button: { badge: '!' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5174,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8105inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: own colors",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5218,
+    "wires": [
+      [
+        "sdref8205fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8205fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: own colors",
+    "func": "msg.payload = { button: { badge: 7, badgeBackground: '#16a34a', badgeColor: '#ffffff' } };   // '' = theme error color\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5218,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8106inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: hide (0)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5262,
+    "wires": [
+      [
+        "sdref8206fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8206fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "counter: hide (0)",
+    "func": "msg.payload = { button: { badge: 0 } };   // '' hides it as well\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5262,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8107inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: Material Design",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5306,
+    "wires": [
+      [
+        "sdref8207fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8207fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: Material Design",
+    "func": "// mdi-... names are the Material Design Icons of the Dashboard (same as in ui-button).\nmsg.payload = { button: { icon: 'mdi-lightbulb-on' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5306,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8108inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: own image (URL)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5350,
+    "wires": [
+      [
+        "sdref8208fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8208fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: own image (URL)",
+    "func": "// http(s) or a path from the httpStatic folder of Node-RED. Images are tinted in the icon color.\nmsg.payload = { button: { icon: 'https://raw.githubusercontent.com/Templarian/MaterialDesign/master/svg/rocket-launch.svg' } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5350,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8109inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: own image (data URL)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5394,
+    "wires": [
+      [
+        "sdref8209fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8209fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "icons: own image (data URL)",
+    "func": "// Small images can be sent inline as base64 (at most about 16 KB).\nconst svg = '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>';\nmsg.payload = { button: { icon: 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64') } };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5394,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8110inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "close icon: custom / keep",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5438,
+    "wires": [
+      [
+        "sdref8210fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8210fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "close icon: custom / keep",
+    "func": "const keep = !context.get('keep');\ncontext.set('keep', keep);\n// '' keeps the normal icon while the menu is open; default is 'pi-times'.\nmsg.payload = { button: { closeIcon: keep ? '' : 'mdi-close-circle' } };\nnode.status({ text: keep ? 'keep icon' : 'mdi-close-circle' });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5438,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8111inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "transparent button on / off",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5482,
+    "wires": [
+      [
+        "sdref8211fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8211fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "transparent button on / off",
+    "func": "const on = !context.get('on');\ncontext.set('on', on);\n// #00000000 = fully transparent: no fill, border or shadow; the icon uses the theme primary color.\nmsg.payload = { button: { background: on ? '#00000000' : '' } };\nnode.status({ text: on ? 'transparent' : 'theme color' });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5482,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8112inj",
+    "type": "inject",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "direction \"auto\" with any shape",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 5526,
+    "wires": [
+      [
+        "sdref8212fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8212fn",
+    "type": "function",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "direction \"auto\" with any shape",
+    "func": "// With direction auto, a shape can be changed on its own.\nconst shapes = ['linear', 'semi-circle', 'quarter-circle', 'circle'];\nconst i = ((context.get('i') || 0) + 1) % shapes.length;\ncontext.set('i', i);\nmsg.payload = { menu: { shape: shapes[i], direction: 'auto' } };\nnode.status({ text: shapes[i] });\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 5526,
+    "wires": [
+      [
+        "sdref8002lout"
+      ]
+    ]
+  },
+  {
+    "id": "sdref8002lout",
+    "type": "link out",
+    "z": "sdref0001tab",
+    "g": "sdref8000grp",
+    "name": "to dial",
+    "mode": "link",
+    "links": [
+      "sdref0007lin"
+    ],
+    "x": 790,
+    "y": 5042,
     "wires": []
   }
 ]

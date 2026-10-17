@@ -1,0 +1,702 @@
+[
+  {
+    "id": "sdshow01tab",
+    "type": "tab",
+    "label": "Speed Dial Showcase",
+    "disabled": false,
+    "info": "Every place, style and feature of ui-speed-dial on one small dashboard.\n\nDeploy, then open /dashboard/speed-dial-showcase. Each page explains what to try. Clicks are shown in the debug sidebar."
+  },
+  {
+    "id": "sdshow02ui",
+    "type": "ui-base",
+    "name": "Speed Dial Showcase",
+    "path": "/speed-dial-showcase",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-speed-dial"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default"
+  },
+  {
+    "id": "sdshow03theme",
+    "type": "ui-theme",
+    "name": "Speed Dial Showcase Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#0f766e",
+      "bgPage": "#f4f6f8",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d9dee5"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "16px",
+      "groupGap": "16px",
+      "groupBorderRadius": "8px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "sdshow04page",
+    "type": "ui-page",
+    "name": "Home",
+    "ui": "sdshow02ui",
+    "path": "/home",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "sdshow03theme",
+    "order": 1,
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "sdshow05page",
+    "type": "ui-page",
+    "name": "Lights",
+    "ui": "sdshow02ui",
+    "path": "/lights",
+    "icon": "lightbulb",
+    "layout": "grid",
+    "theme": "sdshow03theme",
+    "order": 2,
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "sdshow06page",
+    "type": "ui-page",
+    "name": "Settings",
+    "ui": "sdshow02ui",
+    "path": "/settings",
+    "icon": "cog",
+    "layout": "grid",
+    "theme": "sdshow03theme",
+    "order": 3,
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "sdshow07grp",
+    "type": "ui-group",
+    "name": "Try it",
+    "page": "sdshow04page",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sdshow08grp",
+    "type": "ui-group",
+    "name": "Try it",
+    "page": "sdshow05page",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sdshow09grp",
+    "type": "ui-group",
+    "name": "Try it",
+    "page": "sdshow06page",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sdshow10grp",
+    "type": "ui-group",
+    "name": "Quick settings",
+    "page": "sdshow06page",
+    "width": 6,
+    "height": 1,
+    "order": 2,
+    "showTitle": true,
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sdshow20cmt",
+    "type": "comment",
+    "z": "sdshow01tab",
+    "name": "Header: account menu (all pages, right side)",
+    "info": "Placement \"In the header\", place \"Right\", on all pages.\nSmall and transparent, Material Design icons, style \"Menu list\".",
+    "x": 230,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "sdshow21dial",
+    "type": "ui-speed-dial",
+    "z": "sdshow01tab",
+    "name": "Header · account menu",
+    "scope": "all",
+    "placement": "header",
+    "headerSlot": "actions",
+    "pages": [],
+    "group": "",
+    "page": "",
+    "ui": "sdshow02ui",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "button": {
+      "icon": "mdi-account-circle",
+      "closeIcon": "mdi-close",
+      "tooltip": "Account",
+      "size": 40,
+      "background": "#00000000"
+    },
+    "menu": {
+      "mode": "menu",
+      "shape": "linear",
+      "direction": "auto"
+    },
+    "theme": {},
+    "actions": [
+      {
+        "id": "profile",
+        "label": "Profile",
+        "icon": "mdi-account",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "profile",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "settings",
+        "label": "Settings",
+        "icon": "mdi-cog-outline",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "settings",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "sign-out",
+        "label": "Sign out",
+        "icon": "mdi-logout",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "sign-out",
+        "visible": true,
+        "enabled": true
+      }
+    ],
+    "x": 560,
+    "y": 60,
+    "wires": [
+      [
+        "sdshow90dbg"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow30cmt",
+    "type": "comment",
+    "z": "sdshow01tab",
+    "name": "Header: alerts with a counter (selected pages, next to the title)",
+    "info": "Placement \"In the header\", place \"Next to the title\", only on Home and Lights.\nThe counter (button.badge) is set by messages: \"New alert\" adds one, the action \"Clear counter\" resets it.\nThe close icon is empty, so the bell stays while the menu is open.",
+    "x": 290,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "sdshow31inj",
+    "type": "inject",
+    "z": "sdshow01tab",
+    "name": "New alert (+1)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 220,
+    "wires": [
+      [
+        "sdshow32fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow32fn",
+    "type": "function",
+    "z": "sdshow01tab",
+    "name": "Count alerts",
+    "func": "// Keep the number in the flow context and show it on the button.\nconst alerts = (flow.get('alerts') || 0) + 1;\nflow.set('alerts', alerts);\nnode.status({ text: alerts + ' alert(s)' });\nreturn { payload: { button: { badge: alerts } } };\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 220,
+    "wires": [
+      [
+        "sdshow33dial"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow33dial",
+    "type": "ui-speed-dial",
+    "z": "sdshow01tab",
+    "name": "Header · alerts",
+    "scope": "pages",
+    "placement": "header",
+    "headerSlot": "title",
+    "pages": [
+      "sdshow04page",
+      "sdshow05page"
+    ],
+    "group": "",
+    "page": "",
+    "ui": "sdshow02ui",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "button": {
+      "icon": "mdi-bell-outline",
+      "closeIcon": "",
+      "tooltip": "Alerts",
+      "size": 40,
+      "background": "#00000000",
+      "badge": ""
+    },
+    "menu": {
+      "mode": "speed-dial",
+      "shape": "linear",
+      "showLabels": true,
+      "direction": "auto"
+    },
+    "theme": {},
+    "actions": [
+      {
+        "id": "show-alerts",
+        "label": "Show alerts",
+        "icon": "mdi-format-list-bulleted",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "show-alerts",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "clear-alerts",
+        "label": "Clear counter",
+        "icon": "mdi-bell-off-outline",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "clear-alerts",
+        "visible": true,
+        "enabled": true
+      }
+    ],
+    "x": 560,
+    "y": 220,
+    "wires": [
+      [
+        "sdshow90dbg",
+        "sdshow34fn"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow34fn",
+    "type": "function",
+    "z": "sdshow01tab",
+    "name": "Clear counter",
+    "func": "// A click on \"Clear counter\" resets the count and hides the badge (0 hides it).\nif (msg.action !== 'clear-alerts') return null;\nflow.set('alerts', 0);\nreturn { payload: { button: { badge: 0 } } };\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 790,
+    "y": 260,
+    "wires": [
+      [
+        "sdshow33dial"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow40cmt",
+    "type": "comment",
+    "z": "sdshow01tab",
+    "name": "Home: classic floating button",
+    "info": "Floating over the page, bottom right, style \"Row\".\nOne action uses an own image (an uploaded SVG star) instead of a font icon.",
+    "x": 190,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "sdshow41dial",
+    "type": "ui-speed-dial",
+    "z": "sdshow01tab",
+    "name": "Home · classic",
+    "scope": "page",
+    "placement": "float",
+    "headerSlot": "actions",
+    "pages": [],
+    "group": "",
+    "page": "sdshow04page",
+    "ui": "",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "button": {
+      "icon": "pi-plus",
+      "tooltip": "Create"
+    },
+    "menu": {
+      "mode": "speed-dial",
+      "shape": "linear",
+      "direction": "auto"
+    },
+    "theme": {},
+    "actions": [
+      {
+        "id": "new-note",
+        "label": "New note",
+        "icon": "mdi-note-plus-outline",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "new-note",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "photo",
+        "label": "Take photo",
+        "icon": "mdi-camera-outline",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "photo",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "share",
+        "label": "Share",
+        "icon": "mdi-share-variant",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "share",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "favorite",
+        "label": "Add to favorites",
+        "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJsMy4xIDYuMyA2LjkgMS01IDQuOSAxLjIgNi44TDEyIDE3LjggNS44IDIxbDEuMi02LjgtNS00LjkgNi45LTF6Ii8+PC9zdmc+",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "favorite",
+        "visible": true,
+        "enabled": true
+      }
+    ],
+    "x": 560,
+    "y": 340,
+    "wires": [
+      [
+        "sdshow90dbg"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow42md",
+    "type": "ui-markdown",
+    "z": "sdshow01tab",
+    "group": "sdshow07grp",
+    "name": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "content": "### Speed Dial showcase\n\n- **Bottom right:** the classic floating button. One of its actions uses an own image as icon.\n- **Header, next to the title:** the bell with a counter. Trigger *New alert (+1)* in the flow; the action *Clear counter* resets it. It is only shown on *Home* and *Lights*.\n- **Header, right:** the account menu in the *Menu list* style, on every page.\n\nClicks appear in the Node-RED debug sidebar.",
+    "className": "",
+    "x": 760,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sdshow50cmt",
+    "type": "comment",
+    "z": "sdshow01tab",
+    "name": "Lights: quarter circle with colored actions",
+    "info": "Floating, bottom right, style \"Quarter circle\", opening direction automatic (up left).\nOwn colors per action; the icon color adapts automatically. Payloads are JSON objects.",
+    "x": 230,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "sdshow51dial",
+    "type": "ui-speed-dial",
+    "z": "sdshow01tab",
+    "name": "Lights · quarter circle",
+    "scope": "page",
+    "placement": "float",
+    "headerSlot": "actions",
+    "pages": [],
+    "group": "",
+    "page": "sdshow05page",
+    "ui": "",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "button": {
+      "icon": "mdi-lightbulb-group",
+      "background": "#f59e0b",
+      "tooltip": "Lights"
+    },
+    "menu": {
+      "mode": "speed-dial",
+      "shape": "quarter-circle",
+      "direction": "auto",
+      "overlay": true
+    },
+    "theme": {},
+    "actions": [
+      {
+        "id": "all-on",
+        "label": "All on",
+        "icon": "mdi-lightbulb-on",
+        "tooltip": "",
+        "background": "#16a34a",
+        "color": "",
+        "payloadType": "json",
+        "payload": "{\"lights\":\"on\"}",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "all-off",
+        "label": "All off",
+        "icon": "mdi-lightbulb-off",
+        "tooltip": "",
+        "background": "#dc2626",
+        "color": "",
+        "payloadType": "json",
+        "payload": "{\"lights\":\"off\"}",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "dim",
+        "label": "Dim to 30 %",
+        "icon": "mdi-brightness-6",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "json",
+        "payload": "{\"brightness\":30}",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "evening",
+        "label": "Evening scene",
+        "icon": "mdi-weather-sunset",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "json",
+        "payload": "{\"scene\":\"evening\"}",
+        "visible": true,
+        "enabled": true,
+        "topic": "scene"
+      }
+    ],
+    "x": 560,
+    "y": 460,
+    "wires": [
+      [
+        "sdshow90dbg"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow52md",
+    "type": "ui-markdown",
+    "z": "sdshow01tab",
+    "group": "sdshow08grp",
+    "name": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "content": "### Lights\n\nThe amber button bottom right opens a **quarter circle**. The page is dimmed while it is open (*Dim the page* in *Advanced*). Each action has its own color and sends a JSON payload, the scene also a topic.",
+    "className": "",
+    "x": 760,
+    "y": 500,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sdshow60cmt",
+    "type": "comment",
+    "z": "sdshow01tab",
+    "name": "Settings: inside a group",
+    "info": "Placement \"In a group's layout\": the button takes a place in the group like other widgets.\nStyle \"Row with text\", opening to the right.",
+    "x": 190,
+    "y": 580,
+    "wires": []
+  },
+  {
+    "id": "sdshow61dial",
+    "type": "ui-speed-dial",
+    "z": "sdshow01tab",
+    "name": "Settings · in a group",
+    "scope": "group",
+    "placement": "group",
+    "headerSlot": "actions",
+    "pages": [],
+    "group": "sdshow10grp",
+    "page": "",
+    "ui": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "button": {
+      "icon": "mdi-tune-variant",
+      "label": "Options",
+      "position": "center-left",
+      "offsetX": 8,
+      "offsetY": 8
+    },
+    "menu": {
+      "mode": "speed-dial",
+      "shape": "linear",
+      "showLabels": true,
+      "direction": "right"
+    },
+    "theme": {},
+    "actions": [
+      {
+        "id": "wifi",
+        "label": "Wi-Fi",
+        "icon": "mdi-wifi",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "wifi",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "sound",
+        "label": "Sound",
+        "icon": "mdi-volume-high",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "sound",
+        "visible": true,
+        "enabled": true
+      },
+      {
+        "id": "theme",
+        "label": "Dark mode",
+        "icon": "mdi-theme-light-dark",
+        "tooltip": "",
+        "background": "",
+        "color": "",
+        "payloadType": "str",
+        "payload": "theme",
+        "visible": true,
+        "enabled": true
+      }
+    ],
+    "x": 560,
+    "y": 580,
+    "wires": [
+      [
+        "sdshow90dbg"
+      ]
+    ]
+  },
+  {
+    "id": "sdshow62md",
+    "type": "ui-markdown",
+    "z": "sdshow01tab",
+    "group": "sdshow09grp",
+    "name": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "content": "### Settings\n\nThe **Options** button below lives *inside a group* and opens a row with labels to the right. The bell from the header is not shown here - it is limited to selected pages.",
+    "className": "",
+    "x": 760,
+    "y": 620,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sdshow90dbg",
+    "type": "debug",
+    "z": "sdshow01tab",
+    "name": "Speed dial clicks",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 160,
+    "wires": []
+  }
+]

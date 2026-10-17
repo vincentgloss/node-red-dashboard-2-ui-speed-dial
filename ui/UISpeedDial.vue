@@ -9,7 +9,8 @@ export default {
     const scope = this.props.scope
     const placement = scope === 'group' ? 'group' : this.props.placement === 'header' ? 'header' : 'float'
     // headerPending hides the button until it found its place in the header (or gave up and floats).
-    this.bridge = reactive({ config: this.props.speedDialConfig, scope, placement, headerAnchor: null, headerPending: placement === 'header', pageVisible: true })
+    const headerSide = this.props.headerSlot === 'title' ? 'title' : 'actions'
+    this.bridge = reactive({ config: this.props.speedDialConfig, scope, placement, headerSide, headerAnchor: null, headerPending: placement === 'header', pageVisible: true })
     // Only a group widget needs room in the layout; floating and header buttons are positioned over the page.
     if (scope !== 'group') Object.assign(this.$refs.host.style, { minHeight: '0', height: '0' })
     this.innerApp = createApp(Dial, { bridge: this.bridge, anchorElement: this.$refs.host, widgetId: this.id, select: action => this.$socket.emit('widget-change', this.id, { action }) })
@@ -38,11 +39,12 @@ export default {
     this.$socket.emit('widget-load', this.id)
   },
   methods: {
-    // The Dashboard offers #app-bar-actions for own header content. A placeholder there reserves the room and the
-    // button is positioned over it. Without a header (hidden in the Dashboard settings) the button floats top right.
+    // The Dashboard offers #app-bar-title (after the page title) and #app-bar-actions (right) for own header content.
+    // A placeholder there reserves the room and the button is positioned over it. Without a header (hidden in the
+    // Dashboard settings) the button floats in the matching top corner.
     attachHeader (attempt) {
       if (this.headerSlot?.isConnected) return
-      const bar = document.getElementById('app-bar-actions')
+      const bar = document.getElementById(this.bridge.headerSide === 'title' ? 'app-bar-title' : 'app-bar-actions')
       if (!bar) {
         if (attempt < 60) this.headerTimer = requestAnimationFrame(() => this.attachHeader(attempt + 1))
         else Object.assign(this.bridge, { headerAnchor: null, headerPending: false })
@@ -71,5 +73,5 @@ export default {
 </script>
 <style>
 .ff-speed-dial-host { position: relative; height: 100%; min-height: 64px; }
-.ff-speed-dial-header-slot { display: inline-block; flex-shrink: 0; margin: 0 6px; vertical-align: middle; }
+.ff-speed-dial-header-slot { display: inline-block; flex-shrink: 0; margin: 0; vertical-align: middle; } /* the header targets already space their children */
 </style>

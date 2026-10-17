@@ -9,7 +9,7 @@
             <ul>
                 <li><i>Im Layout einer Gruppe</i>: Der Button bekommt einen festen Platz in einer Gruppe; die <b>Größe</b> wird wie bei anderen Widgets über das Raster gewählt.</li>
                 <li><i>Schwebend über der Seite</i>: Der Button liegt über dem Inhalt, an der Position aus dem Tab <i>Aussehen</i>.</li>
-                <li><i>In der Kopfzeile</i>: Der Button sitzt rechts in der Kopfzeile des Dashboards, neben deren anderen Inhalten; das Menü öffnet sich nach unten. Position und Randabstand entfallen. Klein und transparent passt am besten (der Editor bietet das per Klick an). Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt der Button oben rechts.</li>
+                <li><i>In der Kopfzeile</i>: Der Button sitzt in der Kopfzeile des Dashboards – unter <b>Platz</b> wählbar <i>neben dem Titel</i> oder <i>rechts</i>; das Menü öffnet sich nach unten. Position und Randabstand entfallen. Klein und transparent passt am besten (der Editor bietet das per Klick an). Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt der Button in der passenden oberen Ecke.</li>
             </ul>
         </dd>
         <dt>Auf</dt>
@@ -47,7 +47,7 @@
 
     <h3>Tab „Erweitert“</h3>
     <ul>
-        <li><b>Haupt-Button</b>: Beschriftung neben dem Icon, Tooltip, Icon- und Textfarbe, Größe in px (11–96), Rundung (0–48; 48 = rund), Randabstand (0–500 px, optional seitlich und oben/unten getrennt), Sichtbar/Aktiviert.</li>
+        <li><b>Haupt-Button</b>: Beschriftung neben dem Icon, Tooltip, <b>Zähler</b> (kleine Zahl oder kurzer Text oben rechts am Button, z. B. für offene Meldungen; leer oder 0 = ausgeblendet, ab 100 = 99+; mit eigener Farbe und Schrift, Standard Rot), Icon- und Textfarbe, Größe in px (11–96), Rundung (0–48; 48 = rund), Randabstand (0–500 px, optional seitlich und oben/unten getrennt), Sichtbar/Aktiviert.</li>
         <li><b>Menü</b>: Kreisradius (0 = automatisch), Abstand zwischen Aktionen (0–48 px), Größe der Aktionen (44–80 px), Animationsdauer (0–1000 ms), Schließen nach Auswahl, Seite abdunkeln.</li>
         <li><b>Darstellung</b>: Rundung der Aktionen (0–40 px), Schatten, Z-Index (1–10000; erhöhen, wenn andere Elemente den Button verdecken).</li>
     </ul>
@@ -109,6 +109,9 @@ return msg;</pre>
 };
 return msg;</pre>
     <p>Mit <code>actions</code> im selben Objekt werden zusätzlich die Aktionen ersetzt (wie bei 1.).</p>
+    <p><b>Zähler am Button</b> – z. B. die Zahl offener Meldungen; <code>0</code> oder <code>""</code> blendet ihn wieder aus:</p>
+<pre>msg.payload = { button: { badge: 3 } };
+return msg;</pre>
 
     <h4>3. Einzelne Aktionen ändern – <code>patch</code></h4>
     <p>Jedes Objekt nennt die <code>id</code> einer vorhandenen Aktion und nur die Felder, die sich ändern sollen. Mehrere Aktionen in einer Nachricht sind möglich.</p>
@@ -174,6 +177,10 @@ return {
         <dd>Icon und Icon beim Öffnen. Standard <code>"pi-plus"</code> / <code>"pi-times"</code>; <code>closeIcon: ""</code> behält das normale Icon.</dd>
         <dt class="optional">label, tooltip <span class="property-type">string</span></dt>
         <dd>Text neben dem Icon bzw. Hover-Text.</dd>
+        <dt class="optional">badge <span class="property-type">number | string</span></dt>
+        <dd>Zähler oben rechts am Button: Zahl oder Text bis 6 Zeichen. <code>""</code> oder <code>0</code> blendet ihn aus, Zahlen über 99 erscheinen als 99+.</dd>
+        <dt class="optional">badgeBackground, badgeColor <span class="property-type">string</span></dt>
+        <dd>Farbe und Schrift des Zählers, <code>""</code> = Fehlerfarbe des Themes bzw. passende Schrift.</dd>
         <dt class="optional">background, color <span class="property-type">string</span></dt>
         <dd><code>""</code> = Primärfarbe des Themes bzw. automatisch passende Icon-Farbe.</dd>
         <dt class="optional">size <span class="property-type">number</span></dt>

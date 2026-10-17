@@ -53,7 +53,9 @@ module.exports = function (RED) {
       const base = refKey === 'ui' ? parent : parent.getBase()
       const manager = new StateManager(initial)
       const placement = scope === 'group' ? 'group' : config.placement === 'header' ? 'header' : 'float'
-      const widgetConfig = { ...config, scope, placement, pages, speedDialConfig: initial }
+      // In the header: next to the page title ("title") or on the right ("actions").
+      const headerSlot = config.headerSlot === 'title' ? 'title' : 'actions'
+      const widgetConfig = { ...config, scope, placement, headerSlot, pages, speedDialConfig: initial }
       for (const key of ['group', 'page', 'ui']) {
         if (key !== refKey) widgetConfig[key] = ''
       }

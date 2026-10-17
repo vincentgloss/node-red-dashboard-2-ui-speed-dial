@@ -18,6 +18,19 @@
       "default": "Actions",
       "max": 240
     },
+    "badge": {
+      "type": "badge",
+      "default": "",
+      "max": 6
+    },
+    "badgeBackground": {
+      "type": "color",
+      "default": ""
+    },
+    "badgeColor": {
+      "type": "color",
+      "default": ""
+    },
     "background": {
       "type": "color",
       "default": ""

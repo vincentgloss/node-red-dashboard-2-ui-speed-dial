@@ -9,7 +9,7 @@
             <ul>
                 <li><i>In a group's layout</i>: the button gets a fixed place in a group; pick its <b>size</b> on the grid, like other widgets.</li>
                 <li><i>Floating over the page</i>: the button lies above the content, at the position from the <i>Appearance</i> tab.</li>
-                <li><i>In the header</i>: the button sits on the right of the Dashboard header, next to its other content; the menu opens downwards. Position and edge distance do not apply. Small and transparent fits best (the editor offers this with one click). If the header is hidden in the Dashboard settings, the button floats at the top right.</li>
+                <li><i>In the header</i>: the button sits in the Dashboard header – choose <i>next to the title</i> or <i>right</i> under <b>Place</b>; the menu opens downwards. Position and edge distance do not apply. Small and transparent fits best (the editor offers this with one click). If the header is hidden in the Dashboard settings, the button floats in the matching top corner.</li>
             </ul>
         </dd>
         <dt>On</dt>
@@ -47,7 +47,7 @@
 
     <h3>Advanced tab</h3>
     <ul>
-        <li><b>Main button</b>: label next to the icon, tooltip, icon and text color, size in px (11–96), corner radius (0–48; 48 = round), edge distance (0–500 px, optionally separate for side and top/bottom), visible/enabled.</li>
+        <li><b>Main button</b>: label next to the icon, tooltip, <b>counter</b> (a small number or short text at the top right of the button, e.g. for open alerts; empty or 0 = hidden, from 100 on = 99+; with its own color and text color, red by default), icon and text color, size in px (11–96), corner radius (0–48; 48 = round), edge distance (0–500 px, optionally separate for side and top/bottom), visible/enabled.</li>
         <li><b>Menu</b>: circle radius (0 = automatic), gap between actions (0–48 px), action size (44–80 px), animation duration (0–1000 ms), close after selection, dim the page.</li>
         <li><b>Display</b>: action corner radius (0–40 px), shadow, z-index (1–10000; increase it if other elements cover the button).</li>
     </ul>
@@ -109,6 +109,9 @@ return msg;</pre>
 };
 return msg;</pre>
     <p>With <code>actions</code> in the same object the actions are replaced as well (as in 1.).</p>
+    <p><b>Counter on the button</b> – e.g. the number of open alerts; <code>0</code> or <code>""</code> hides it again:</p>
+<pre>msg.payload = { button: { badge: 3 } };
+return msg;</pre>
 
     <h4>3. Change single actions – <code>patch</code></h4>
     <p>Each object names the <code>id</code> of an existing action and only the fields that should change. Several actions per message are possible.</p>
@@ -174,6 +177,10 @@ return {
         <dd>Icon and icon while open. Default <code>"pi-plus"</code> / <code>"pi-times"</code>; <code>closeIcon: ""</code> keeps the normal icon.</dd>
         <dt class="optional">label, tooltip <span class="property-type">string</span></dt>
         <dd>Text next to the icon and hover text.</dd>
+        <dt class="optional">badge <span class="property-type">number | string</span></dt>
+        <dd>Counter at the top right of the button: a number or text up to 6 characters. <code>""</code> or <code>0</code> hides it, numbers above 99 show as 99+.</dd>
+        <dt class="optional">badgeBackground, badgeColor <span class="property-type">string</span></dt>
+        <dd>Counter color and text color, <code>""</code> = error color of the theme and a matching text color.</dd>
         <dt class="optional">background, color <span class="property-type">string</span></dt>
         <dd><code>""</code> = primary color of the theme and a matching icon color.</dd>
         <dt class="optional">size <span class="property-type">number</span></dt>

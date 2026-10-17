@@ -27,9 +27,12 @@
     const SIZE_PRESETS = { s: 40, m: 56, l: 72 };
     const DIRECTION_ANGLES = { up: 0, 'up-right': 45, right: 90, 'down-right': 135, down: 180, 'down-left': 225, left: 270, 'up-left': 315 };
     const DASHBOARD_PRIMARY = '#0d74ce';
+    // Error colour of the Dashboard theme, the default of the counter badge.
+    const DASHBOARD_ERROR = '#ff5252';
     // Inline colour swatches; anything else comes from "custom" (the browser's colour dialog) or the hex field.
     const PREVIEW_HEIGHT = 340;
-    const PREVIEW_HEADER = 48;
+    // Height of the Dashboard app bar (Vuetify default).
+    const PREVIEW_HEADER = 64;
     const PREVIEW_MIN_WIDTH = 420;
     const PREVIEW_EXAMPLE_ICONS = ['pi-home', 'pi-lightbulb', 'pi-bell', 'pi-cog', 'pi-star'];
     // Fully transparent, as an 8-digit hex value the runtime already accepts.
@@ -73,6 +76,8 @@
             scope: { value: 'page' },
             // Where the button is shown: in a group, floating over the page or in the Dashboard header.
             placement: { value: 'float' },
+            // In the header: "actions" (right side) or "title" (next to the page title).
+            headerSlot: { value: 'actions' },
             // Page ids for scope "pages" (selected pages of one dashboard).
             pages: { value: [], validate: function (v) { return this.scope !== 'pages' || (Array.isArray(v) && v.length > 0); } },
             group: { value: '', type: 'ui-group', validate: function (v) { return this.scope !== 'group' || !!v; } },
@@ -281,12 +286,14 @@
     function setupPlacement(node) {
         $('#node-input-placement').val(node.scope === 'group' ? 'group' : node.placement === 'header' ? 'header' : 'float');
         $('#sd-page-mode').val(node.scope === 'pages' ? 'pages' : node.scope === 'all' ? 'all' : 'page');
+        $('#node-input-headerSlot').val(node.headerSlot === 'title' ? 'title' : 'actions');
         pageSelection = new Set(Array.isArray(node.pages) ? node.pages : []);
         $('#sd-page-list').data('missing', 0);
         syncScope();
         buildPageList();
     }
     function placementValue() { return $('#node-input-placement').val() || 'float'; }
+    function headerSlotValue() { return $('#node-input-headerSlot').val() === 'title' ? 'title' : 'actions'; }
     function syncScope() {
         const scope = placementValue() === 'group' ? 'group' : $('#sd-page-mode').val() || 'page';
         $('#node-input-scope').val(scope);
@@ -425,11 +432,13 @@
         $('#sd-position-hint').text(t(scope === 'group' ? 'hint.positionGroup' : 'hint.positionPage'));
         // In the header the place is given (right side of the app bar); position and edge distance do not apply.
         rowOf($('#sd-position-grid')).toggle(!header);
+        $('#sd-header-slot-row').toggle(header);
+        $('#sd-header-slot-buttons button').each(function () { $(this).toggleClass('selected', $(this).attr('data-slot') === headerSlotValue()); });
         $('#sd-position-hint').toggle(!header);
         const headerReady = Number(control('button', 'size').val()) === SIZE_PRESETS.s && String(control('button', 'background').val()).toLowerCase() === COLOR_TRANSPARENT;
         $('#sd-header-tip').toggle(header && !headerReady);
 
-        const position = header ? 'top-right' : control('button', 'position').val() || '';
+        const position = header ? (headerSlotValue() === 'title' ? 'top-left' : 'top-right') : control('button', 'position').val() || '';
         $('#sd-position-grid .sd-pos').each(function () {
             const on = $(this).attr('data-value') === position;
             $(this).toggleClass('active', on).attr('aria-checked', String(on));
@@ -525,7 +534,7 @@
         $wrap.find('.sd-swatch-custom').toggleClass('sd-has-color', custom && !!hex).css({ 'background-color': custom && hex ? value : '', color: custom && hex ? contrastColor(hex) : '' });
         const kind = $wrap.attr('data-kind');
         const fallback = kind === 'dashboard' ? dashboardPrimary() : '';
-        $wrap.find('.sd-swatch-default .sd-dot').css('background', kind === 'dashboard' ? fallback : kind === 'auto' ? 'linear-gradient(135deg, #ffffff 50%, #0f172a 50%)' : '#ffffff');
+        $wrap.find('.sd-swatch-default .sd-dot').css('background', kind === 'dashboard' ? fallback : kind === 'auto' ? 'linear-gradient(135deg, #ffffff 50%, #0f172a 50%)' : kind === 'badge' ? DASHBOARD_ERROR : '#ffffff');
         $wrap.find('.sd-color-picker').val(hex || hexForPicker(fallback) || '#808080');
     }
     function updateReset($input) {
@@ -854,6 +863,13 @@
         });
         return cfg;
     }
+    // Same rules as the widget: '' and 0 hide the counter, numbers above 99 show as 99+.
+    function badgeText(value) {
+        if (value === '' || value === null || value === undefined) return '';
+        const number = typeof value === 'number' ? value : /^\s*-?\d+(\.\d+)?\s*$/.test(value) ? Number(value) : null;
+        if (number === null) return String(value).trim();
+        return number === 0 ? '' : number > 99 ? '99+' : String(number);
+    }
     function previewAxes(position) {
         if (position === 'center') return { h: 'center', v: 'center' };
         const parts = String(position || 'bottom-right').split('-');
@@ -938,7 +954,8 @@
         });
 
         // Button position: offsets from the edges, centred axes in the middle, always inside the page.
-        const axes = header ? { h: 'right', v: 'top' } : previewAxes(b.position);
+        const besideTitle = header && headerSlotValue() === 'title';
+        const axes = header ? { h: besideTitle ? 'left' : 'right', v: 'top' } : previewAxes(b.position);
         const tw = $trigger[0].offsetWidth || b.size;
         const th = $trigger[0].offsetHeight || b.size;
         const along = function (axis, offset, extent, size) {
@@ -948,10 +965,24 @@
             return Math.max(8, (extent - size) / 2);
         };
         // In the header the button sits at the right end of the bar, vertically centred.
+        const $title = $stage.find('.sd-p-header-title');
+        const titleEnd = 16 + ($title[0] ? $title[0].offsetWidth || $title.text().length * 9 : 0) + 12;
         const rect = header
-            ? { x: W - 12 - tw, y: Math.max(4, (PREVIEW_HEADER - th) / 2), w: tw, h: th }
+            ? { x: besideTitle ? Math.min(titleEnd, W - 12 - tw) : W - 12 - tw, y: Math.max(4, (PREVIEW_HEADER - th) / 2), w: tw, h: th }
             : { x: along(axes.h, b.offsetX, W, tw), y: along(axes.v, b.offsetY, H, th), w: tw, h: th };
         $root.css({ left: rect.x + 'px', top: rect.y + 'px' });
+        const badge = badgeText(b.badge);
+        if (badge) {
+            // Same rule as the widget: away from the edges, so the badge is never cut off.
+            const badgeLeft = axes.h === 'right' || rect.x + rect.w + 8 > W;
+            const badgeBelow = rect.y < 8;
+            $('<span class="sd-p-badge" aria-hidden="true"></span>').text(badge).appendTo($root).css({
+                top: badgeBelow ? 'auto' : '-6px', bottom: badgeBelow ? '-6px' : 'auto', left: badgeLeft ? '-6px' : 'auto', right: badgeLeft ? 'auto' : '-6px',
+                background: b.badgeBackground || DASHBOARD_ERROR,
+                color: b.badgeColor || contrastColor(b.badgeBackground) || '#ffffff',
+                boxShadow: '0 0 0 2px ' + (header ? theme.header : theme.page)
+            });
+        }
         const direction = previewDirection(m, shape, type, axes);
         const n = cfg.items.length;
         if (!radial) {
@@ -1068,6 +1099,9 @@
             if ((field.min !== undefined && value < field.min) || (field.max !== undefined && value > field.max)) return t('err.range', { min: field.min, max: field.max });
             return '';
         case 'boolean': return typeof value === 'boolean' ? '' : t('err.invalid');
+        case 'badge':
+            if (typeof value === 'number') return Number.isFinite(value) ? '' : t('err.number');
+            return typeof value === 'string' && value.length <= field.max ? '' : t('err.maxChars', { max: field.max });
         case 'enum': return field.values.includes(value) ? '' : t('err.invalid');
         case 'icon':
             return isIconValue(value) ? '' : t('err.icon');
@@ -1197,6 +1231,7 @@
         for (const section of SECTIONS) node[section] = Object.assign({}, dropPreserved ? {} : preserved[section], config[section]);
         node.scope = syncScope();
         node.placement = placementValue();
+        node.headerSlot = headerSlotValue();
         node.pages = node.scope === 'pages' ? selectedPages() : [];
         // Let Node-RED save config-node references and maintain their users lists.
         if (node.scope !== 'group') $('#node-input-group').val('');
@@ -1225,6 +1260,12 @@
             if (this.checked) pageSelection.add($(this).attr('data-page'));
             else pageSelection.delete($(this).attr('data-page'));
             validateEditor();
+        });
+        $editor.on('click.speedDial', '#sd-header-slot-buttons button', function () {
+            $('#node-input-headerSlot').val($(this).attr('data-slot'));
+            updateDependent();
+            validateEditor();
+            showMenuInPreview();
         });
         // Header tip: a small transparent button fits the app bar like its other icons.
         $editor.on('click.speedDial', '#sd-header-apply', function () {
@@ -1335,6 +1376,7 @@
     #sd-editor .sd-p-overlay { position: absolute; inset: 0; background: #0006; opacity: 0; pointer-events: none; transition: opacity var(--sd-p-duration, 150ms); }
     #sd-editor .sd-stage.sd-p-open .sd-p-overlay { opacity: 1; pointer-events: auto; }
     #sd-editor .sd-p-root { position: absolute; display: flex; }
+    #sd-editor .sd-p-badge { position: absolute; top: -6px; right: -6px; z-index: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap; pointer-events: none; }
     #sd-editor .sd-p-header { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; padding: 0 16px; box-shadow: 0 1px 3px #0002; font-size: 16px; font-weight: 500; }
     #sd-editor .sd-page-list { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; max-height: 180px; overflow-y: auto; padding: 6px 8px; border: 1px solid var(--red-ui-secondary-border-color, #ccc); border-radius: 4px; }
     #sd-editor .sd-page-list.input-error { border-color: var(--red-ui-form-input-border-error-color, #d6615f); }
@@ -1453,6 +1495,11 @@
                 <option value="header" data-sd-i18n="placement.header"></option>
             </select>
         </div>
+        <div class="form-row" id="sd-header-slot-row">
+            <label data-sd-i18n="label.headerSlot"></label>
+            <span id="sd-header-slot-buttons" class="button-group"><button type="button" class="red-ui-button toggle" data-slot="title" data-sd-i18n="headerSlot.title"></button><button type="button" class="red-ui-button toggle" data-slot="actions" data-sd-i18n="headerSlot.actions"></button></span>
+            <input type="hidden" id="node-input-headerSlot">
+        </div>
         <div class="sd-hint sd-hint-row" id="sd-scope-hint"></div>
         <div class="sd-hint sd-hint-row" id="sd-header-tip"><span data-sd-i18n="header.tip"></span> <button type="button" id="sd-header-apply" class="red-ui-button red-ui-button-small" data-sd-i18n="header.apply"></button></div>
         <input type="hidden" id="node-input-scope">
@@ -1543,6 +1590,16 @@
             <div class="form-row"><label for="sd-button-label" data-sd-i18n="field.label"></label><input type="text" id="sd-button-label" data-section="button" data-key="label" maxlength="160"></div>
             <div class="sd-hint sd-hint-row" data-sd-i18n="hint.label"></div>
             <div class="form-row"><label for="sd-button-tooltip" data-sd-i18n="field.tooltip"></label><input type="text" id="sd-button-tooltip" data-section="button" data-key="tooltip" maxlength="240"></div>
+            <div class="form-row"><label for="sd-button-badge" data-sd-i18n="field.badge"></label><div class="sd-control"><input type="text" id="sd-button-badge" data-section="button" data-key="badge" maxlength="6" style="flex: 0 0 110px"></div></div>
+            <div class="sd-hint sd-hint-row" data-sd-i18n="hint.badge"></div>
+            <div class="form-row">
+                <label for="sd-button-badgeBackground" data-sd-i18n="field.badgeBackground"></label>
+                <div class="sd-control"><span class="sd-color" data-kind="badge"><input type="text" id="sd-button-badgeBackground" class="sd-color-text" data-section="button" data-key="badgeBackground"></span></div>
+            </div>
+            <div class="form-row">
+                <label for="sd-button-badgeColor" data-sd-i18n="field.badgeColor"></label>
+                <div class="sd-control"><span class="sd-color" data-kind="auto"><input type="text" id="sd-button-badgeColor" class="sd-color-text" data-section="button" data-key="badgeColor"></span></div>
+            </div>
             <div class="form-row">
                 <label for="sd-button-color" data-sd-i18n="field.iconColor"></label>
                 <div class="sd-control"><span class="sd-color" data-kind="auto"><input type="text" id="sd-button-color" class="sd-color-text" data-section="button" data-key="color"></span></div>

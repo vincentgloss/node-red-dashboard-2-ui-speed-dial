@@ -10,12 +10,13 @@
     "width": "Breite",
     "height": "Höhe",
     "pages": "Auf",
-    "pagePick": "Seiten"
+    "pagePick": "Seiten",
+    "headerSlot": "Platz"
   },
   "scopeHint": {
     "group": "Der Button bekommt einen festen Platz in der Gruppe, wie andere Widgets auch.",
     "float": "Der Button schwebt über dem Inhalt der Seite.",
-    "header": "Der Button erscheint rechts in der Kopfzeile des Dashboards. Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt er oben rechts."
+    "header": "Der Button erscheint in der Kopfzeile des Dashboards – neben dem Seitentitel oder rechts. Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt er in der passenden oberen Ecke."
   },
   "ref": {
     "group": "eine Gruppe",
@@ -65,7 +66,10 @@
     "id": "ID",
     "topic": "Topic",
     "actionBackground": "Farbe",
-    "closeIcon": "Icon beim Öffnen"
+    "closeIcon": "Icon beim Öffnen",
+    "badge": "Zähler",
+    "badgeBackground": "Farbe des Zählers",
+    "badgeColor": "Schrift des Zählers"
   },
   "hint": {
     "positionGroup": "Bezogen auf die Fläche des Widgets in der Gruppe.",
@@ -80,7 +84,8 @@
     "id": "Wird als msg.action gesendet und von Nachrichten (patch/remove) verwendet. Bei neuen Aktionen wird sie aus der Beschriftung erzeugt.",
     "icon": "Aus PrimeIcons, Material Design Icons (wie bei den anderen Dashboard-Widgets) oder ein eigenes Bild – im Reiter „Eigenes Bild“ hochladen oder per URL einbinden.",
     "closeIcon": "Ersetzt das Icon, solange das Menü offen ist. „Icon beibehalten“ lässt das normale Icon stehen.",
-    "direction": "„Automatisch“ öffnet vom nächsten Bildschirmrand weg. Angeboten werden nur Richtungen, die zu Stil und Position passen."
+    "direction": "„Automatisch“ öffnet vom nächsten Bildschirmrand weg. Angeboten werden nur Richtungen, die zu Stil und Position passen.",
+    "badge": "Kleine Zahl oder kurzer Text oben rechts am Button, z. B. 3 oder !. Leer oder 0 blendet ihn aus, ab 100 erscheint 99+. Meist per Nachricht gesetzt: msg.payload = { button: { badge: 5 } }."
   },
   "position": {
     "top-left": "oben links",
@@ -145,7 +150,9 @@
     "custom": "Eigene Farbe wählen …",
     "hex": "Farbwert (Hex)",
     "hexHint": "Farbwert als Hex, z. B. #2563eb – mit 8 Stellen auch transparent, z. B. #2563eb80",
-    "transparent": "Transparent"
+    "transparent": "Transparent",
+    "badge": "Standard",
+    "badgeHint": "Fehlerfarbe des Dashboard-Themes (Rot)"
   },
   "icon": {
     "search": "Icon suchen (englisch, z. B. lamp, home, power) …",
@@ -245,5 +252,9 @@
   "header": {
     "tip": "Tipp: Klein und transparent passt am besten zu den anderen Symbolen der Kopfzeile.",
     "apply": "Übernehmen"
+  },
+  "headerSlot": {
+    "title": "Neben dem Titel",
+    "actions": "Rechts"
   }
 }
