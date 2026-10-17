@@ -1,7 +1,9 @@
 <script type="text/javascript">
 /* global RED, $, document, window */
 (function () {
-    const NS = 'node-red-dashboard-2-ui-speed-dial/ui-speed-dial:';
+    // npm package name: Node-RED derives the message catalog namespace and the resources path from it.
+    const MODULE = '@vincentgloss/node-red-dashboard-2-ui-speed-dial';
+    const NS = MODULE + '/ui-speed-dial:';
     const SECTIONS = ['button', 'menu', 'theme'];
     const PAYLOAD_TYPES = ['str', 'num', 'bool', 'json'];
     const POSITIONS = ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right'];
@@ -39,7 +41,7 @@
     const COLOR_TRANSPARENT = '#00000000';
     const COLOR_PALETTE = ['#dc2626', '#ea580c', '#d97706', '#16a34a', '#0d9488', '#0284c7', '#2563eb', '#7c3aed', '#db2777', '#475569', '#0f172a', '#ffffff'];
     // Node-RED serves the package's resources/ folder to the editor.
-    const ICON_FONT = 'resources/node-red-dashboard-2-ui-speed-dial/primeicons.woff2';
+    const ICON_FONT = 'resources/' + MODULE + '/primeicons.woff2';
     // Material Design Icons: font and names of the installed Dashboard, served by this node.
     const MDI_FONT = 'ui-speed-dial/mdi.woff2';
     const ICON_GRID_LIMIT = 400;
@@ -1327,6 +1329,9 @@
 </script>
 
 <style>
+    /* Node-RED sizes the edit tray from the natural width of its content; long hint texts would ask for ~950 px and,
+       in a narrower window, push controls out of view. With this, the tray uses its standard width and text wraps. */
+    #sd-editor { contain: inline-size; }
     #sd-editor .sd-banner { padding: 8px 10px; margin: 0 0 10px; border-left: 3px solid #c90; background: var(--red-ui-secondary-background, #f3f3f3); white-space: normal; }
     #sd-editor .sd-banner.sd-banner-error { border-left-color: var(--red-ui-text-color-error, #d6615f); color: var(--red-ui-text-color-error, #a00); }
     #sd-editor .form-row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }

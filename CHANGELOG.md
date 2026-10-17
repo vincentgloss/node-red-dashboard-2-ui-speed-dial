@@ -22,5 +22,5 @@ Initial version.
 - Opening direction `auto` (new default) opens away from the nearest screen edge.
 - Icons from PrimeIcons, Material Design Icons (the Dashboard's own set) or own images (upload as data URL up to 16 KB, or `https://…` / root-relative URL), tinted in the icon color.
 - Editor reads the schema and icon list from the node settings, no extra request needed.
-- Example flows: `speed-dial-showcase` (a small dashboard showing every place, style and feature), `speed-dial-demo` and `speed-dial-input-reference` (one function node per input message, including counter, icons and transparency).
+- Example flows: `speed-dial-showcase` (three Dashboard pages showing every place, style and feature), `speed-dial-demo` and `speed-dial-input-reference` (one function node per input message, including counter, icons and transparency).
 - READMEs in English and German with illustrations, quick start, full field reference and troubleshooting.

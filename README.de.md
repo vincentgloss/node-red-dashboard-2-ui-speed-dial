@@ -6,7 +6,7 @@ Die Einrichtung geschieht vollständig im Node-RED-Editor, mit Live-Vorschau und
 
 [English](README.md) | **Deutsch**
 
-![Wo der Speed Dial erscheinen kann: in einer Gruppe, schwebend über der Seite oder in der Kopfzeile des Dashboards](docs/placements.de.svg)
+![Ein Dashboard mit dem Speed Dial: unten rechts eine geöffnete Reihe von Aktionen, neben dem Seitentitel eine Glocke mit Zähler](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/dashboard-home.png)
 
 ---
 
@@ -59,7 +59,7 @@ Entwickelt und getestet mit Node-RED 5.0 und FlowFuse Dashboard 1.33.
 **Im Node-RED-Editor (empfohlen)**
 
 1. Das Menü oben rechts öffnen und **Palette verwalten** wählen.
-2. In den Tab **Installation** wechseln und nach `node-red-dashboard-2-ui-speed-dial` suchen.
+2. In den Tab **Installation** wechseln und nach `@vincentgloss/node-red-dashboard-2-ui-speed-dial` suchen.
 3. Auf **Installieren** klicken.
 
 **Über die Kommandozeile**
@@ -67,7 +67,7 @@ Entwickelt und getestet mit Node-RED 5.0 und FlowFuse Dashboard 1.33.
 Im Node-RED-Benutzerverzeichnis (meist `~/.node-red`) ausführen und Node-RED anschließend neu starten:
 
 ```sh
-npm install node-red-dashboard-2-ui-speed-dial
+npm install @vincentgloss/node-red-dashboard-2-ui-speed-dial
 ```
 
 > **Hinweis:** Läuft Node-RED als Dienst unter einem eigenen Benutzer, muss im Verzeichnis dieses Benutzers installiert werden. `systemctl show nodered -p User -p ExecStart` zeigt, welches verwendet wird.
@@ -94,6 +94,8 @@ Ein Klick auf eine Aktion sendet:
 
 ## Wo er erscheint
 
+![Wo der Speed Dial erscheinen kann: in einer Gruppe, schwebend über der Seite oder in der Kopfzeile des Dashboards](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/placements.de.png)
+
 Der Editor stellt zwei Fragen: **Anzeigen** und **Auf**.
 
 | Anzeigen | Auf | Typischer Einsatz |
@@ -106,9 +108,13 @@ Der Editor stellt zwei Fragen: **Anzeigen** und **Auf**.
 - In der Kopfzeile passt ein kleiner, transparenter Button am besten. Der Editor bietet das mit einem Klick an.
 - Ist die Kopfzeile in den Dashboard-Einstellungen ausgeblendet, schwebt ein Kopfzeilen-Button stattdessen in der passenden oberen Ecke.
 
+![In der Kopfzeile: eine Glocke mit Zähler neben dem Seitentitel und rechts ein Kontomenü im Stil Menüliste](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/dashboard-header.png)
+
+![In einer Gruppe: ein Button mit Beschriftung, der in der Gruppe eine Reihe beschrifteter Aktionen öffnet](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/dashboard-settings.png)
+
 ## Stile
 
-![Die sechs Stile: Reihe, Reihe mit Text, Menüliste, Halbkreis, Viertelkreis, Kreis](docs/styles.de.svg)
+![Die sechs Stile: Reihe, Reihe mit Text, Menüliste, Halbkreis, Viertelkreis, Kreis](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/styles.de.png)
 
 | Stil | So sieht er aus | Geeignet für |
 |---|---|---|
@@ -121,9 +127,13 @@ Der Editor stellt zwei Fragen: **Anzeigen** und **Auf**.
 
 Die **Öffnungsrichtung** wird automatisch gewählt – weg vom nächsten Bildschirmrand. Sie lässt sich auch selbst festlegen. Passt eine Reihe nicht, weicht sie zur Seite mit dem meisten Platz aus.
 
+![Ein Viertelkreis mit farbigen Aktionen; die Seite ist abgedunkelt, solange das Menü offen ist](https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/dashboard-lights.png)
+
 ## Der Editor
 
 Der Einstellungsdialog hat drei Tabs. Jedes Feld ist zusätzlich in der Hilfe der Node erklärt (Buch-Symbol in der Node-RED-Seitenleiste).
+
+<img src="https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/editor-appearance.de.png" width="430" alt="Der Tab Aussehen: Live-Vorschau mit geöffnetem Menü, Positionsraster, Stil-Karten und Öffnungsrichtung">
 
 ### Aktionen
 
@@ -383,11 +393,11 @@ Ein Klick auf eine sichtbare, aktivierte Aktion sendet eine Nachricht:
 
 ## Beispiele
 
-Import in Node-RED über **Menü → Import → Beispiele → node-red-dashboard-2-ui-speed-dial**.
+Import in Node-RED über **Menü → Import → Beispiele → @vincentgloss/node-red-dashboard-2-ui-speed-dial**.
 
 | Beispiel | Was es zeigt |
 |---|---|
-| **speed-dial-showcase** | Ein eigenes kleines Dashboard unter `/dashboard/speed-dial-showcase`: ein Kontomenü und eine Glocke mit laufendem Zähler in der Kopfzeile, ein klassischer schwebender Button mit eigenem Bild als Icon, ein Viertelkreis mit farbigen Aktionen und ein Button in einer Gruppe. Jede Seite erklärt, was man ausprobieren kann. |
+| **speed-dial-showcase** | Drei Seiten – *Home*, *Lights* und *Settings* –, die zum Dashboard hinzugefügt werden: ein Kontomenü und eine Glocke mit laufendem Zähler in der Kopfzeile, ein klassischer schwebender Button mit eigenem Bild als Icon, ein Viertelkreis mit farbigen Aktionen und ein Button in einer Gruppe. Jede Seite erklärt, was man ausprobieren kann. |
 | **speed-dial-demo** | Mehrere Speed Dials auf verschiedenen Seiten und in einer Gruppe, mit Nachrichten zum Ersetzen, Ändern, Entfernen und Zurücksetzen sowie für einzelne Browser |
 | **speed-dial-input-reference** | Für jede mögliche Eingangsnachricht ein fertiger Function-Node, auch für Zähler, Icons, Transparenz und die Fehlerfälle |
 
@@ -398,6 +408,8 @@ Import in Node-RED über **Menü → Import → Beispiele → node-red-dashboard
 - Die Buttons haben Namen für Screenreader; der Zähler ist Teil des Button-Namens.
 - Bei der Systemeinstellung „Bewegung reduzieren“ wird nicht animiert.
 - Beschriftungen und Tooltips werden immer als reiner Text angezeigt, nie als HTML.
+
+<img src="https://raw.githubusercontent.com/vincentgloss/node-red-dashboard-2-ui-speed-dial/main/docs/dashboard-mobile.png" width="300" alt="Der Speed Dial auf dem Smartphone">
 
 ## Fehlerbehebung
 

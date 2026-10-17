@@ -1,5 +1,5 @@
 {
-  "name": "node-red-dashboard-2-ui-speed-dial",
+  "name": "@vincentgloss/node-red-dashboard-2-ui-speed-dial",
   "version": "1.0.0",
   "description": "Floating action button (speed dial) with configurable actions for FlowFuse Dashboard 2.0",
   "license": "MIT",
@@ -35,6 +35,9 @@
     "README.de.md",
     "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node scripts/assets.cjs && vite build && node scripts/assets.cjs --post",
     "prepack": "npm run build"

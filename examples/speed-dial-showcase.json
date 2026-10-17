@@ -4,13 +4,13 @@
     "type": "tab",
     "label": "Speed Dial Showcase",
     "disabled": false,
-    "info": "Every place, style and feature of ui-speed-dial on one small dashboard.\n\nDeploy, then open /dashboard/speed-dial-showcase. Each page explains what to try. Clicks are shown in the debug sidebar."
+    "info": "Every place, style and feature of ui-speed-dial, on three pages: Home, Lights and Settings.\n\nDeploy, then open the Dashboard and pick one of these pages (/dashboard/speed-dial-home, -lights, -settings). If you already have a Dashboard, the pages are added to it. Each page explains what to try. Clicks are shown in the debug sidebar."
   },
   {
     "id": "sdshow02ui",
     "type": "ui-base",
     "name": "Speed Dial Showcase",
-    "path": "/speed-dial-showcase",
+    "path": "/dashboard",
     "includeClientData": true,
     "acceptsClientConfig": [
       "ui-speed-dial"
@@ -44,7 +44,7 @@
     "type": "ui-page",
     "name": "Home",
     "ui": "sdshow02ui",
-    "path": "/home",
+    "path": "/speed-dial-home",
     "icon": "home",
     "layout": "grid",
     "theme": "sdshow03theme",
@@ -57,7 +57,7 @@
     "type": "ui-page",
     "name": "Lights",
     "ui": "sdshow02ui",
-    "path": "/lights",
+    "path": "/speed-dial-lights",
     "icon": "lightbulb",
     "layout": "grid",
     "theme": "sdshow03theme",
@@ -70,7 +70,7 @@
     "type": "ui-page",
     "name": "Settings",
     "ui": "sdshow02ui",
-    "path": "/settings",
+    "path": "/speed-dial-settings",
     "icon": "cog",
     "layout": "grid",
     "theme": "sdshow03theme",
