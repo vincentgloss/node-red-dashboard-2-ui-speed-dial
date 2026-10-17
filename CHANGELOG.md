@@ -10,6 +10,7 @@ Initial version.
 - Shared state and per-client targeting (`msg._client`).
 - Editor in three tabs (Actions, Appearance, Advanced) with a size grid for groups, visual position and style pickers, a searchable icon picker, S/M/L sizes, IDs and payloads derived from the label, and plain-language errors at the field; English and German.
 - Menu list style (`menu.mode: "menu"`) is a single panel with full-width rows in reading order, distinct from separate labelled buttons.
+- New places: in the Dashboard header (`placement: "header"`, right side of the app bar, floats top right if the header is hidden) and on selected pages (`scope: "pages"` with `pages`); the editor asks "Show" and "On which pages" separately.
 - Node help with a complete input reference: overview of all message types, copy-ready examples, every field with defaults and ranges, client targeting step by step, common mistakes.
 - Configurable icon while the menu is open (`button.closeIcon`, default `pi-times`; empty keeps the normal icon).
 - Transparent background option (`#00000000`); the icon then uses the theme primary (button) or text color (actions).

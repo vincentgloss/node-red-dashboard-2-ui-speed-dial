@@ -39,17 +39,23 @@ module.exports = function (RED) {
   function SpeedDialNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
+    // scope = where it is registered: one group, one page, selected pages or all pages of a dashboard.
+    // "pages" registers on the dashboard like "all" and filters by page in the browser.
     const scope = config.scope || 'page'
+    const refKey = scope === 'group' ? 'group' : scope === 'page' ? 'page' : 'ui'
     try {
-      if (!['group', 'page', 'all'].includes(scope)) throw new Error('Scope must be group, page, or all')
-      const parent = RED.nodes.getNode(scope === 'group' ? config.group : scope === 'page' ? config.page : config.ui)
+      if (!['group', 'page', 'pages', 'all'].includes(scope)) throw new Error('Scope must be group, page, pages, or all')
+      const pages = scope === 'pages' ? (Array.isArray(config.pages) ? config.pages.filter(id => typeof id === 'string' && id) : []) : []
+      if (scope === 'pages' && !pages.length) throw new Error('Select at least one page')
+      const parent = RED.nodes.getNode(config[refKey])
       if (!parent?.register) throw new Error('Select a Dashboard group, page, or UI base for the scope')
       const initial = normalizeConfig({ actions: normalizeEditorActions(config.actions || []), button: config.button || {}, menu: config.menu || {}, theme: config.theme || {} })
-      const base = scope === 'all' ? parent : parent.getBase()
+      const base = refKey === 'ui' ? parent : parent.getBase()
       const manager = new StateManager(initial)
-      const widgetConfig = { ...config, scope, speedDialConfig: initial }
+      const placement = scope === 'group' ? 'group' : config.placement === 'header' ? 'header' : 'float'
+      const widgetConfig = { ...config, scope, placement, pages, speedDialConfig: initial }
       for (const key of ['group', 'page', 'ui']) {
-        if (key !== (scope === 'group' ? 'group' : scope === 'page' ? 'page' : 'ui')) widgetConfig[key] = ''
+        if (key !== refKey) widgetConfig[key] = ''
       }
       delete widgetConfig.actions
       const evts = {

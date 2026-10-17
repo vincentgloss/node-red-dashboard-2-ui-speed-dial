@@ -6,7 +6,7 @@ Ein schwebender Aktionsbutton für [FlowFuse Dashboard 2.0](https://dashboard.fl
 
 ## Funktionen
 
-- Schwebender Button in einer Ecke, an einem Rand oder in der Bildschirmmitte – oder innerhalb einer Dashboard-Gruppe
+- Schwebender Button in einer Ecke, an einem Rand oder in der Bildschirmmitte – in einer Dashboard-Gruppe oder in der Kopfzeile; auf einer, ausgewählten oder allen Seiten
 - Aktionen als Reihe, als Voll-, Halb- oder Viertelkreis oder als beschriftetes Menü
 - Jede Aktion sendet ihren eigenen Payload (Text, Zahl, true/false, JSON oder `null`) und optional ein Topic
 - Übernimmt automatisch die Farben des Dashboard-Themes – oder eigene Farben und Größen
@@ -33,7 +33,7 @@ npm install node-red-dashboard-2-ui-speed-dial
 ## Erste Schritte
 
 1. **speed dial** aus dem Bereich *Dashboard 2* der Palette in den Flow ziehen.
-2. Festlegen, wo er erscheint: auf einer Seite, auf allen Seiten oder in einer Gruppe.
+2. Festlegen, wo er erscheint: in einer Gruppe, schwebend über der Seite oder in der Kopfzeile – und auf welchen Seiten (einer, ausgewählten oder allen).
 3. Im Tab **Aktionen** die Aktionen anlegen – jeweils mit Beschriftung, Icon und Payload.
 4. Den Ausgang mit dem restlichen Flow verbinden und deployen.
 
@@ -51,7 +51,7 @@ Ein Klick auf eine Aktion sendet:
 
 ## Einstellungen
 
-Oben wird festgelegt, wo der Button erscheint: in einer Gruppe (Größe wie bei anderen Widgets über das Raster), schwebend auf einer Seite oder auf allen Seiten.
+Oben wird festgelegt, wo der Button erscheint: in einer Gruppe (Größe wie bei anderen Widgets über das Raster), schwebend über der Seite oder rechts in der Kopfzeile des Dashboards – jeweils auf einer Seite, auf ausgewählten Seiten oder auf allen Seiten.
 
 | Tab | Was eingestellt wird |
 |---|---|

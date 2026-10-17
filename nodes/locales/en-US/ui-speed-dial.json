@@ -8,22 +8,20 @@
     "ui": "Dashboard",
     "size": "Size",
     "width": "Width",
-    "height": "Height"
-  },
-  "scope": {
-    "group": "In a group's layout",
-    "page": "Floating on one page",
-    "all": "Floating on all pages"
+    "height": "Height",
+    "pages": "On",
+    "pagePick": "Pages"
   },
   "scopeHint": {
     "group": "The button gets a fixed place in the group, like other widgets.",
-    "page": "The button floats above the selected page.",
-    "all": "The button floats above every page of the dashboard."
+    "float": "The button floats above the page content.",
+    "header": "The button appears on the right of the Dashboard header. If the header is hidden in the Dashboard settings, it floats at the top right."
   },
   "ref": {
     "group": "a group",
     "page": "a page",
-    "all": "a dashboard"
+    "all": "a dashboard",
+    "pages": "a dashboard"
   },
   "tab": {
     "actions": "Actions",
@@ -214,7 +212,8 @@
     "depth": "The JSON is nested too deeply.",
     "tooLarge": "The content is too large.",
     "maxActions": "At most {{max}} actions are possible.",
-    "configSize": "The configuration is too large overall. Please shrink actions or payloads."
+    "configSize": "The configuration is too large overall. Please shrink actions or payloads.",
+    "selectPages": "Please select at least one page."
   },
   "preview": {
     "example": "Action {{n}}",
@@ -228,5 +227,23 @@
     "sent": "A click on “{{label}}” sends msg.action = \"{{id}}\" with the action's payload.",
     "sentExample": "“{{label}}” is only an example and sends nothing.",
     "title": "Preview"
+  },
+  "placement": {
+    "group": "In a group's layout",
+    "float": "Floating over the page",
+    "header": "In the header"
+  },
+  "pageMode": {
+    "page": "One page",
+    "pages": "Selected pages",
+    "all": "All pages"
+  },
+  "pages": {
+    "none": "This dashboard has no pages yet.",
+    "missing": "{{count}} stored page(s) no longer exist; they are removed on save."
+  },
+  "header": {
+    "tip": "Tip: small and transparent fits the other header icons best.",
+    "apply": "Apply"
   }
 }
