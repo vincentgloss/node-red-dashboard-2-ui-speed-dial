@@ -1,7 +1,7 @@
 {
   "name": "@vincentgloss/node-red-dashboard-2-ui-speed-dial",
   "version": "1.0.0",
-  "description": "Floating action button (speed dial) with configurable actions for FlowFuse Dashboard 2.0",
+  "description": "Floating action button (FAB) and speed dial menu for Node-RED FlowFuse Dashboard 2.0: row, menu list or radial circle, floating, in a group or in the header, with Material Design icons, badge counter and runtime control",
   "license": "MIT",
   "author": "vincentgloss",
   "repository": {
@@ -15,12 +15,28 @@
   "keywords": [
     "node-red",
     "node-red-dashboard-2",
+    "flowfuse",
+    "flowfuse-dashboard",
     "dashboard",
-    "speed-dial",
-    "primevue",
+    "dashboard-2",
+    "ui",
+    "widget",
     "floating-action-button",
     "fab",
-    "flowfuse"
+    "speed-dial",
+    "speeddial",
+    "action-button",
+    "action-menu",
+    "quick-actions",
+    "menu",
+    "radial-menu",
+    "circle-menu",
+    "header",
+    "badge",
+    "material-design-icons",
+    "primeicons",
+    "primevue",
+    "vue"
   ],
   "engines": {
     "node": ">=18"

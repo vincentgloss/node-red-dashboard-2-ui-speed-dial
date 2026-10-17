@@ -1,6 +1,6 @@
-# Speed Dial für FlowFuse Dashboard
+# Speed Dial – Floating Action Button für FlowFuse Dashboard
 
-Ein schwebender Aktionsbutton für [FlowFuse Dashboard 2.0](https://dashboard.flowfuse.com/). Ein Klick öffnet ein kompaktes Menü mit Aktionen, und jede Aktion sendet eine Nachricht in deinen Flow.
+Ein schwebender Aktionsbutton (Floating Action Button, FAB) mit Speed-Dial-Menü für [FlowFuse Dashboard 2.0](https://dashboard.flowfuse.com/), das Dashboard für Node-RED. Ein Klick öffnet ein kompaktes Menü mit Aktionen – als Reihe, Menüliste oder Kreis –, und jede Aktion sendet eine Nachricht in deinen Flow.
 
 Die Einrichtung geschieht vollständig im Node-RED-Editor, mit Live-Vorschau und ohne eine Zeile Code. Wer mehr braucht, kann zur Laufzeit jeden Teil aus dem Flow heraus ändern.
 
