@@ -204,7 +204,7 @@
     "page": "",
     "group": "",
     "order": 1,
-    "actions": [{"id":"global-action","label":"UI-wide action","icon":"pi-globe","payload":{"scope":"all"},"payloadType":"json"}],
+    "actions": [{"id":"global-action","label":"UI-wide action","icon":"pi-globe","payload":"{\"scope\":\"all\"}","payloadType":"json"}],
     "button": {"icon":"pi-globe","label":"UI-wide actions","position":"top-left","offsetX":24,"offsetY":24},
     "menu": {"direction":"down","mode":"speed-dial","showLabels":false},
     "theme": {"mode":"auto"},

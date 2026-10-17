@@ -499,10 +499,8 @@
         const $swatches = $('<div class="sd-swatches" role="radiogroup"></div>');
         $('<button type="button" class="sd-swatch sd-swatch-default" role="radio" data-color=""><span class="sd-dot"></span><span class="sd-swatch-text"></span></button>')
             .attr('title', t('color.' + kind + 'Hint')).appendTo($swatches).find('.sd-swatch-text').text(t('color.' + kind));
-        if (kind !== 'auto') {
-            $('<button type="button" class="sd-swatch sd-swatch-transparent" role="radio"></button>')
-                .attr({ 'data-color': COLOR_TRANSPARENT, title: t('color.transparent'), 'aria-label': t('color.transparent') }).appendTo($swatches);
-        }
+        $('<button type="button" class="sd-swatch sd-swatch-transparent" role="radio"></button>')
+            .attr({ 'data-color': COLOR_TRANSPARENT, title: t('color.transparent'), 'aria-label': t('color.transparent') }).appendTo($swatches);
         COLOR_PALETTE.forEach(function (color) {
             $('<button type="button" class="sd-swatch" role="radio"></button>').attr({ 'data-color': color, title: color, 'aria-label': color }).css('background-color', color).appendTo($swatches);
         });
@@ -517,7 +515,7 @@
         const $wrap = $text.closest('.sd-color');
         const value = String($text.val() || '').trim();
         const hex = hexForPicker(value);
-        const inPalette = COLOR_PALETTE.includes(value.toLowerCase()) || ($wrap.attr('data-kind') !== 'auto' && value.toLowerCase() === COLOR_TRANSPARENT);
+        const inPalette = COLOR_PALETTE.includes(value.toLowerCase()) || value.toLowerCase() === COLOR_TRANSPARENT;
         const custom = value !== '' && !inPalette;
         $wrap.find('.sd-swatch').each(function () {
             const color = $(this).attr('data-color');
@@ -705,6 +703,8 @@
     function buildActionRow(container, index, data) {
         const item = $.extend(true, {}, data || {});
         const isNew = !item.id;
+        // Earlier versions saved the label placeholder uninterpolated ("Aktion {{n}}"); it was never meant as text.
+        if (!isNew && typeof item.label === 'string' && item.label.indexOf('{{n}}') !== -1) item.label = item.label.replace('{{n}}', String(index + 1));
         const $row = $('<div class="sd-action"></div>').appendTo(container);
         // New actions derive their ID (and a text payload) from the label until the user edits them.
         $row.data('auto', { id: isNew, payload: isNew });
@@ -910,10 +910,10 @@
         const radial = type !== 'linear';
         const labels = m.mode === 'menu' || (m.showLabels && !radial);
 
-        const $root = $('<div class="sd-p-root"></div>').toggleClass('sd-p-shadow', cfg.theme.shadow).toggleClass('sd-p-labelled', labels).toggleClass('sd-p-menu', m.mode === 'menu').toggleClass('sd-p-invisible', !b.visible)
+        const $root = $('<div class="sd-p-root"></div>').toggleClass('sd-p-shadow', cfg.theme.shadow).toggleClass('sd-p-labelled', labels).toggleClass('sd-p-menu', m.mode === 'menu').toggleClass('sd-p-panel-transparent', isTransparent(actionBackground)).toggleClass('sd-p-invisible', !b.visible)
             .css({ '--sd-p-duration': m.duration + 'ms', '--sd-p-gap': m.gap + 'px', '--sd-p-surface': actionBackground, '--sd-p-text': actionColor, '--sd-p-radius': cfg.theme.radius + 'px' }).appendTo($stage);
         const triggerBackground = b.background || theme.primary;
-        const $trigger = $('<button type="button" class="sd-p-button sd-p-trigger"></button>').appendTo($root)
+        const $trigger = $('<button type="button" class="sd-p-button sd-p-trigger"></button>').appendTo($root).toggleClass('sd-p-transparent', isTransparent(triggerBackground))
             .css({ background: triggerBackground, color: b.color || (isTransparent(triggerBackground) ? theme.primary : contrastColor(triggerBackground)), borderRadius: b.radius + 'px', minWidth: b.size + 'px', minHeight: b.size + 'px' })
             .attr({ title: b.tooltip || '', 'aria-expanded': String(open), 'aria-label': b.label || b.tooltip || t('preview.button') }).prop('disabled', !b.enabled);
         // An empty close icon keeps the normal icon while the menu is open.
@@ -930,6 +930,7 @@
             const $action = $('<button type="button" class="sd-p-button sd-p-action"></button>')
                 .attr({ 'data-id': item.id, 'data-label': item.label, title: item.tooltip || (!labels ? item.label : '') || '', 'aria-label': item.label || item.tooltip || item.id })
                 .css({ background: item.background || (m.mode === 'menu' ? 'transparent' : actionBackground), color: item.color || contrastColor(item.background) || actionColor, borderRadius: cfg.theme.radius + 'px', minWidth: m.actionSize + 'px', minHeight: m.actionSize + 'px', width: labels ? 'auto' : m.actionSize + 'px' })
+                .toggleClass('sd-p-transparent', isTransparent(item.background || actionBackground))
                 .prop('disabled', !item.enabled);
             if (item.icon) $action.append(renderIcon($('<span class="sd-icon sd-p-icon"></span>'), item.icon));
             if (labels) $('<span class="sd-p-label"></span>').text(item.label).appendTo($action);
@@ -1351,6 +1352,8 @@
     #sd-editor .sd-p-labelled .sd-p-action { justify-content: flex-start; max-width: 280px; }
     #sd-editor .sd-p-menu .sd-p-list { gap: 0; padding: 4px; background: var(--sd-p-surface); color: var(--sd-p-text); border: 1px solid #8884; border-radius: var(--sd-p-radius); }
     #sd-editor .sd-p-menu.sd-p-shadow .sd-p-list { box-shadow: 0 6px 20px #0003; }
+    #sd-editor .sd-p-root .sd-p-button.sd-p-transparent { border-color: transparent; box-shadow: none; }
+    #sd-editor .sd-p-menu.sd-p-panel-transparent .sd-p-list { border-color: transparent; box-shadow: none; }
     #sd-editor .sd-p-menu .sd-p-item { transform: none; }
     #sd-editor .sd-p-menu .sd-p-list .sd-p-action { width: 100% !important; min-height: 40px !important; padding: 8px 12px; border: 0; border-radius: calc(var(--sd-p-radius) * .6) !important; box-shadow: none; }
     #sd-editor .sd-p-menu .sd-p-list .sd-p-action:not(:disabled):hover { filter: none; background-image: linear-gradient(rgba(128, 128, 128, .14), rgba(128, 128, 128, .14)); }

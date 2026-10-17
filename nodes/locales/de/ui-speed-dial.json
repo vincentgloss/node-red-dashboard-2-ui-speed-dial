@@ -157,26 +157,26 @@
     "url": "Bildadresse",
     "urlPlaceholder": "/icons/lampe.svg oder https://…",
     "apply": "Übernehmen",
-    "imageTips": "Das Bild wird wie die anderen Icons in der Icon-Farbe eingefärbt – am besten eignen sich einfarbige Symbole mit transparentem Hintergrund (SVG). Hochgeladene Bilder werden im Flow gespeichert (max. {{kb}} KB). Eine Adresse wie /icons/lampe.svg zeigt auf den httpStatic-Ordner von Node-RED.",
+    "imageTips": "Das Bild wird wie die anderen Icons in der Icon-Farbe eingefärbt – am besten eignen sich einfarbige Symbole mit transparentem Hintergrund (SVG). Hochgeladene Bilder werden im Flow gespeichert (max. __kb__ KB). Eine Adresse wie /icons/lampe.svg zeigt auf den httpStatic-Ordner von Node-RED.",
     "loading": "Icons werden geladen …",
     "unavailable": "Material Design Icons sind nicht verfügbar (Dashboard-Paket nicht gefunden).",
-    "more": "{{shown}} von {{total}} angezeigt – Suchbegriff eingeben, um einzugrenzen.",
+    "more": "__shown__ von __total__ angezeigt – Suchbegriff eingeben, um einzugrenzen.",
     "ownImage": "eigenes Bild",
     "errType": "Bitte eine SVG-, PNG-, WebP-, GIF- oder JPG-Datei wählen.",
-    "errSize": "Das Bild ist {{size}} KB groß, erlaubt sind höchstens {{kb}} KB. Tipp: SVG verwenden oder das Bild kleiner speichern.",
+    "errSize": "Das Bild ist __size__ KB groß, erlaubt sind höchstens __kb__ KB. Tipp: SVG verwenden oder das Bild kleiner speichern.",
     "errRead": "Die Datei konnte nicht gelesen werden.",
     "errUrl": "Bitte eine Adresse eingeben, die mit /, http:// oder https:// beginnt (ohne Leerzeichen und Anführungszeichen).",
     "keep": "Icon beibehalten"
   },
   "reset": {
-    "title": "Auf Standard ({{value}}) zurücksetzen"
+    "title": "Auf Standard (__value__) zurücksetzen"
   },
   "actions": {
     "add": "Aktion hinzufügen",
     "collapseAll": "Alle einklappen",
     "expandAll": "Alle ausklappen",
     "empty": "Noch keine Aktionen. Mit „Aktion hinzufügen“ die erste anlegen.",
-    "newLabel": "Aktion {{n}}",
+    "newLabel": "Aktion __n__",
     "more": "Weitere Optionen",
     "noLabel": "(ohne Beschriftung)",
     "hidden": " · versteckt",
@@ -190,33 +190,33 @@
     "drop": "Entfernen und Dashboard-Theme verwenden"
   },
   "err": {
-    "unavailable": "Der Editor konnte nicht geladen werden: {{message}}",
+    "unavailable": "Der Editor konnte nicht geladen werden: __message__",
     "schemaIncomplete": "Unvollständige Daten vom Server.",
-    "http": "HTTP {{status}}",
+    "http": "HTTP __status__",
     "network": "Netzwerkfehler",
     "summary": "Bitte die markierten Felder prüfen.",
-    "summaryTabs": "Bitte die markierten Felder prüfen (Tab: {{tabs}}).",
-    "selectRef": "Bitte {{what}} auswählen.",
+    "summaryTabs": "Bitte die markierten Felder prüfen (Tab: __tabs__).",
+    "selectRef": "Bitte __what__ auswählen.",
     "required": "Bitte ausfüllen.",
     "number": "Bitte eine Zahl eingeben.",
-    "range": "Erlaubt sind Werte von {{min}} bis {{max}}.",
+    "range": "Erlaubt sind Werte von __min__ bis __max__.",
     "invalid": "Ungültiger Wert.",
     "icon": "Unbekanntes Icon oder ungültige Bildadresse – bitte im Icon-Feld neu wählen.",
     "color": "Bitte eine Farbe wählen oder einen Hex-Wert wie #2563eb eingeben.",
     "idFormat": "Nur Buchstaben, Ziffern und _ . : - erlaubt, Beginn mit Buchstabe oder Ziffer, höchstens 64 Zeichen.",
-    "maxChars": "Höchstens {{max}} Zeichen.",
+    "maxChars": "Höchstens __max__ Zeichen.",
     "dupId": "Diese ID hat schon eine andere Aktion.",
     "bool": "Bitte true oder false wählen.",
     "json": "Kein gültiges JSON, z. B. {\"an\": true}.",
     "payloadNumber": "Keine gültige Zahl.",
     "depth": "Das JSON ist zu tief verschachtelt.",
     "tooLarge": "Der Inhalt ist zu groß.",
-    "maxActions": "Es sind höchstens {{max}} Aktionen möglich.",
+    "maxActions": "Es sind höchstens __max__ Aktionen möglich.",
     "configSize": "Die Konfiguration ist insgesamt zu groß. Bitte Aktionen oder Payloads verkleinern.",
     "selectPages": "Bitte mindestens eine Seite auswählen."
   },
   "preview": {
-    "example": "Aktion {{n}}",
+    "example": "Aktion __n__",
     "button": "Speed Dial",
     "hint": "Vorschau – zum Ausprobieren auf den Button klicken.",
     "hintOpen": "Eine Aktion anklicken oder daneben klicken, um das Menü zu schließen.",
@@ -224,8 +224,8 @@
     "invisible": "Der Button ist ausgeblendet (Tab „Erweitert“) und erscheint im Dashboard nicht.",
     "examples": "Gezeigt werden Beispiel-Aktionen, bis im Tab „Aktionen“ eigene angelegt sind.",
     "noVisible": "Alle Aktionen sind ausgeblendet.",
-    "sent": "Ein Klick auf „{{label}}“ sendet msg.action = \"{{id}}\" mit dem Payload der Aktion.",
-    "sentExample": "„{{label}}“ ist nur ein Beispiel und sendet nichts.",
+    "sent": "Ein Klick auf „__label__“ sendet msg.action = \"__id__\" mit dem Payload der Aktion.",
+    "sentExample": "„__label__“ ist nur ein Beispiel und sendet nichts.",
     "title": "Vorschau"
   },
   "placement": {
@@ -240,7 +240,7 @@
   },
   "pages": {
     "none": "Dieses Dashboard hat noch keine Seiten.",
-    "missing": "{{count}} gespeicherte Seite(n) gibt es nicht mehr; sie werden beim Speichern entfernt."
+    "missing": "__count__ gespeicherte Seite(n) gibt es nicht mehr; sie werden beim Speichern entfernt."
   },
   "header": {
     "tip": "Tipp: Klein und transparent passt am besten zu den anderen Symbolen der Kopfzeile.",

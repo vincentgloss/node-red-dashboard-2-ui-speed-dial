@@ -157,26 +157,26 @@
     "url": "Image address",
     "urlPlaceholder": "/icons/lamp.svg or https://…",
     "apply": "Apply",
-    "imageTips": "Like the other icons the image is tinted in the icon color – single-color symbols with a transparent background (SVG) work best. Uploaded images are stored in the flow (max. {{kb}} KB). An address like /icons/lamp.svg points to the httpStatic folder of Node-RED.",
+    "imageTips": "Like the other icons the image is tinted in the icon color – single-color symbols with a transparent background (SVG) work best. Uploaded images are stored in the flow (max. __kb__ KB). An address like /icons/lamp.svg points to the httpStatic folder of Node-RED.",
     "loading": "Loading icons …",
     "unavailable": "Material Design Icons are not available (Dashboard package not found).",
-    "more": "Showing {{shown}} of {{total}} – type to narrow the search.",
+    "more": "Showing __shown__ of __total__ – type to narrow the search.",
     "ownImage": "own image",
     "errType": "Please choose an SVG, PNG, WebP, GIF or JPG file.",
-    "errSize": "The image has {{size}} KB, at most {{kb}} KB are allowed. Tip: use SVG or save the image smaller.",
+    "errSize": "The image has __size__ KB, at most __kb__ KB are allowed. Tip: use SVG or save the image smaller.",
     "errRead": "The file could not be read.",
     "errUrl": "Please enter an address starting with /, http:// or https:// (no spaces or quotes).",
     "keep": "Keep icon"
   },
   "reset": {
-    "title": "Reset to default ({{value}})"
+    "title": "Reset to default (__value__)"
   },
   "actions": {
     "add": "Add action",
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",
     "empty": "No actions yet. Use “Add action” to create the first one.",
-    "newLabel": "Action {{n}}",
+    "newLabel": "Action __n__",
     "more": "More options",
     "noLabel": "(no label)",
     "hidden": " · hidden",
@@ -190,33 +190,33 @@
     "drop": "Remove them and use the Dashboard theme"
   },
   "err": {
-    "unavailable": "The editor could not be loaded: {{message}}",
+    "unavailable": "The editor could not be loaded: __message__",
     "schemaIncomplete": "Incomplete data from the server.",
-    "http": "HTTP {{status}}",
+    "http": "HTTP __status__",
     "network": "network error",
     "summary": "Please check the highlighted fields.",
-    "summaryTabs": "Please check the highlighted fields (tab: {{tabs}}).",
-    "selectRef": "Please select {{what}}.",
+    "summaryTabs": "Please check the highlighted fields (tab: __tabs__).",
+    "selectRef": "Please select __what__.",
     "required": "Please fill in.",
     "number": "Please enter a number.",
-    "range": "Allowed values are {{min}} to {{max}}.",
+    "range": "Allowed values are __min__ to __max__.",
     "invalid": "Invalid value.",
     "icon": "Unknown icon or invalid image address – please pick it again in the icon field.",
     "color": "Please pick a color or enter a hex value like #2563eb.",
     "idFormat": "Only letters, digits and _ . : - are allowed, starting with a letter or digit, at most 64 characters.",
-    "maxChars": "At most {{max}} characters.",
+    "maxChars": "At most __max__ characters.",
     "dupId": "Another action already uses this ID.",
     "bool": "Please choose true or false.",
     "json": "Not valid JSON, e.g. {\"on\": true}.",
     "payloadNumber": "Not a valid number.",
     "depth": "The JSON is nested too deeply.",
     "tooLarge": "The content is too large.",
-    "maxActions": "At most {{max}} actions are possible.",
+    "maxActions": "At most __max__ actions are possible.",
     "configSize": "The configuration is too large overall. Please shrink actions or payloads.",
     "selectPages": "Please select at least one page."
   },
   "preview": {
-    "example": "Action {{n}}",
+    "example": "Action __n__",
     "button": "Speed dial",
     "hint": "Preview – click the button to try it.",
     "hintOpen": "Click an action, or next to the menu to close it.",
@@ -224,8 +224,8 @@
     "invisible": "The button is hidden (Advanced tab) and does not appear in the dashboard.",
     "examples": "Example actions are shown until you add your own in the Actions tab.",
     "noVisible": "All actions are hidden.",
-    "sent": "A click on “{{label}}” sends msg.action = \"{{id}}\" with the action's payload.",
-    "sentExample": "“{{label}}” is only an example and sends nothing.",
+    "sent": "A click on “__label__” sends msg.action = \"__id__\" with the action's payload.",
+    "sentExample": "“__label__” is only an example and sends nothing.",
     "title": "Preview"
   },
   "placement": {
@@ -240,7 +240,7 @@
   },
   "pages": {
     "none": "This dashboard has no pages yet.",
-    "missing": "{{count}} stored page(s) no longer exist; they are removed on save."
+    "missing": "__count__ stored page(s) no longer exist; they are removed on save."
   },
   "header": {
     "tip": "Tip: small and transparent fits the other header icons best.",

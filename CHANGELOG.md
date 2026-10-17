@@ -13,7 +13,7 @@ Initial version.
 - New places: in the Dashboard header (`placement: "header"`, right side of the app bar, floats top right if the header is hidden) and on selected pages (`scope: "pages"` with `pages`); the editor asks "Show" and "On which pages" separately.
 - Node help with a complete input reference: overview of all message types, copy-ready examples, every field with defaults and ranges, client targeting step by step, common mistakes.
 - Configurable icon while the menu is open (`button.closeIcon`, default `pi-times`; empty keeps the normal icon).
-- Transparent background option (`#00000000`); the icon then uses the theme primary (button) or text color (actions).
+- Transparent option (`#00000000`) for backgrounds and icon/text colors; a transparent background also drops border and shadow, and the icon then uses the theme primary (button) or text color (actions).
 - Interactive, collapsible preview in the Appearance tab: a mock dashboard page in the theme colors where the button opens the menu with the current settings and actions (five examples while there are none).
 - Inline color swatches (theme color, 12 suggestions, custom color via the browser dialog, hex field with transparency).
 - Follows the Dashboard theme by default (primary color for the button, surface colors for the actions); text and icon colors adapt to custom colors automatically.

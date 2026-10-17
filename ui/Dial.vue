@@ -1,13 +1,13 @@
 <template>
   <Teleport to="body">
     <div v-if="cfg.button.visible && anchorVisible && bridge.pageVisible && !bridge.headerPending" ref="root" class="ff-speed-dial"
-      :class="{ 'ff-speed-dial-open': opened, 'ff-speed-dial-labelled': labels, 'ff-speed-dial-shadow': cfg.theme.shadow, 'ff-speed-dial-radial': radial }"
+      :class="{ 'ff-speed-dial-open': opened, 'ff-speed-dial-labelled': labels, 'ff-speed-dial-shadow': cfg.theme.shadow, 'ff-speed-dial-radial': radial, 'ff-speed-dial-panel-transparent': transparent(cfg.theme.background) }"
       :data-widget="widgetId" :data-direction="direction" :data-shape="primeType" :data-mode="cfg.menu.mode" :style="rootStyle" @keydown.capture="keydown">
       <div v-if="opened && cfg.menu.overlay" class="ff-speed-dial-overlay" aria-hidden="true" @pointerdown="close(true)" />
       <SpeedDial ref="dial" :visible="opened" @show="opened=true" @hide="opened=false" :model="model" :direction="direction" :type="primeType" :radius="radiusValue" unstyled
         :disabled="!cfg.button.enabled" :hide-on-click-outside="false" :transition-delay="0" :pt="passThrough">
         <template #button="{ toggleCallback }">
-          <button ref="trigger" class="ff-speed-dial-button ff-speed-dial-trigger" type="button" :disabled="!cfg.button.enabled"
+          <button ref="trigger" class="ff-speed-dial-button ff-speed-dial-trigger" :class="{ 'ff-speed-dial-transparent': transparent(cfg.button.background) }" type="button" :disabled="!cfg.button.enabled"
             :aria-label="cfg.button.label || cfg.button.tooltip || 'Actions'" :aria-expanded="opened" aria-haspopup="menu"
             :aria-controls="menuId" :title="cfg.button.tooltip || undefined" :style="buttonStyle" @click="toggle(toggleCallback, $event)">
             <span v-if="triggerIcon" v-bind="iconProps(triggerIcon)" aria-hidden="true" />
@@ -15,7 +15,7 @@
           </button>
         </template>
         <template #item="{ item }">
-          <button class="ff-speed-dial-button ff-speed-dial-action" type="button" role="menuitem" :data-action="item.id"
+          <button class="ff-speed-dial-button ff-speed-dial-action" :class="{ 'ff-speed-dial-transparent': transparent(item.background || cfg.theme.background) }" type="button" role="menuitem" :data-action="item.id"
             :tabindex="opened && item.enabled ? 0 : -1" :disabled="!item.enabled || !cfg.button.enabled" :aria-label="item.label || item.tooltip || item.id"
             :title="item.tooltip || (!labels ? item.label : undefined)" :style="actionStyle(item)" @click="choose(item)">
             <span v-if="item.icon" v-bind="iconProps(item.icon)" aria-hidden="true" />
@@ -214,6 +214,7 @@ export default {
       const image = `url("${icon}")`
       return { class: ['ff-speed-dial-icon', 'ff-speed-dial-image'], style: { maskImage: image, WebkitMaskImage: image } }
     },
+    transparent (hex) { return isTransparent(hex) },
     actionStyle (item) { return { background: item.background || undefined, color: item.color || contrastColor(item.background) || undefined } },
     close (focus) { this.$refs.dial?.hide(); this.opened = false; if (focus) this.$nextTick(() => this.$refs.trigger?.focus()) },
     toggle (callback, event) {
@@ -340,6 +341,9 @@ export default {
 /* Menu list: one panel with full-width rows in reading order, instead of separate buttons. */
 .ff-speed-dial[data-mode="menu"] .ff-speed-dial-list { flex-direction:column !important; gap:0; padding:4px; background:var(--sd-background); color:var(--sd-color); border:1px solid #8884; border-radius:var(--sd-radius); }
 .ff-speed-dial[data-mode="menu"].ff-speed-dial-shadow .ff-speed-dial-list { box-shadow:0 6px 20px #0003; }
+/* A transparent background means nothing but the icon: no border and no shadow either. */
+.ff-speed-dial .ff-speed-dial-button.ff-speed-dial-transparent { border-color:transparent; box-shadow:none; }
+.ff-speed-dial[data-mode="menu"].ff-speed-dial-panel-transparent .ff-speed-dial-list { border-color:transparent; box-shadow:none; }
 .ff-speed-dial[data-mode="menu"]:not(.ff-speed-dial-open) .ff-speed-dial-item { transform:none; }
 .ff-speed-dial[data-mode="menu"] .ff-speed-dial-list .ff-speed-dial-action { width:100%; max-width:min(280px, calc(100vw - 32px)); min-height:40px; padding:8px 12px; border:0; border-radius:calc(var(--sd-radius) * .6); background:transparent; box-shadow:none; }
 .ff-speed-dial[data-mode="menu"] .ff-speed-dial-list .ff-speed-dial-action:not(:disabled):hover { filter:none; background:color-mix(in srgb, currentColor 10%, transparent); }
